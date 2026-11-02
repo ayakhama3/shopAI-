@@ -1,0 +1,561 @@
+﻿<!DOCTYPE html>
+<html class="light" lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ShopAI | L'Excellence du Shopping au Maroc</title>
+
+<script src="/static/js/toast.js"></script>
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/cart.js"></script>
+<script src="/static/js/nav.js"></script>
+
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+<style>
+  body { font-family:'Inter',sans-serif; }
+  h1,h2,h3,h4,h5 { font-family:'Montserrat',sans-serif; }
+  .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; }
+  .hide-scrollbar::-webkit-scrollbar { display:none; }
+  .hide-scrollbar { -ms-overflow-style:none; scrollbar-width:none; }
+  .premium-hover { transition:all .3s cubic-bezier(.4,0,.2,1); }
+  .premium-hover:hover { transform:translateY(-4px); box-shadow:0 10px 25px -5px rgba(15,23,42,.08); }
+  .product-card { cursor:pointer; }
+  #user-dropdown { display:none; }
+  #user-dropdown.open { display:block; }
+  .skeleton { animation:pulse 1.5s ease-in-out infinite; background:#e6e8ea; border-radius:.5rem; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+</style>
+
+<script>
+  tailwind.config = {
+    darkMode:"class",
+    theme:{ extend:{ colors:{
+      "error":"#ba1a1a","surface-container-lowest":"#ffffff","on-primary":"#ffffff",
+      "outline":"#76777d","surface-container":"#eceef0","surface":"#f7f9fb",
+      "secondary-container":"#fd8a42","surface-container-high":"#e6e8ea",
+      "surface-variant":"#e0e3e5","background":"#f7f9fb","secondary":"#9b4500",
+      "on-surface":"#191c1e","primary":"#000000","error-container":"#ffdad6",
+      "surface-container-low":"#f2f4f6","on-surface-variant":"#45464d",
+      "outline-variant":"#c6c6cd","on-background":"#191c1e","surface-container-highest":"#e0e3e5"
+    }}}
+  }
+</script>
+</head>
+
+<body class="bg-background text-on-surface overflow-x-hidden">
+
+<!-- ══ SIDEBAR ══ -->
+<nav class="hidden md:flex flex-col h-full py-6 px-4 gap-y-2 bg-surface-container-low border-r border-outline-variant fixed left-0 w-64 z-40">
+  <div class="mb-10 px-2 flex items-center gap-3">
+    <div class="w-10 h-10 bg-primary flex items-center justify-center rounded-lg">
+      <span class="material-symbols-outlined text-white" style="font-variation-settings:'FILL' 1;">smart_toy</span>
+    </div>
+    <div>
+      <h1 class="font-bold text-lg text-primary leading-none">ShopAI</h1>
+      <p class="text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">AI-Powered Shopping</p>
+    </div>
+  </div>
+  <a class="bg-secondary-container text-white rounded-lg font-bold flex items-center gap-3 px-3 py-3" href="/">
+    <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">home</span><span class="text-sm">Accueil</span>
+  </a>
+  <a class="text-on-surface-variant hover:bg-surface-variant flex items-center gap-3 px-3 py-3 rounded-lg transition-all" href="/catalogue">
+    <span class="material-symbols-outlined">grid_view</span><span class="text-sm">Catalogue</span>
+  </a>
+  
+  </a>
+  <a class="text-on-surface-variant hover:bg-surface-variant flex items-center gap-3 px-3 py-3 rounded-lg transition-all" href="/favoris">
+    <span class="material-symbols-outlined">favorite</span><span class="text-sm">Favoris</span>
+  </a>
+  <a class="text-on-surface-variant hover:bg-surface-variant flex items-center gap-3 px-3 py-3 rounded-lg transition-all" href="/historique">
+    <span class="material-symbols-outlined">package</span><span class="text-sm">Commandes</span>
+  </a>
+  <a class="text-on-surface-variant hover:bg-surface-variant flex items-center gap-3 px-3 py-3 rounded-lg transition-all" href="/messagerie">
+    <span class="material-symbols-outlined">chat</span><span class="text-sm">Messagerie</span>
+  </a>
+  <div class="mt-auto pt-6 border-t border-outline-variant space-y-1">
+    <a class="text-on-surface-variant hover:bg-surface-variant flex items-center gap-3 px-3 py-3 rounded-lg" href="/parametres">
+      <span class="material-symbols-outlined">settings</span><span class="text-sm">Paramètres</span>
+    </a>
+    <button onclick="window.ShopAIAuth && window.ShopAIAuth.logout()"
+      class="w-full text-left text-red-500 hover:bg-red-50 flex items-center gap-3 px-3 py-3 rounded-lg transition-all">
+      <span class="material-symbols-outlined">logout</span><span class="text-sm">Déconnexion</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ══ MAIN ══ -->
+<main class="md:ml-64 min-h-screen">
+
+  <!-- NAVBAR -->
+  <header class="bg-surface border-b border-outline-variant shadow-sm sticky top-0 z-50">
+    <div class="flex justify-between items-center w-full px-4 md:px-10 py-4 max-w-[1280px] mx-auto">
+      <div class="flex items-center gap-6">
+        <span class="md:hidden material-symbols-outlined text-primary cursor-pointer">menu</span>
+        <div class="relative hidden sm:block">
+          <form onsubmit="handleSearch(event)">
+            <input id="search-input" class="bg-surface-container-low border-none rounded-full pl-12 pr-6 py-2 w-64 lg:w-96 text-sm focus:ring-2 focus:ring-primary" placeholder="Rechercher avec l'IA..." type="text"/>
+            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+          </form>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <button onclick="window.location.href='/messagerie'" class="relative p-2 text-on-surface-variant hover:text-primary">
+          <span class="material-symbols-outlined">notifications</span>
+          <span class="absolute top-2 right-2 w-2 h-2 bg-secondary rounded-full"></span>
+        </button>
+        <button onclick="window.location.href='/favoris'" class="p-2 text-on-surface-variant hover:text-primary">
+          <span class="material-symbols-outlined">favorite</span>
+        </button>
+        <button onclick="window.location.href='/panier_ia'" class="p-2 text-on-surface-variant hover:text-primary relative">
+          <span class="material-symbols-outlined">shopping_cart</span>
+          <span id="cart-badge" class="absolute -top-1 -right-1 w-5 h-5 bg-secondary text-white text-[10px] font-bold rounded-full flex items-center justify-center hidden">0</span>
+        </button>
+        <div class="relative">
+          <button onclick="toggleDropdown()" class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm">
+            <span id="nav-avatar">?</span>
+          </button>
+          <div id="user-dropdown" class="absolute right-0 mt-2 w-48 bg-white border border-outline-variant rounded-xl shadow-lg py-2 z-50">
+            <div class="px-4 py-2 border-b border-outline-variant">
+              <p class="font-bold text-sm text-primary" id="nav-username">Utilisateur</p>
+              <p class="text-xs text-on-surface-variant" id="nav-email"></p>
+            </div>
+            <a href="/historique" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-surface-container-low"><span class="material-symbols-outlined text-sm">package</span> Mes commandes</a>
+            <a href="/favoris"    class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-surface-container-low"><span class="material-symbols-outlined text-sm">favorite</span> Favoris</a>
+            <a href="/parametres" class="flex items-center gap-2 px-4 py-2 text-sm hover:bg-surface-container-low"><span class="material-symbols-outlined text-sm">settings</span> Paramètres</a>
+            <button onclick="window.ShopAIAuth && window.ShopAIAuth.logout()" class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-500 hover:bg-red-50">
+              <span class="material-symbols-outlined text-sm">logout</span> Déconnexion
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="relative h-[500px] w-full bg-surface-container-highest overflow-hidden">
+    <div class="absolute inset-0">
+      <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAL90Oq_bU49IZbeuyi806mBuFUyEeiSw5TGrWEAzcMBe4gJAkaEFleAZvXz_DyUOSlhri20n_Bi3JTSyOjhTiOoFC43vdUVFYbZqTYwm75McdygVwR5nMp_fcHBV00oYS8aZn4T98mCb-qLTiM2OZl5ewOvppkt9luTbmkyF0HjwDOCzudFKGoi-ZQZzGv731EneV3LkOP8b07SC8qV22jCiJcw4s10hfPz01G5f5nrDWvFlcvVJor1BElayOg4k9xmDmRji_PJxo" alt="Hero"/>
+      <div class="absolute inset-0 bg-gradient-to-r from-surface/90 to-transparent"></div>
+    </div>
+    <div class="relative z-10 h-full flex flex-col justify-center px-4 md:px-10 max-w-[1280px] mx-auto">
+      <div class="max-w-xl">
+        <span class="bg-secondary text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest mb-4 inline-block">Offre Exclusive</span>
+        <h2 class="text-4xl font-bold text-primary mb-4">L'Intelligence Artificielle au Service de Votre Style.</h2>
+        <p class="text-lg text-on-surface-variant mb-8">Découvrez des sélections personnalisées basées sur vos envies, avec livraison ultra-rapide partout au Maroc.</p>
+        <div class="flex gap-4">
+          <button onclick="window.location.href='/catalogue'" class="bg-primary text-white px-8 py-3 rounded-lg font-bold premium-hover">Acheter Maintenant</button>
+          <button onclick="window.location.href='/catalogue'" class="bg-white/80 backdrop-blur-md border border-outline-variant px-8 py-3 rounded-lg font-bold premium-hover">En savoir plus</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ VENTES FLASH — DYNAMIQUES depuis /api/produits ══ -->
+  <section class="py-12 px-4 md:px-10 max-w-[1280px] mx-auto">
+    <div class="flex justify-between items-end mb-8">
+      <div>
+        <h3 class="text-3xl font-bold text-primary flex items-center gap-2">
+          <span class="material-symbols-outlined text-secondary" style="font-variation-settings:'FILL' 1;">bolt</span>
+          Ventes Flash
+        </h3>
+        <p class="text-on-surface-variant text-sm">Produits populaires avec les meilleures notes.</p>
+      </div>
+      <div class="flex gap-3 text-center">
+        <div class="bg-primary text-white p-2 rounded-lg min-w-[50px]"><p class="text-2xl font-bold" id="hours">02</p><p class="text-[10px] uppercase">Hrs</p></div>
+        <div class="bg-primary text-white p-2 rounded-lg min-w-[50px]"><p class="text-2xl font-bold" id="minutes">45</p><p class="text-[10px] uppercase">Min</p></div>
+        <div class="bg-primary text-white p-2 rounded-lg min-w-[50px]"><p class="text-2xl font-bold" id="seconds">12</p><p class="text-[10px] uppercase">Sec</p></div>
+      </div>
+    </div>
+    <!-- Conteneur dynamique — rempli par JS depuis /api/produits -->
+    <div id="flash-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- Squelettes -->
+      <div class="bg-white p-4 rounded-xl border border-outline-variant flex flex-col gap-3">
+        <div class="skeleton aspect-square rounded-lg"></div>
+        <div class="skeleton h-5 w-3/4"></div>
+        <div class="skeleton h-5 w-1/2"></div>
+        <div class="skeleton h-10 w-full rounded-lg"></div>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-outline-variant flex flex-col gap-3">
+        <div class="skeleton aspect-square rounded-lg"></div>
+        <div class="skeleton h-5 w-3/4"></div>
+        <div class="skeleton h-5 w-1/2"></div>
+        <div class="skeleton h-10 w-full rounded-lg"></div>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-outline-variant flex flex-col gap-3 hidden sm:flex">
+        <div class="skeleton aspect-square rounded-lg"></div>
+        <div class="skeleton h-5 w-3/4"></div>
+        <div class="skeleton h-5 w-1/2"></div>
+        <div class="skeleton h-10 w-full rounded-lg"></div>
+      </div>
+      <div class="bg-white p-4 rounded-xl border border-outline-variant flex flex-col gap-3 hidden lg:flex">
+        <div class="skeleton aspect-square rounded-lg"></div>
+        <div class="skeleton h-5 w-3/4"></div>
+        <div class="skeleton h-5 w-1/2"></div>
+        <div class="skeleton h-10 w-full rounded-lg"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ RECOMMANDATIONS IA ══ -->
+  <section class="bg-surface-container-low py-16">
+    <div class="px-4 md:px-10 max-w-[1280px] mx-auto">
+      <div class="flex items-center gap-4 mb-4">
+        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+          <span class="material-symbols-outlined text-white" style="font-variation-settings:'FILL' 1;">psychology</span>
+        </div>
+        <div>
+          <h3 class="text-3xl font-bold text-primary">Recommandé pour vous</h3>
+          <p class="text-sm text-on-surface-variant" id="recommendations-source-message">Basé sur vos préférences d'achat intelligentes.</p>
+        </div>
+      </div>
+      <!-- recommendations.js cherche cet id -->
+      <div id="recommendations-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-8">
+        <div class="bg-white p-4 rounded-xl border border-outline-variant flex flex-col gap-3">
+          <div class="skeleton aspect-square rounded-lg"></div>
+          <div class="skeleton h-4 w-3/4"></div>
+          <div class="skeleton h-4 w-1/2"></div>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-outline-variant flex flex-col gap-3">
+          <div class="skeleton aspect-square rounded-lg"></div>
+          <div class="skeleton h-4 w-3/4"></div>
+          <div class="skeleton h-4 w-1/2"></div>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-outline-variant flex flex-col gap-3">
+          <div class="skeleton aspect-square rounded-lg"></div>
+          <div class="skeleton h-4 w-3/4"></div>
+          <div class="skeleton h-4 w-1/2"></div>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-outline-variant flex flex-col gap-3 hidden md:flex">
+          <div class="skeleton aspect-square rounded-lg"></div>
+          <div class="skeleton h-4 w-3/4"></div>
+          <div class="skeleton h-4 w-1/2"></div>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-outline-variant flex flex-col gap-3 hidden lg:flex">
+          <div class="skeleton aspect-square rounded-lg"></div>
+          <div class="skeleton h-4 w-3/4"></div>
+          <div class="skeleton h-4 w-1/2"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BANNER PREMIUM -->
+  <section class="py-12 px-4 md:px-10 max-w-[1280px] mx-auto">
+    <div class="rounded-3xl overflow-hidden bg-primary text-white p-8 md:p-16">
+      <h3 class="text-4xl font-bold mb-6">Passez à ShopAI Premium</h3>
+      <ul class="space-y-4 mb-8">
+        <li class="flex items-center gap-3"><span class="material-symbols-outlined text-secondary">verified</span><span>Livraison Gratuite Illimitée partout au Maroc.</span></li>
+        <li class="flex items-center gap-3"><span class="material-symbols-outlined text-secondary">verified</span><span>Accès anticipé aux ventes flash et exclusivités.</span></li>
+        <li class="flex items-center gap-3"><span class="material-symbols-outlined text-secondary">verified</span><span>Service client prioritaire disponible 24/7.</span></li>
+      </ul>
+      <button onclick="window.location.href='/catalogue'" class="bg-white text-primary px-10 py-4 rounded-xl font-bold premium-hover">Rejoindre pour 99 DH/mois</button>
+    </div>
+  </section>
+
+  <!-- ══ NOUVEAUTÉS — DYNAMIQUES depuis /api/produits ══ -->
+  <section class="py-12 px-4 md:px-10 max-w-[1280px] mx-auto overflow-hidden">
+    <div class="flex justify-between items-center mb-8">
+      <h3 class="text-3xl font-bold text-primary">Nouveautés</h3>
+      <a class="text-primary font-bold hover:underline flex items-center gap-2" href="/catalogue">
+        Voir tout <span class="material-symbols-outlined text-sm">arrow_forward</span>
+      </a>
+    </div>
+    <!-- Conteneur dynamique — rempli par JS depuis /api/produits -->
+    <div id="nouveautes-grid" class="flex gap-6 overflow-x-auto hide-scrollbar pb-8">
+      <div class="min-w-[260px] bg-white rounded-xl border border-outline-variant p-4 flex flex-col gap-3">
+        <div class="skeleton aspect-square rounded-lg"></div>
+        <div class="skeleton h-4 w-1/3"></div>
+        <div class="skeleton h-5 w-3/4"></div>
+        <div class="skeleton h-5 w-1/2"></div>
+      </div>
+      <div class="min-w-[260px] bg-white rounded-xl border border-outline-variant p-4 flex flex-col gap-3">
+        <div class="skeleton aspect-square rounded-lg"></div>
+        <div class="skeleton h-4 w-1/3"></div>
+        <div class="skeleton h-5 w-3/4"></div>
+        <div class="skeleton h-5 w-1/2"></div>
+      </div>
+      <div class="min-w-[260px] bg-white rounded-xl border border-outline-variant p-4 flex flex-col gap-3">
+        <div class="skeleton aspect-square rounded-lg"></div>
+        <div class="skeleton h-4 w-1/3"></div>
+        <div class="skeleton h-5 w-3/4"></div>
+        <div class="skeleton h-5 w-1/2"></div>
+      </div>
+      <div class="min-w-[260px] bg-white rounded-xl border border-outline-variant p-4 flex flex-col gap-3">
+        <div class="skeleton aspect-square rounded-lg"></div>
+        <div class="skeleton h-4 w-1/3"></div>
+        <div class="skeleton h-5 w-3/4"></div>
+        <div class="skeleton h-5 w-1/2"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="bg-surface-container-high w-full py-12 px-4 md:px-10 max-w-[1280px] mx-auto mt-8">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
+      <div>
+        <h4 class="font-bold text-primary mb-4">ShopAI</h4>
+        <p class="text-sm text-on-surface-variant">L'avenir du e-commerce au Maroc, propulsé par l'intelligence artificielle.</p>
+      </div>
+      <div class="flex flex-col gap-3">
+        <h5 class="font-bold text-primary uppercase text-sm tracking-wider">Shopping</h5>
+        <a class="text-on-surface-variant hover:text-primary" href="/catalogue">Catalogues</a>
+        <a class="text-on-surface-variant hover:text-primary" href="/deals">Offres Flash</a>
+        <a class="text-on-surface-variant hover:text-primary" href="/catalogue">Nouveautés</a>
+      </div>
+      <div class="flex flex-col gap-3">
+        <h5 class="font-bold text-primary uppercase text-sm tracking-wider">Aide</h5>
+        <a class="text-on-surface-variant hover:text-primary" href="/historique">Suivi de commande</a>
+        <a class="text-on-surface-variant hover:text-primary" href="/messagerie">Contact</a>
+      </div>
+      <div class="flex flex-col gap-3">
+        <h5 class="font-bold text-primary uppercase text-sm tracking-wider">Newsletter</h5>
+        <p class="text-on-surface-variant text-sm">Inscrivez-vous pour recevoir nos offres IA.</p>
+        <div class="flex gap-2">
+          <input class="bg-surface border-outline-variant rounded-lg px-4 py-2 w-full text-sm" placeholder="Votre email" type="email"/>
+          <button class="bg-primary text-white p-2 rounded-lg"><span class="material-symbols-outlined">send</span></button>
+        </div>
+      </div>
+    </div>
+    <div class="pt-8 border-t border-outline-variant flex justify-between items-center mt-8">
+      <p class="text-xs text-on-surface-variant">© 2024 ShopAI Platform. Tous droits réservés.</p>
+    </div>
+  </footer>
+</main>
+
+<!-- BOTTOM NAV MOBILE -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-outline-variant z-50 flex justify-around items-center py-3">
+  <a class="flex flex-col items-center gap-1 text-primary" href="/">
+    <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">home</span><span class="text-[10px] font-bold">Accueil</span>
+  </a>
+  <a class="flex flex-col items-center gap-1 text-on-surface-variant" href="/catalogue">
+    <span class="material-symbols-outlined">grid_view</span><span class="text-[10px]">Catalogue</span>
+  </a>
+  <a class="flex flex-col items-center gap-1 text-on-surface-variant" href="/favoris">
+    <span class="material-symbols-outlined">favorite</span><span class="text-[10px]">Favoris</span>
+  </a>
+  <a class="flex flex-col items-center gap-1 text-on-surface-variant" href="/panier_ia">
+    <span class="material-symbols-outlined">shopping_cart</span><span class="text-[10px]">Panier</span>
+  </a>
+  <a class="flex flex-col items-center gap-1 text-on-surface-variant" href="/historique">
+    <span class="material-symbols-outlined">person</span><span class="text-[10px]">Profil</span>
+  </a>
+</nav>
+
+<!-- FAB -->
+<button onclick="window.location.href='/catalogue'"
+  class="fixed bottom-24 right-6 md:bottom-10 md:right-10 w-16 h-16 bg-primary text-white rounded-full shadow-xl flex items-center justify-center premium-hover z-50">
+  <span class="material-symbols-outlined text-3xl" style="font-variation-settings:'FILL' 1;">auto_awesome</span>
+</button>
+
+<!-- ══════════════════════════════════════════════════════════════
+     LOGIQUE PAGE — toutes les sections connectées à la vraie DB
+══════════════════════════════════════════════════════════════ -->
+<script>
+// ── Utilitaires ─────────────────────────────────────────────────────────────
+function getToken() {
+  return sessionStorage.getItem('shopai_token') || localStorage.getItem('shopai_token');
+}
+
+function formatPrice(prix) {
+  if (prix == null) return '';
+  return Number(prix).toLocaleString('fr-MA') + ' DH';
+}
+
+function discountPercent(prix) {
+  // Remise fictive entre 10% et 50% selon le prix — visuellement cohérent
+  var pct = [10, 15, 20, 25, 30, 40, 50];
+  return pct[Math.floor(prix) % pct.length];
+}
+
+function showToast(message, type) {
+  if (window.toast) { window.toast(message, type); return; }
+  console.log('[toast]', type, message);
+}
+
+function handleSearch(e) {
+  e.preventDefault();
+  var q = (document.getElementById('search-input').value || '').trim();
+  window.location.href = q ? '/catalogue?q=' + encodeURIComponent(q) : '/catalogue';
+}
+
+function toggleDropdown() { document.getElementById('user-dropdown').classList.toggle('open'); }
+document.addEventListener('click', function(e) {
+  var dd = document.getElementById('user-dropdown');
+  if (!e.target.closest('.relative') && dd.classList.contains('open')) dd.classList.remove('open');
+});
+
+function updateCartBadge() {
+  var cart  = JSON.parse(sessionStorage.getItem('shopai_cart') || '[]');
+  var count = cart.reduce(function(a,p){ return a + (p.quantity||1); }, 0);
+  var badge = document.getElementById('cart-badge');
+  if (badge) { badge.textContent = count; badge.classList.toggle('hidden', count === 0); }
+}
+
+function updateCountdown() {
+  var h = document.getElementById('hours'), m = document.getElementById('minutes'), s = document.getElementById('seconds');
+  if (!h) return;
+  var hours = 2, minutes = 45, seconds = 12;
+  setInterval(function() {
+    if (seconds > 0) seconds--;
+    else { seconds = 59; if (minutes > 0) minutes--; else { minutes = 59; if (hours > 0) hours--; } }
+    h.innerText = hours.toString().padStart(2,'0');
+    m.innerText = minutes.toString().padStart(2,'0');
+    s.innerText = seconds.toString().padStart(2,'0');
+  }, 1000);
+}
+
+// ── Ajouter au panier (via API DB) ──────────────────────────────────────────
+async function addToCart(productId, name, price, e) {
+  if (e) e.stopPropagation();
+  var token = getToken();
+  if (!token) { showToast('Connectez-vous pour ajouter au panier.', 'error'); return; }
+
+  try {
+    var resp = await fetch('/api/cart', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ product_id: productId, quantity: 1 })
+    });
+    if (resp.ok) {
+      showToast('✓ ' + name + ' ajouté au panier !', 'success');
+      // Mettre à jour badge via session locale aussi
+      var cart = JSON.parse(sessionStorage.getItem('shopai_cart') || '[]');
+      var ex = cart.find(function(p){ return p.id === productId; });
+      if (ex) ex.quantity = (ex.quantity || 1) + 1;
+      else cart.push({ id: productId, name: name, price: price, quantity: 1 });
+      sessionStorage.setItem('shopai_cart', JSON.stringify(cart));
+      updateCartBadge();
+    } else {
+      showToast('Erreur ajout au panier.', 'error');
+    }
+  } catch(err) {
+    showToast('Serveur indisponible.', 'error');
+  }
+}
+
+// ── Carte Vente Flash ────────────────────────────────────────────────────────
+function buildFlashCard(p) {
+  var nom   = p.nom || p.name || 'Produit';
+  var prix  = p.prix != null ? p.prix : (p.price || 0);
+  var cat   = p.categorie || p.category || '';
+  var img   = p.image || ('https://placehold.co/400x400?text=' + encodeURIComponent(cat));
+  var note  = parseFloat(p.note || 4.5);
+  var pct   = discountPercent(prix);
+  var prixBarré = Math.round(prix * (100 / (100 - pct)));
+  var stock = Math.floor(Math.random() * 40) + 5;
+  var sold  = Math.floor(Math.random() * 90) + 10;
+
+  var div = document.createElement('div');
+  div.className = 'bg-white p-4 rounded-xl shadow-sm border border-outline-variant premium-hover flex flex-col product-card';
+  div.onclick = function() { window.location.href = '/catalogue'; };
+  div.innerHTML =
+    '<div class="relative aspect-square mb-4 rounded-lg overflow-hidden group">' +
+      '<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" src="' + img + '" alt="' + nom + '" onerror="this.src=\'https://placehold.co/400x400?text=ShopAI\'"/>' +
+      '<span class="absolute top-2 left-2 bg-error text-white text-[10px] font-bold px-2 py-1 rounded">-' + pct + '%</span>' +
+    '</div>' +
+    '<h4 class="font-bold text-lg text-primary mb-1 line-clamp-2">' + nom + '</h4>' +
+    '<p class="font-bold text-primary mb-3">' + formatPrice(prix) +
+      ' <span class="text-on-surface-variant text-sm line-through font-normal ml-1">' + formatPrice(prixBarré) + '</span></p>' +
+    '<div class="mt-auto">' +
+      '<div class="flex justify-between text-[11px] mb-1"><span>Vendu: ' + sold + '%</span><span>' + stock + ' restants</span></div>' +
+      '<div class="w-full h-1.5 bg-surface-container rounded-full overflow-hidden"><div class="h-full bg-secondary rounded-full" style="width:' + sold + '%"></div></div>' +
+      '<button class="mt-3 w-full bg-primary text-white py-2 rounded-lg text-sm font-bold hover:bg-secondary transition-all" onclick="addToCart(' + p.id + ',\'' + nom.replace(/'/g,"\\'")+'\''+ ',' + prix + ',event)">Ajouter au panier</button>' +
+    '</div>';
+  return div;
+}
+
+// ── Carte Nouveauté ──────────────────────────────────────────────────────────
+function buildNouveauteCard(p) {
+  var nom  = p.nom || p.name || 'Produit';
+  var prix = p.prix != null ? p.prix : (p.price || 0);
+  var cat  = p.categorie || p.category || '';
+  var img  = p.image || ('https://placehold.co/400x400?text=' + encodeURIComponent(cat));
+
+  var div = document.createElement('div');
+  div.className = 'min-w-[260px] bg-white rounded-xl border border-outline-variant p-4 premium-hover product-card flex-shrink-0';
+  div.onclick = function() { window.location.href = '/catalogue'; };
+  div.innerHTML =
+    '<div class="aspect-square rounded-lg bg-surface-container overflow-hidden mb-4">' +
+      '<img class="w-full h-full object-cover" src="' + img + '" alt="' + nom + '" onerror="this.src=\'https://placehold.co/400x400?text=ShopAI\'"/>' +
+    '</div>' +
+    '<p class="text-[10px] text-secondary font-bold uppercase mb-1">' + cat + '</p>' +
+    '<h5 class="font-bold text-on-surface mb-2 line-clamp-2">' + nom + '</h5>' +
+    '<p class="text-xl font-bold">' + formatPrice(prix) + '</p>';
+  return div;
+}
+
+// ── Chargement des ventes flash depuis /api/produits ────────────────────────
+async function loadFlashSales() {
+  var grid = document.getElementById('flash-grid');
+  try {
+    // Trier par note décroissante pour avoir les mieux notés
+    var resp = await fetch('/api/produits?sort=rating');
+    var data = await resp.json();
+    var produits = (data.produits || []).slice(0, 4);
+
+    if (!produits.length) return; // garde les squelettes si vide
+
+    grid.innerHTML = '';
+    produits.forEach(function(p) { grid.appendChild(buildFlashCard(p)); });
+  } catch(err) {
+    console.warn('Ventes flash: impossible de charger les produits.', err);
+    // Les squelettes restent visibles — pas d'erreur bloquante
+  }
+}
+
+// ── Chargement des nouveautés depuis /api/produits ──────────────────────────
+async function loadNouveautes() {
+  var grid = document.getElementById('nouveautes-grid');
+  try {
+    // On prend 8 produits en partant du milieu du catalogue (diversité)
+    var resp = await fetch('/api/produits');
+    var data = await resp.json();
+    var all  = data.produits || [];
+    // Prendre 8 produits aléatoires parmi les 100 premiers (DummyJSON réels)
+    var pool = all.slice(0, Math.min(100, all.length));
+    var shuffled = pool.sort(function() { return Math.random() - 0.5; }).slice(0, 8);
+
+    if (!shuffled.length) return;
+
+    grid.innerHTML = '';
+    shuffled.forEach(function(p) { grid.appendChild(buildNouveauteCard(p)); });
+  } catch(err) {
+    console.warn('Nouveautés: impossible de charger les produits.', err);
+  }
+}
+
+// ── Initialisation ───────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  // Auth
+  if (window.ShopAIAuth) {
+    window.ShopAIAuth.checkAuth();
+    var user = window.ShopAIAuth.getUser();
+    if (user) {
+      if (user.role === 'admin') { window.location.href = '/dashboard'; return; }
+      var avatar = document.getElementById('nav-avatar');
+      var uname  = document.getElementById('nav-username');
+      var uemail = document.getElementById('nav-email');
+      if (avatar) avatar.textContent = user.avatar || (user.name||'?').charAt(0).toUpperCase();
+      if (uname)  uname.textContent  = user.name  || 'Utilisateur';
+      if (uemail) uemail.textContent = user.email || '';
+    }
+  }
+  if (window.initNav) window.initNav();
+
+  updateCartBadge();
+  updateCountdown();
+
+  // ✅ Charger les 3 sections dynamiques en parallèle
+  loadFlashSales();
+  loadNouveautes();
+  // recommendations.js s'occupe de #recommendations-grid automatiquement
+});
+</script>
+
+<!-- recommendations.js chargé EN DERNIER (cherche #recommendations-grid dans le DOM) -->
+<script src="/static/js/recommendations.js"></script>
+</body>
+</html>

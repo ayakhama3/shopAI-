@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ajouter Produit - ShopAI</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet"/>
+<style>
+    body { font-family: 'Inter', sans-serif; }
+    h1, .font-heading { font-family: 'Montserrat', sans-serif; }
+    .field-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 6px;
+        letter-spacing: 0.01em;
+    }
+    .input-elegant {
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: 12px;
+        border: 1.5px solid #e2e8f0;
+        background: #f8fafc;
+        font-size: 14px;
+        transition: all 0.15s ease;
+        outline: none;
+    }
+    .input-elegant:focus {
+        border-color: #0f172a;
+        background: #ffffff;
+        box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.06);
+    }
+    .card-elegant {
+        background: #ffffff;
+        border-radius: 20px;
+        border: 1px solid #eef0f3;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.03), 0 8px 24px -8px rgba(0,0,0,0.04);
+        padding: 28px;
+    }
+    .dropzone {
+        position: relative;
+        border: 2px dashed #cbd5e1;
+        border-radius: 16px;
+        background: #f8fafc;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        overflow: hidden;
+    }
+    .dropzone:hover { border-color: #94a3b8; background: #f1f5f9; }
+    .dropzone.dragover {
+        border-color: #0f172a;
+        background: #f0f0f2;
+        transform: scale(1.01);
+    }
+    .dropzone.has-image { border-style: solid; border-color: #e2e8f0; background: #fff; }
+    .btn-primary-elegant {
+        background: #0f172a;
+        color: #fff;
+        font-weight: 700;
+        padding: 14px 0;
+        border-radius: 14px;
+        transition: all 0.15s ease;
+        box-shadow: 0 4px 14px -4px rgba(15,23,42,0.3);
+    }
+    .btn-primary-elegant:hover { background: #1e293b; transform: translateY(-1px); }
+    .btn-primary-elegant:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-ghost-elegant {
+        border: 1.5px solid #e2e8f0;
+        color: #475569;
+        font-weight: 600;
+        padding: 13px 0;
+        border-radius: 14px;
+        transition: all 0.15s ease;
+    }
+    .btn-ghost-elegant:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .toast-elegant {
+        position: fixed; top: 24px; right: 24px; z-index: 100;
+        background: #0f172a; color: #fff; padding: 14px 20px;
+        border-radius: 12px; font-weight: 600; font-size: 14px;
+        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.3);
+        display: flex; align-items: center; gap: 10px;
+        transform: translateY(-12px); opacity: 0;
+        transition: all 0.25s ease;
+        pointer-events: none;
+    }
+    .toast-elegant.show { transform: translateY(0); opacity: 1; }
+    .toast-elegant.error { background: #b91c1c; }
+</style>
+</head>
+
+<body class="bg-slate-100 min-h-screen">
+
+<div id="toast" class="toast-elegant">
+  <span id="toast-text"></span>
+</div>
+
+<div class="max-w-5xl mx-auto p-6 md:p-10">
+
+    <!-- HEADER -->
+    <div class="mb-8 flex items-center justify-between">
+        <div>
+            <h1 id="page-title" class="font-heading text-3xl font-extrabold text-slate-900">Ajouter un produit</h1>
+            <p class="text-slate-500 mt-1">Créez un nouveau produit dans votre catalogue</p>
+        </div>
+        <a href="/admin_catalogue" class="text-sm font-semibold text-slate-500 hover:text-slate-900 transition-colors flex items-center gap-1">
+            ← Retour au catalogue
+        </a>
+    </div>
+
+    <form id="productForm" class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+
+        <!-- LEFT -->
+        <div class="space-y-5 card-elegant">
+
+            <div>
+                <label class="field-label">Nom du produit</label>
+                <input id="name" class="input-elegant" placeholder="Ex: Casque Elite X" required/>
+            </div>
+
+            <div>
+                <label class="field-label">Référence</label>
+                <input id="ref" class="input-elegant" placeholder="REF-001"/>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="field-label">Prix (MAD)</label>
+                    <input id="price" type="number" step="0.01" min="0" class="input-elegant" placeholder="0.00" required/>
+                </div>
+                <div>
+                    <label class="field-label">Stock</label>
+                    <input id="stock" type="number" min="0" class="input-elegant" placeholder="0"/>
+                </div>
+            </div>
+
+            <div>
+                <label class="field-label">Catégorie</label>
+                <select id="category" class="input-elegant">
+                    <option value="Tech">Tech</option>
+                    <option value="Mode">Mode</option>
+                    <option value="Maison">Maison</option>
+                    <option value="Beaute">Beauté</option>
+                    <option value="Sport">Sport</option>
+                    <option value="Accessoires">Accessoires</option>
+                    <option value="Audio">Audio</option>
+                    <option value="Bureau">Bureau</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="field-label">Description</label>
+                <textarea id="description" rows="4" class="input-elegant" placeholder="Description du produit..."></textarea>
+            </div>
+
+        </div>
+
+        <!-- RIGHT -->
+        <div class="space-y-5">
+
+            <!-- IMAGE -->
+            <div class="card-elegant">
+                <label class="field-label">Image produit</label>
+                <p class="text-xs text-slate-400 mb-3">Collez (Ctrl+V), glissez-déposez, ou cliquez pour parcourir</p>
+
+                <div id="dropzone" class="dropzone h-64 flex items-center justify-center" tabindex="0">
+                    <div id="dropzone-placeholder" class="flex flex-col items-center gap-2 text-slate-400 pointer-events-none select-none">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M12 16V4M12 4l-4 4M12 4l4 4" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span class="text-sm font-medium">Aucune image</span>
+                    </div>
+                    <img id="preview" class="w-full h-full object-cover hidden"/>
+                    <button type="button" id="remove-image" class="hidden absolute top-2 right-2 bg-white/90 hover:bg-white text-slate-700 rounded-full w-8 h-8 flex items-center justify-center shadow-md text-sm font-bold">✕</button>
+                    <div id="upload-spinner" class="hidden absolute inset-0 bg-white/70 flex items-center justify-center">
+                        <span class="text-sm font-semibold text-slate-600">Envoi en cours...</span>
+                    </div>
+                </div>
+                <input type="file" id="file-input" accept="image/*" class="hidden"/>
+            </div>
+
+            <!-- STATUS -->
+            <div class="card-elegant">
+                <label class="field-label">Statut</label>
+                <select id="status" class="input-elegant">
+                    <option value="in_stock">En stock</option>
+                    <option value="low_stock">Stock faible</option>
+                    <option value="out_of_stock">Rupture</option>
+                </select>
+            </div>
+
+            <!-- ACTIONS -->
+            <div class="card-elegant space-y-3">
+                <button type="submit" id="submit-btn" class="w-full btn-primary-elegant">
+                    Ajouter le produit
+                </button>
+                <button type="button" id="cancel" class="w-full btn-ghost-elegant">
+                    Annuler
+                </button>
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/admin_add_product.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,391 @@
+﻿<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ShopAI - Mon Portefeuille</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#f7f9fb",
+                        "primary-container": "#131b2e",
+                        "surface-tint": "#565e74",
+                        "on-tertiary-fixed": "#111c2d",
+                        "surface-variant": "#e0e3e5",
+                        "on-secondary-fixed-variant": "#763300",
+                        "on-surface-variant": "#45464d",
+                        "background": "#f7f9fb",
+                        "primary-fixed": "#dae2fd",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed-dim": "#bec6e0",
+                        "on-surface": "#191c1e",
+                        "on-secondary": "#ffffff",
+                        "inverse-on-surface": "#eff1f3",
+                        "secondary-fixed": "#ffdbca",
+                        "on-error": "#ffffff",
+                        "tertiary-container": "#111c2d",
+                        "surface-container-highest": "#e0e3e5",
+                        "surface": "#f7f9fb",
+                        "on-primary-fixed": "#131b2e",
+                        "tertiary-fixed": "#d8e3fb",
+                        "tertiary-fixed-dim": "#bcc7de",
+                        "surface-container-high": "#e6e8ea",
+                        "on-tertiary-fixed-variant": "#3c475a",
+                        "on-primary": "#ffffff",
+                        "secondary": "#9b4500",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "error-container": "#ffdad6",
+                        "on-secondary-container": "#682c00",
+                        "on-background": "#191c1e",
+                        "surface-container-low": "#f2f4f6",
+                        "outline-variant": "#c6c6cd",
+                        "surface-dim": "#d8dadc",
+                        "outline": "#76777d",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#7c839b",
+                        "secondary-fixed-dim": "#ffb68e",
+                        "primary": "#000000",
+                        "on-tertiary-container": "#79849a",
+                        "on-secondary-fixed": "#331200",
+                        "secondary-container": "#fd8a42",
+                        "inverse-primary": "#bec6e0",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#eceef0",
+                        "inverse-surface": "#2d3133",
+                        "tertiary": "#000000",
+                        "on-error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "1rem",
+                        "margin-desktop": "2.5rem",
+                        "stack-sm": "0.5rem",
+                        "stack-lg": "2rem",
+                        "margin-mobile": "1rem",
+                        "gutter": "1.5rem",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Montserrat"],
+                        "headline-lg-mobile": ["Montserrat"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "price-display": ["Montserrat"],
+                        "headline-lg": ["Montserrat"],
+                        "label-sm": ["Inter"],
+                        "headline-xl": ["Montserrat"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "price-display": ["20px", {"lineHeight": "24px", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "label-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .premium-shadow {
+            box-shadow: 0px 4px 20px rgba(15, 23, 42, 0.05);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-surface-bright text-on-surface font-body-md min-h-screen">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile md:px-margin-desktop h-16 bg-surface-container-lowest dark:bg-primary-container shadow-sm">
+<div class="flex items-center gap-stack-md">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">ShopAI</span>
+</div>
+<div class="hidden md:flex items-center gap-gutter">
+<a class="text-on-surface-variant dark:text-on-tertiary-fixed-variant hover:bg-surface-container-high dark:hover:bg-on-tertiary-fixed-variant transition-colors px-3 py-2 rounded-lg font-body-md" href="#">Accueil</a>
+<a class="text-on-surface-variant dark:text-on-tertiary-fixed-variant hover:bg-surface-container-high dark:hover:bg-on-tertiary-fixed-variant transition-colors px-3 py-2 rounded-lg font-body-md" href="#">Catalogue</a>
+<a class="text-primary dark:text-primary-fixed font-bold px-3 py-2 rounded-lg font-body-md" href="#">Portefeuille</a>
+</div>
+<div class="flex items-center gap-stack-md">
+<button class="material-symbols-outlined p-2 hover:bg-surface-container-high rounded-full transition-colors active:scale-95">notifications</button>
+<button class="material-symbols-outlined p-2 hover:bg-surface-container-high rounded-full transition-colors active:scale-95">shopping_cart</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img alt="Photo de profil utilisateur" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPD9jLuT9ShK_PMokH1RS-H-hW3yzBK7YvBo4g6OZz2Awz8WPnIIAi4Wjel9VoK9r6J5m5P_R6u0wBJFMHH5CDCleiy47lEyo0277RTXSkbl-Vc-_GaNsRkT1b1KoVYbi-CLaJxVbSZQ1GtQq1F2D4J3wqGWed9K1pD-Hu4Dy22IAi2LZYaAZxFVx7noDAqe6L-RIKhvLkTsj3IL9J_g41nbe71CVWqsYTdE_nFw2Atw5MTIhde1K9oK6FEJVWqtdsUbdL4RBMo5Q"/>
+</div>
+</div>
+</nav>
+<!-- Side Navigation (Desktop Only) -->
+<aside class="hidden md:flex fixed left-0 top-16 h-[calc(100vh-64px)] z-40 flex-col p-stack-md w-64 bg-surface-container-low dark:bg-primary-container shadow-lg">
+<div class="flex flex-col gap-stack-sm flex-grow overflow-y-auto no-scrollbar">
+<div class="mb-stack-lg px-2">
+<p class="font-headline-md text-primary font-bold">ShopAI Premium</p>
+<p class="text-on-surface-variant text-label-sm">E-commerce Maroc</p>
+</div>
+<a class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-container-highest rounded-lg transition-all active:translate-x-1" href="#">
+<span class="material-symbols-outlined">home</span>
+<span>Accueil</span>
+</a>
+<a class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-container-highest rounded-lg transition-all active:translate-x-1" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span>Catalogue</span>
+</a>
+<a class="flex items-center gap-3 p-3 bg-secondary-container text-on-secondary-container rounded-lg font-bold transition-all active:translate-x-1" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span>Portefeuille</span>
+</a>
+<a class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-container-highest rounded-lg transition-all active:translate-x-1" href="#">
+<span class="material-symbols-outlined">favorite</span>
+<span>Favoris</span>
+</a>
+<a class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-container-highest rounded-lg transition-all active:translate-x-1" href="#">
+<span class="material-symbols-outlined">package_2</span>
+<span>Commandes</span>
+</a>
+<a class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-container-highest rounded-lg transition-all active:translate-x-1" href="#">
+<span class="material-symbols-outlined">chat</span>
+<span>Messages</span>
+</a>
+<a class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-container-highest rounded-lg transition-all active:translate-x-1" href="#">
+<span class="material-symbols-outlined">loyalty</span>
+<span>FidÃ©litÃ©</span>
+</a>
+<a class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-container-highest rounded-lg transition-all active:translate-x-1" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>ParamÃ¨tres</span>
+</a>
+</div>
+<button class="mt-stack-md w-full bg-primary text-on-primary py-3 rounded-lg font-bold hover:opacity-90 transition-opacity active:scale-[0.98]">
+            Devenir Membre Gold
+        </button>
+</aside>
+<!-- Main Content Canvas -->
+<main class="pt-24 pb-20 px-margin-mobile md:pl-72 md:pr-margin-desktop min-h-screen">
+<div class="max-w-container-max mx-auto space-y-stack-lg">
+<!-- Bento Layout Start -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Main Balance Card (Hero) -->
+<div class="lg:col-span-8 bg-primary-container rounded-xl p-8 relative overflow-hidden shadow-xl flex flex-col justify-between min-h-[300px]">
+<div class="absolute top-0 right-0 p-8 opacity-10">
+<span class="material-symbols-outlined text-[160px] text-white">account_balance_wallet</span>
+</div>
+<div class="relative z-10">
+<p class="text-primary-fixed font-label-sm uppercase tracking-widest opacity-80">Solde Actuel</p>
+<h1 class="text-headline-xl text-white mt-2">12,450.00 <span class="text-headline-md opacity-70">DH</span></h1>
+<p class="text-on-primary-container mt-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">verified_user</span>
+                            Fonds sÃ©curisÃ©s par ShopAI Pay
+                        </p>
+</div>
+<div class="relative z-10 flex gap-stack-md mt-stack-lg">
+<button class="flex-1 bg-white text-primary px-6 py-4 rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-surface-container-high transition-colors active:scale-95">
+<span class="material-symbols-outlined">add_circle</span>
+                            Recharger
+                        </button>
+<button class="flex-1 bg-primary-fixed-dim bg-opacity-20 border border-primary-fixed border-opacity-30 text-white px-6 py-4 rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-opacity-30 transition-colors active:scale-95">
+<span class="material-symbols-outlined">payments</span>
+                            TransfÃ©rer
+                        </button>
+</div>
+</div>
+<!-- Fast Actions / Credit Card Glassmorphism -->
+<div class="lg:col-span-4 flex flex-col gap-gutter">
+<div class="bg-surface-container-lowest border border-outline-variant p-6 rounded-xl premium-shadow flex-grow flex flex-col justify-between relative overflow-hidden">
+<div class="flex justify-between items-start mb-4">
+<span class="text-primary font-bold">MÃ©thode Principale</span>
+<span class="material-symbols-outlined text-secondary">contactless</span>
+</div>
+<div class="space-y-4">
+<div class="flex items-center gap-4">
+<div class="w-12 h-8 bg-surface-container rounded flex items-center justify-center border border-outline-variant">
+<img alt="Mastercard" class="h-4 object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7fltEn94retP_Qts0y3CDj6v3bbN-dncVld8Q1AWl2mxYJAwDbxE4_eKTDlqQMrIcdRsUmekdmWVvziVIqpUvqrpGtcypbjHS359m00nijg2eMRcKWbTAMHwssXDTjv1T0U8SuSvxQ3EXx3My1VNHPDs60fpcUlvRunhBrbTIC1_XigWrPhvkMm1NQC84Tj-5F_oa4_50uZaAe9wpWotuWKT8GrPQ7tvtwFHo7-p1nzYXpsp3QIXXJ1RnnZXU6NxGI8mWgTnwYec"/>
+</div>
+<div>
+<p class="font-bold">â€¢â€¢â€¢â€¢ 8824</p>
+<p class="text-on-surface-variant text-label-sm">Expire 12/26</p>
+</div>
+</div>
+</div>
+<button class="w-full mt-6 py-2 text-primary border border-primary rounded-lg font-bold hover:bg-surface-container-high transition-colors">
+                            GÃ©rer les cartes
+                        </button>
+</div>
+<div class="bg-secondary-container p-6 rounded-xl flex items-center gap-4 text-on-secondary-container">
+<div class="bg-on-secondary-fixed-variant p-2 rounded-full text-white">
+<span class="material-symbols-outlined">stars</span>
+</div>
+<div>
+<p class="font-bold">Points FidÃ©litÃ©</p>
+<p class="text-headline-md">2,450 pts</p>
+</div>
+</div>
+</div>
+<!-- Transaction History -->
+<div class="lg:col-span-8 bg-surface-container-lowest rounded-xl premium-shadow border border-outline-variant flex flex-col">
+<div class="p-6 border-b border-outline-variant flex justify-between items-center">
+<h2 class="font-headline-md text-primary">Historique des Transactions</h2>
+<button class="text-primary flex items-center gap-1 text-label-sm font-bold hover:underline">
+                            Tout voir
+                            <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+<div class="divide-y divide-outline-variant">
+<!-- Transaction Item -->
+<div class="p-4 flex items-center justify-between hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-error-container text-error rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">shopping_bag</span>
+</div>
+<div>
+<p class="font-bold group-hover:text-primary transition-colors">Achat MacBook Air M2</p>
+<p class="text-on-surface-variant text-label-sm">Hier, 14:20 â€¢ RÃ©f: #SAI-9921</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-price-display text-error">- 11,400.00 DH</p>
+<p class="text-label-sm text-on-surface-variant">ConfirmÃ©</p>
+</div>
+</div>
+<!-- Transaction Item -->
+<div class="p-4 flex items-center justify-between hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-primary-fixed-dim text-primary rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">add_card</span>
+</div>
+<div>
+<p class="font-bold">Recharge Portefeuille</p>
+<p class="text-on-surface-variant text-label-sm">12 Oct 2023 â€¢ Via Mastercard</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-price-display text-primary">+ 5,000.00 DH</p>
+<p class="text-label-sm text-on-surface-variant">RÃ©ussi</p>
+</div>
+</div>
+<!-- Transaction Item -->
+<div class="p-4 flex items-center justify-between hover:bg-surface-container-low transition-colors group">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-on-tertiary-fixed-variant text-white rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">history_edu</span>
+</div>
+<div>
+<p class="font-bold">Remboursement Commande #442</p>
+<p class="text-on-surface-variant text-label-sm">08 Oct 2023 â€¢ Retour produit</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-price-display text-primary">+ 450.00 DH</p>
+<p class="text-label-sm text-on-surface-variant">CrÃ©ditÃ©</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Side Cards - Recharge Options & Security -->
+<div class="lg:col-span-4 flex flex-col gap-gutter">
+<!-- Quick Recharge -->
+<div class="bg-surface-container-lowest rounded-xl premium-shadow border border-outline-variant p-6">
+<h3 class="font-bold text-primary mb-4">Recharge Rapide</h3>
+<div class="grid grid-cols-2 gap-stack-sm mb-4">
+<button class="p-3 border border-outline-variant rounded-lg hover:border-primary hover:text-primary transition-all font-bold">+100 DH</button>
+<button class="p-3 border border-outline-variant rounded-lg hover:border-primary hover:text-primary transition-all font-bold">+500 DH</button>
+<button class="p-3 border border-outline-variant rounded-lg hover:border-primary hover:text-primary transition-all font-bold">+1000 DH</button>
+<button class="p-3 border border-outline-variant rounded-lg hover:border-primary hover:text-primary transition-all font-bold">Autre</button>
+</div>
+<button class="w-full bg-primary text-on-primary py-3 rounded-lg font-bold flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[20px]">flash_on</span>
+                            Recharge InstantanÃ©e
+                        </button>
+</div>
+<!-- Security Banner -->
+<div class="bg-surface-bright rounded-xl border border-dashed border-outline-variant p-6 flex flex-col items-center text-center">
+<div class="w-16 h-16 mb-4 rounded-full bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-[32px] text-outline" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+</div>
+<h4 class="font-bold text-primary mb-2">SÃ©curitÃ© Maximale</h4>
+<p class="text-label-sm text-on-surface-variant px-2">Vos transactions sont protÃ©gÃ©es par un cryptage de bout en bout conforme aux normes PCI-DSS.</p>
+</div>
+<!-- Ad/Promo Card -->
+<div class="bg-primary-container rounded-xl overflow-hidden relative min-h-[160px] flex items-center p-6">
+<div class="absolute inset-0 opacity-40">
+<img class="w-full h-full object-cover" data-alt="A luxurious digital art representation of golden particles flowing through a deep navy blue background, evoking a sense of premium financial growth and high-tech security. Soft ambient light glimmers on the surface, creating a sophisticated and exclusive atmosphere for an e-commerce loyalty program." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrjnFJdHU83pi_1iLawBqdDTKpyYE20LblvQQcCbzmzGErx5blGYBb-0c9PSrGkpKWplox9O8jRRkbFhPMVGi5oQkaJsrMvR_vkpweGlIhfS5JBBUoJeiTxtxIQvyODirpPrzrcyRrinGEnSN-hskrDWTOS9n41ih1T6BrOkjYIryE_U0oEW0jfS6_ez7hB8hRhrUaxL5jWn3QJvQbojeljIx6P5b67uXtnw9XnKFgT8-p_3I_zVbXy3-vBWZGFcBQFFtPBGKRIG4"/>
+</div>
+<div class="relative z-10 text-white">
+<p class="text-label-sm uppercase tracking-widest font-bold text-secondary">Promo</p>
+<h4 class="text-headline-md">Cashback 5%</h4>
+<p class="text-label-sm opacity-80">Sur votre prochaine recharge avec CIH Bank.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Bento Layout End -->
+</div>
+</main>
+<!-- Bottom Nav (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 bg-surface-container-lowest dark:bg-primary-container h-16 flex justify-around items-center px-4 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+<a class="flex flex-col items-center gap-1 text-on-surface-variant dark:text-on-tertiary-fixed-variant" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px]">Accueil</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant dark:text-on-tertiary-fixed-variant" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="text-[10px]">Catalogue</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary dark:text-primary-fixed font-bold" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+<span class="text-[10px]">Portefeuille</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant dark:text-on-tertiary-fixed-variant" href="#">
+<span class="material-symbols-outlined">package_2</span>
+<span class="text-[10px]">Commandes</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant dark:text-on-tertiary-fixed-variant" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px]">Profil</span>
+</a>
+</nav>
+<script>
+        // Simple micro-interaction for active states
+        document.querySelectorAll('button, a').forEach(el => {
+            el.addEventListener('mousedown', () => {
+                el.style.transform = 'scale(0.97)';
+            });
+            el.addEventListener('mouseup', () => {
+                el.style.transform = '';
+            });
+            el.addEventListener('mouseleave', () => {
+                el.style.transform = '';
+            });
+        });
+    </script>
+
+<script src="/static/js/toast.js"></script>
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/cart.js"></script>
+<script src="/static/js/nav.js"></script>
+<script src="/static/js/page-links.js"></script>
+</body></html>
+
+

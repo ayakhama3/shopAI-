@@ -1,0 +1,2062 @@
+from flask import Flask, render_template, redirect, request, jsonify, send_from_directory
+import os
+import csv
+import json
+import sys
+from datetime import datetime, timedelta
+from flask_sqlalchemy import SQLAlchemy
+import io
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import mm
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+
+# Init DB and auth will be configured below
+
+app = Flask(
+    __name__,
+    template_folder=os.path.join(os.path.dirname(__file__), '../../frontend/templates'),
+    static_folder=os.path.join(os.path.dirname(__file__), '../../frontend/static'),
+)
+
+# Définir chemins importants avant config
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+sys.path.insert(0, BASE_DIR)
+sys.path.insert(0, os.path.join(BASE_DIR, 'src'))
+DATA_DIR = os.path.join(BASE_DIR, 'data')
+PROCESSED_DIR = os.path.join(DATA_DIR, 'processed')
+MODELS_DIR = os.path.join(DATA_DIR, 'models')
+INTERACTIONS_FILE = os.path.join(PROCESSED_DIR, 'interactions.csv')
+
+# Application configuration
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+DB_PATH = os.path.join(PROCESSED_DIR, 'shopai.db')
+os.makedirs(PROCESSED_DIR, exist_ok=True)
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', f'sqlite:///{DB_PATH}')
+app.config['SECRET_KEY'] = os.environ.get('SHOPAI_SECRET', 'dev-secret')
+
+from api.models import db, User, Product, Interaction, RecommendationLog, Favorite, UserPreference, CartItem
+from api.auth import init_auth, admin_required
+from api.models import Order, Invoice, OrderTracking
+
+# Initialize extensions
+db.init_app(app)
+init_auth(app)
+
+# Create DB and demo users if needed
+with app.app_context():
+    db.create_all()
+    # Ensure demo accounts exist (compatibility with frontend auth.js)
+    admin = User.query.filter_by(email='admin@shopai.com').first()
+    if not admin:
+        admin = User(username='admin', email='admin@shopai.com', password='admin123', role='admin')
+        db.session.add(admin)
+    user = User.query.filter_by(email='user@shopai.com').first()
+    if not user:
+        user = User(username='user', email='user@shopai.com', password='user123', role='user')
+        db.session.add(user)
+    db.session.commit()
+
+
+ONBOARDING_CATEGORY_MAP = {
+    'electronique': 'Tech',
+    'électronique': 'Tech',
+    'tech': 'Tech',
+    'smartphones': 'Tech',
+    'laptops': 'Tech',
+    'mode': 'Mode',
+    'beaute': 'Beaute',
+    'beauté': 'Beaute',
+    'sport': 'Sport',
+    'maison': 'Maison',
+    'maison & deco': 'Maison',
+    'maison & déco': 'Maison',
+    'cuisine': 'Maison',
+    'jouets': 'Accessoires',
+    'livres': 'Bureau',
+    'bureau': 'Bureau',
+    'audio': 'Audio',
+    'accessoires': 'Accessoires',
+}
+
+
+def _normalize_category_name(category):
+    raw = (category or '').strip()
+    key = raw.lower().replace('Ã©', 'é').replace('Ã‰', 'é').replace('é', 'e')
+    key = key.replace('&amp;', '&')
+    return ONBOARDING_CATEGORY_MAP.get(key, ONBOARDING_CATEGORY_MAP.get(raw.lower(), raw or 'Tech'))
+
+
+def _get_auth_user():
+    auth_header = request.headers.get('Authorization', '')
+    if auth_header.startswith('Bearer '):
+        token = auth_header.split(' ', 1)[1]
+        from api.auth import verify_jwt
+        return verify_jwt(token)
+    return None
+
+
+def _get_user_preferences(user_id):
+    return [
+        pref.category
+        for pref in UserPreference.query.filter_by(user_id=user_id).order_by(UserPreference.category.asc()).all()
+    ]
+
+
+def _product_rank(product):
+    try:
+        meta = json.loads(product.product_metadata) if product.product_metadata else {}
+    except Exception:
+        meta = {}
+    return (
+        float(meta.get('popularity', 0)),
+        float(meta.get('rating', 0)),
+        product.id or 0,
+    )
+
+
+def _products_by_preferences(categories, limit=10):
+    normalized = {_normalize_category_name(c).lower() for c in categories if c}
+    products = Product.query.all()
+    if normalized:
+        products = [p for p in products if (p.category or '').lower() in normalized]
+    products = sorted(products, key=_product_rank, reverse=True)
+    if not products:
+        products = sorted(Product.query.all(), key=_product_rank, reverse=True)
+
+    result = []
+    for product in products[:limit]:
+        item = product.to_dict()
+        item['score'] = item.get('note', 4.5) * 20
+        item['raison'] = 'Choisi selon vos preferences'
+        item['source'] = 'onboarding'
+        result.append(item)
+    return result
+
+
+def _resolve_als_products(recommendations, limit=10):
+    resolved = []
+    for rec in recommendations:
+        external_id = str(rec.get('itemId') or rec.get('external_id') or rec.get('id') or '')
+        product = Product.query.filter_by(external_id=external_id).first() if external_id else None
+        if product:
+            item = product.to_dict()
+            rating = float(rec.get('rating', rec.get('score', item.get('note', 4.5))))
+            item['score'] = round(min(max(rating, 0), 5) * 20, 2)
+            item['raison'] = 'Recommande par le modele ALS'
+            item['source'] = 'als'
+            resolved.append(item)
+        elif rec:
+            resolved.append(rec)
+        if len(resolved) >= limit:
+            break
+    return resolved
+
+def generate_invoice_pdf(order_id, invoice_number, items, total, order_date=None, customer_name=None, customer_email=None):
+    """Génère un PDF de facture incluant la liste des produits de la commande."""
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer, pagesize=A4,
+        topMargin=20 * mm, bottomMargin=20 * mm,
+        leftMargin=20 * mm, rightMargin=20 * mm
+    )
+    styles = getSampleStyleSheet()
+    title_style = ParagraphStyle('TitleCustom', parent=styles['Title'], fontSize=20, spaceAfter=4)
+    normal = styles['Normal']
+
+    elements = []
+    elements.append(Paragraph("FACTURE", title_style))
+    elements.append(Paragraph(f"N° {invoice_number}", normal))
+    date_str = (order_date or datetime.now()).strftime('%d/%m/%Y')
+    elements.append(Paragraph(f"Date : {date_str}", normal))
+    elements.append(Paragraph(f"Commande : #{order_id}", normal))
+    if customer_name:
+        elements.append(Paragraph(f"Client : {customer_name}", normal))
+    if customer_email:
+        elements.append(Paragraph(f"Email : {customer_email}", normal))
+    elements.append(Spacer(1, 10 * mm))
+
+    data = [["Produit", "Vendeur", "Prix unitaire", "Quantité", "Sous-total"]]
+    computed_total = 0.0
+    for item in items:
+        name = item.get('name', 'N/A')
+        vendor = item.get('vendor') or '-'
+        price = float(item.get('price', 0))
+        qty = int(item.get('quantity', 1))
+        subtotal = price * qty
+        computed_total += subtotal
+        data.append([name, vendor, f"{price:.2f} MAD", str(qty), f"{subtotal:.2f} MAD"])
+
+    table = Table(data, colWidths=[60 * mm, 30 * mm, 30 * mm, 20 * mm, 30 * mm])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2c3e50')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('ALIGN', (2, 0), (-1, -1), 'RIGHT'),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f5f5f5')]),
+        ('TOPPADDING', (0, 0), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+    ]))
+    elements.append(table)
+    elements.append(Spacer(1, 8 * mm))
+
+    final_total = total if total else computed_total
+    total_table = Table([["TOTAL", f"{final_total:.2f} MAD"]], colWidths=[140 * mm, 30 * mm])
+    total_table.setStyle(TableStyle([
+        ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 12),
+        ('ALIGN', (1, 0), (1, 0), 'RIGHT'),
+        ('LINEABOVE', (0, 0), (-1, 0), 1, colors.black),
+    ]))
+    elements.append(total_table)
+
+    doc.build(elements)
+    pdf_bytes = buffer.getvalue()
+    buffer.close()
+    return pdf_bytes
+# ─────────────────────────────────────────────────────────────
+# NOTE IMPORTANTE :
+# La protection des pages (auth + rôles) est gérée UNIQUEMENT
+# côté JavaScript via checkAuth() et checkRole() dans auth.js.
+# Flask sert juste les fichiers HTML sans redirection serveur,
+# car la session est dans sessionStorage du navigateur.
+# ─────────────────────────────────────────────────────────────
+
+
+# ════════════════════════════════════════════════════════════════
+#  PAGES PUBLIQUES (login, inscription, otp)
+# ════════════════════════════════════════════════════════════════
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+
+@app.route('/inscription')
+def inscription():
+    return render_template('inscription.html')
+
+
+@app.route('/otp')
+def otp():
+    return render_template('otp.html')
+
+
+# ════════════════════════════════════════════════════════════════
+#  PAGES UTILISATEUR
+# ════════════════════════════════════════════════════════════════
+
+@app.route('/')
+def accueil():
+    return render_template('accueil.html')
+
+
+@app.route('/onboarding')
+def onboarding():
+    return render_template('onboarding.html')
+
+
+@app.route('/api/onboarding', methods=['GET'])
+def get_onboarding_status():
+    user = _get_auth_user()
+    if not user:
+        return jsonify({'error': 'Authentication required'}), 401
+
+    preferences = _get_user_preferences(user.id)
+    return jsonify({
+        'user_id': user.id,
+        'preferences': preferences,
+        'onboarding_completed': len(preferences) > 0,
+    }), 200
+
+
+@app.route('/api/onboarding', methods=['POST'])
+def save_onboarding():
+    user = _get_auth_user()
+    if not user:
+        return jsonify({'error': 'Authentication required'}), 401
+
+    data = request.get_json(silent=True) or {}
+    categories = data.get('categories') or []
+    if not isinstance(categories, list):
+        return jsonify({'error': 'categories doit etre une liste'}), 400
+
+    normalized_categories = []
+    for category in categories:
+        normalized = _normalize_category_name(str(category))
+        if normalized and normalized not in normalized_categories:
+            normalized_categories.append(normalized)
+
+    if not normalized_categories:
+        return jsonify({'error': 'Selectionnez au moins une categorie'}), 400
+
+    try:
+        UserPreference.query.filter_by(user_id=user.id).delete()
+        for category in normalized_categories:
+            db.session.add(UserPreference(user_id=user.id, category=category))
+
+        # Seeds applicatifs: utiles pour le cold-start et pour un futur retrain ALS.
+        seed_products = _products_by_preferences(normalized_categories, limit=12)
+        for item in seed_products:
+            product_id = item.get('id')
+            if product_id:
+                existing = Interaction.query.filter_by(
+                    user_id=user.id,
+                    product_id=product_id,
+                    event_type='preference_seed'
+                ).first()
+                if not existing:
+                    db.session.add(Interaction(
+                        user_id=user.id,
+                        product_id=product_id,
+                        event_type='preference_seed',
+                        timestamp=datetime.utcnow()
+                    ))
+
+        db.session.commit()
+        return jsonify({
+            'status': 'ok',
+            'preferences': normalized_categories,
+            'onboarding_completed': True,
+            'seed_products': seed_products,
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/catalogue')
+def catalogue():
+    return render_template('catalogue.html')
+
+
+@app.route('/produit')
+def produit():
+    return render_template('produit.html')
+
+
+@app.route('/api/favorites')
+def get_favorites():
+    user = None
+    auth_header = request.headers.get('Authorization', '')
+    if auth_header.startswith('Bearer '):
+        token = auth_header.split(' ', 1)[1]
+        from api.auth import verify_jwt
+        user = verify_jwt(token)
+    if not user:
+        return jsonify({'error': 'Authentication required'}), 401
+
+    favorites = Favorite.query.filter_by(user_id=user.id).order_by(Favorite.created_at.desc()).all()
+    product_ids = [f.product_id for f in favorites]
+    products = Product.query.filter(Product.id.in_(product_ids)).all() if product_ids else []
+    products_by_id = {p.id: p.to_dict() for p in products}
+
+    # On garde l'ordre des favoris (plus récent en premier) et on attache le produit complet
+    result = []
+    for f in favorites:
+        product = products_by_id.get(f.product_id)
+        if product:
+            result.append({
+                'favorite_id': f.id,
+                'product': product,
+                'created_at': f.created_at.isoformat() if f.created_at else None
+            })
+
+    return jsonify({'favorites': result, 'count': len(result)}), 200
+
+
+@app.route('/api/favorites', methods=['POST'])
+def add_favorite():
+    user = None
+    auth_header = request.headers.get('Authorization', '')
+    if auth_header.startswith('Bearer '):
+        token = auth_header.split(' ', 1)[1]
+        from api.auth import verify_jwt
+        user = verify_jwt(token)
+    if not user:
+        return jsonify({'error': 'Authentication required'}), 401
+
+    data = request.get_json(silent=True) or {}
+    product_id = data.get('product_id')
+    if not product_id:
+        return jsonify({'error': 'product_id requis'}), 400
+
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({'error': 'Produit introuvable'}), 404
+
+    existing = Favorite.query.filter_by(user_id=user.id, product_id=product_id).first()
+    if existing:
+        return jsonify({'message': 'Déjà en favoris', 'favorite': existing.to_dict()}), 200
+
+    favorite = Favorite(user_id=user.id, product_id=product_id)
+    db.session.add(favorite)
+    db.session.commit()
+
+    return jsonify({'message': 'Ajouté aux favoris', 'favorite': favorite.to_dict()}), 201
+
+
+@app.route('/api/favorites/<int:product_id>', methods=['DELETE'])
+def remove_favorite(product_id):
+    user = None
+    auth_header = request.headers.get('Authorization', '')
+    if auth_header.startswith('Bearer '):
+        token = auth_header.split(' ', 1)[1]
+        from api.auth import verify_jwt
+        user = verify_jwt(token)
+    if not user:
+        return jsonify({'error': 'Authentication required'}), 401
+
+    favorite = Favorite.query.filter_by(user_id=user.id, product_id=product_id).first()
+    if not favorite:
+        return jsonify({'error': 'Favori introuvable'}), 404
+
+    db.session.delete(favorite)
+    db.session.commit()
+
+    return jsonify({'message': 'Retiré des favoris'}), 200
+
+
+@app.route('/favoris')
+def favoris():
+    return render_template('favoris.html')
+
+
+@app.route('/panier_ia')
+def panier_ia():
+    return render_template('panier_ia.html')
+
+
+@app.route('/paiement_1')
+def paiement_1():
+    return render_template('paiement_1.html')
+
+
+@app.route('/paiement_2')
+def paiement_2():
+    return render_template('paiement_2.html')
+
+
+@app.route('/historique')
+def historique():
+    return render_template('historique.html')
+
+
+@app.route('/deals')
+def deals():
+    return render_template('deals.html')
+
+
+@app.route('/messagerie')
+def messagerie():
+    return render_template('messagerie.html')
+
+
+@app.route('/suivi_1')
+def suivi_1():
+    return render_template('suivi_1.html')
+
+
+@app.route('/suivi_2')
+def suivi_2():
+    return render_template('suivi_2.html')
+
+
+@app.route('/portefeuille')
+def portefeuille():
+    return render_template('portefeuille.html')
+
+
+@app.route('/parametres')
+def parametres():
+    return render_template('parametres.html')
+
+
+# ════════════════════════════════════════════════════════════════
+#  PAGES ADMIN
+# ════════════════════════════════════════════════════════════════
+
+@app.route('/dashboard')
+def dashboard():
+    return render_template('dashboard.html')
+
+
+@app.route('/dashboard_2')
+def dashboard_2():
+    return render_template('dashboard_2.html')
+
+
+@app.route('/dashboard_stats')
+def dashboard_stats():
+    return render_template('dashboard_stats.html')
+
+
+@app.route('/admin_catalogue')
+def admin_catalogue():
+    return render_template('admin_catalogue.html')
+
+@app.route('/admin_add_product')
+def admin_add_product():
+    return render_template('admin_add_product.html')
+
+@app.route('/admin_commandes')
+def admin_commandes():
+    return render_template('admin_commandes.html')
+
+
+@app.route('/admin_fidelite')
+def admin_fidelite():
+    return render_template('admin_fidelite.html')
+
+
+@app.route('/admin_messagerie')
+def admin_messagerie():
+    return render_template('admin_messagerie.html')
+
+
+@app.route('/admin_parametres')
+def admin_parametres():
+    return render_template('admin_parametres.html')
+
+
+@app.route('/admin_portefeuille')
+def admin_portefeuille():
+    return render_template('admin_portefeuille.html')
+
+
+# ════════════════════════════════════════════════════════════════
+#  ALIASES (compatibilité anciens liens)
+# ════════════════════════════════════════════════════════════════
+
+@app.route('/panier')
+def panier_legacy():
+    return redirect('/panier_ia')
+
+
+@app.route('/paiement')
+def paiement_legacy():
+    return redirect('/paiement_1')
+
+
+@app.route('/paiement/confirmation')
+def paiement2_legacy():
+    return redirect('/paiement_2')
+
+
+@app.route('/commandes')
+def commandes_legacy():
+    return redirect('/historique')
+
+
+@app.route('/favicon.ico')
+def favicon():
+    """Evite les 404 navigateur sur le favicon."""
+    return send_from_directory(app.static_folder, 'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+
+@app.route('/.well-known/appspecific/com.chrome.devtools.json')
+def chrome_devtools_probe():
+    """Chrome DevTools sonde cette URL en developpement : reponse vide volontaire."""
+    return jsonify({})
+
+
+# ════════════════════════════════════════════════════════════════
+#  API — RECOMMANDATIONS
+# ════════════════════════════════════════════════════════════════
+
+@app.route('/api/recommandations/<int:user_id>')
+def get_recommandations(user_id):
+    """Retourne les produits recommandés pour un utilisateur."""
+    try:
+        # Essayer de charger le modèle ALS
+        from recommender import RecommendationEngine
+        engine = RecommendationEngine()
+        produits = engine.get_recommendations(user_id, n=10)
+        return jsonify({'user_id': user_id, 'produits': produits, 'source': 'als'})
+    except Exception:
+        # Fallback : produits populaires simulés
+        produits = _get_fallback_products()
+        return jsonify({'user_id': user_id, 'produits': produits, 'source': 'fallback'})
+
+
+@app.route('/api/recommendations/<int:user_id>')
+def get_recommendations_hybrid(user_id):
+    """Hybrid recommendations for cold-start users and ALS-ready users."""
+    user = User.query.get(user_id)
+    preferences = _get_user_preferences(user_id) if user else []
+
+    try:
+        real_interactions = Interaction.query.filter(
+            Interaction.user_id == user_id,
+            Interaction.event_type.in_(['view', 'addtocart', 'transaction', 'favorite', 'cart', 'purchase'])
+        ).count()
+
+        if preferences and real_interactions == 0:
+            produits = _products_by_preferences(preferences, limit=10)
+            return jsonify({
+                'user_id': user_id,
+                'produits': produits,
+                'preferences': preferences,
+                'source': 'onboarding'
+            })
+
+        from recommender import RecommendationEngine
+        engine = RecommendationEngine()
+        als_raw = engine.get_recommendations(user_id, n=20)
+        produits = _resolve_als_products(als_raw, limit=10)
+        if produits:
+            return jsonify({
+                'user_id': user_id,
+                'produits': produits,
+                'preferences': preferences,
+                'source': 'als'
+            })
+    except Exception:
+        pass
+
+    produits = _products_by_preferences(preferences, limit=10) if preferences else []
+    if produits:
+        return jsonify({
+            'user_id': user_id,
+            'produits': produits,
+            'preferences': preferences,
+            'source': 'onboarding_fallback'
+        })
+
+    return jsonify({
+        'user_id': user_id,
+        'produits': _get_fallback_products(),
+        'preferences': [],
+        'source': 'fallback'
+    })
+
+
+@app.route('/api/recommendations/me')
+def get_my_recommendations_hybrid():
+    user = _get_auth_user()
+    if not user:
+        return jsonify({'error': 'Authentication required'}), 401
+    return get_recommendations_hybrid(user.id)
+
+
+def _get_fallback_products():
+    """Produits de démonstration si le modèle n'est pas disponible."""
+    return [
+        {
+            'id': 1, 'nom': 'Écouteurs Sony WH-1000XM5',
+            'prix': 249.99, 'categorie': 'Tech',
+            'image': 'https://via.placeholder.com/200x200?text=Sony',
+            'note': 4.8, 'score': 95,
+            'raison': 'Populaire dans votre catégorie préférée'
+        },
+        {
+            'id': 2, 'nom': 'Nike Air Max 270',
+            'prix': 149.99, 'categorie': 'Mode',
+            'image': 'https://via.placeholder.com/200x200?text=Nike',
+            'note': 4.6, 'score': 88,
+            'raison': 'Tendance cette semaine'
+        },
+        {
+            'id': 3, 'nom': 'MacBook Pro M3',
+            'prix': 1999.99, 'categorie': 'Tech',
+            'image': 'https://via.placeholder.com/200x200?text=MacBook',
+            'note': 4.9, 'score': 92,
+            'raison': 'Les clients comme vous ont aussi acheté'
+        },
+        {
+            'id': 4, 'nom': 'Lampe de bureau LED',
+            'prix': 49.99, 'categorie': 'Maison',
+            'image': 'https://via.placeholder.com/200x200?text=Lampe',
+            'note': 4.5, 'score': 81,
+            'raison': 'Complète votre achat précédent'
+        },
+        {
+            'id': 5, 'nom': 'Montre connectée Samsung',
+            'prix': 299.99, 'categorie': 'Tech',
+            'image': 'https://via.placeholder.com/200x200?text=Samsung',
+            'note': 4.7, 'score': 90,
+            'raison': 'Basé sur votre historique de navigation'
+        },
+    ]
+
+
+# ════════════════════════════════════════════════════════════════
+#  API — PRODUITS
+# ════════════════════════════════════════════════════════════════
+
+@app.route('/api/produits')
+def get_produits():
+    """Retourne la liste des produits depuis la DB (et fallback si vide)."""
+    try:
+        category = request.args.get('category', '')
+        sort     = request.args.get('sort', '')
+        query    = request.args.get('q', '')
+
+        q = Product.query
+        if category:
+            q = q.filter(Product.category.ilike(category))
+        if query:
+            q = q.filter(Product.name.ilike(f"%{query}%"))
+
+        produits_db = [p.to_dict() for p in q.all()]
+        produits = produits_db if produits_db else _get_fallback_products()
+
+        if sort == 'price_asc':
+            produits.sort(key=lambda x: x.get('prix') or 0)
+        elif sort == 'price_desc':
+            produits.sort(key=lambda x: x.get('prix') or 0, reverse=True)
+
+        return jsonify({'produits': produits, 'total': len(produits)})
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# ════════════════════════════════════════════════════════════════
+#  API — PANIER (persisté en DB)
+# ════════════════════════════════════════════════════════════════
+
+@app.route('/api/cart', methods=['GET'])
+def get_cart():
+    """Récupère le panier de l'utilisateur connecté."""
+    user = _get_auth_user()
+    if not user:
+        return jsonify({'error': 'Authentication required'}), 401
+
+    cart_items = CartItem.query.filter_by(user_id=user.id).all()
+    product_ids = [item.product_id for item in cart_items]
+    products = {p.id: p.to_dict() for p in Product.query.filter(Product.id.in_(product_ids)).all()}
+
+    items = []
+    for item in cart_items:
+        product = products.get(item.product_id)
+        if product:
+            items.append({
+                'cart_item_id': item.id,
+                'product_id': item.product_id,
+                'quantity': item.quantity,
+                'name': product.get('nom'),
+                'price': product.get('prix'),
+                'image': product.get('image'),
+                'category': product.get('categorie'),
+            })
+
+    total = sum(item['price'] * item['quantity'] for item in items)
+
+    return jsonify({
+        'items': items,
+        'count': len(items),
+        'total': round(total, 2)
+    }), 200
+
+
+@app.route('/api/cart', methods=['POST'])
+def add_to_cart():
+    """Ajoute un produit au panier."""
+    user = _get_auth_user()
+    if not user:
+        return jsonify({'error': 'Authentication required'}), 401
+
+    data = request.get_json(silent=True) or {}
+    product_id = data.get('product_id')
+    quantity = int(data.get('quantity', 1))
+
+    if not product_id:
+        return jsonify({'error': 'product_id requis'}), 400
+
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({'error': 'Produit introuvable'}), 404
+
+    existing = CartItem.query.filter_by(user_id=user.id, product_id=product_id).first()
+    if existing:
+        existing.quantity += quantity
+    else:
+        cart_item = CartItem(user_id=user.id, product_id=product_id, quantity=quantity)
+        db.session.add(cart_item)
+
+    db.session.commit()
+    return jsonify({'message': 'Ajouté au panier'}), 201
+
+
+@app.route('/api/cart/<int:product_id>', methods=['PUT'])
+def update_cart_item(product_id):
+    """Met à jour la quantité d'un produit dans le panier."""
+    user = _get_auth_user()
+    if not user:
+        return jsonify({'error': 'Authentication required'}), 401
+
+    data = request.get_json(silent=True) or {}
+    quantity = int(data.get('quantity', 1))
+
+    cart_item = CartItem.query.filter_by(user_id=user.id, product_id=product_id).first()
+    if not cart_item:
+        return jsonify({'error': 'Produit non trouvé dans le panier'}), 404
+
+    if quantity <= 0:
+        db.session.delete(cart_item)
+    else:
+        cart_item.quantity = quantity
+
+    db.session.commit()
+    return jsonify({'message': 'Quantité mise à jour'}), 200
+
+
+@app.route('/api/cart/<int:product_id>', methods=['DELETE'])
+def remove_from_cart(product_id):
+    """Supprime un produit du panier."""
+    user = _get_auth_user()
+    if not user:
+        return jsonify({'error': 'Authentication required'}), 401
+
+    cart_item = CartItem.query.filter_by(user_id=user.id, product_id=product_id).first()
+    if not cart_item:
+        return jsonify({'error': 'Produit non trouvé dans le panier'}), 404
+
+    db.session.delete(cart_item)
+    db.session.commit()
+    return jsonify({'message': 'Retiré du panier'}), 200
+
+
+@app.route('/api/cart/clear', methods=['DELETE'])
+def clear_cart():
+    """Vide complètement le panier."""
+    user = _get_auth_user()
+    if not user:
+        return jsonify({'error': 'Authentication required'}), 401
+
+    CartItem.query.filter_by(user_id=user.id).delete()
+    db.session.commit()
+    return jsonify({'message': 'Panier vidé'}), 200
+
+
+# ════════════════════════════════════════════════════════════════
+#  API — INTERACTIONS
+# ════════════════════════════════════════════════════════════════
+
+@app.route('/api/interactions', methods=['POST'])
+def save_interaction():
+    """Sauvegarde une interaction utilisateur pour améliorer le modèle ALS."""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'Données manquantes'}), 400
+
+        user_id = data.get('userId', '')
+        product_id = data.get('productId', '')
+        event_type = data.get('eventType', '')
+        timestamp = data.get('timestamp')
+
+        if not all([user_id, product_id, event_type]):
+            return jsonify({'error': 'userId, productId et eventType requis'}), 400
+
+        # Normalize IDs as strings
+        # Find or create user
+        db_user = None
+        try:
+            uid = int(user_id)
+            db_user = User.query.get(uid)
+        except Exception:
+            db_user = User.query.filter((User.username == str(user_id)) | (User.email == str(user_id))).first()
+
+        if not db_user:
+            db_user = User(username=f'user_{user_id}', email=None, password='')
+            db.session.add(db_user)
+            db.session.flush()
+
+        # Find or create product by external_id
+        db_product = Product.query.filter_by(external_id=str(product_id)).first()
+        if not db_product:
+            db_product = Product(external_id=str(product_id), name=f'Product {product_id}')
+            db.session.add(db_product)
+            db.session.flush()
+
+        # Parse timestamp if provided
+        ts = None
+        if timestamp:
+            try:
+                ts = datetime.fromisoformat(timestamp)
+            except Exception:
+                ts = datetime.utcnow()
+        else:
+            ts = datetime.utcnow()
+
+        interaction = Interaction(user_id=db_user.id, product_id=db_product.id, event_type=event_type, timestamp=ts)
+        db.session.add(interaction)
+        db.session.commit()
+
+        return jsonify({'status': 'ok', 'message': 'Interaction sauvegardée', 'id': interaction.id}), 201
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/interactions/<int:user_id>')
+def get_interactions(user_id):
+    """Retourne l'historique des interactions d'un utilisateur."""
+    try:
+        interactions = Interaction.query.filter_by(user_id=user_id).order_by(Interaction.timestamp.desc()).all()
+        return jsonify({'user_id': user_id, 'interactions': [i.to_dict() for i in interactions]})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# ════════════════════════════════════════════════════════════════
+#  API — ADMIN
+# ════════════════════════════════════════════════════════════════
+
+@app.route('/api/admin/stats')
+@admin_required
+def admin_stats():
+    """Retourne les statistiques pour le dashboard admin."""
+    try:
+        stats = {
+            'nb_interactions': 0,
+            'nb_users': 2,
+            'rmse': None,
+            'precision_at_10': None,
+            'dernier_entrainement': None,
+            'revenue_total': 0,
+            'recommandations_servies': 0,
+        }
+
+        # Lire les métriques du modèle
+        metrics_file = os.path.join(MODELS_DIR, 'metrics.json')
+        if os.path.exists(metrics_file):
+            with open(metrics_file, 'r', encoding='utf-8') as f:
+                metrics = json.load(f)
+                stats.update(metrics)
+
+        # Compter les interactions
+        if os.path.exists(INTERACTIONS_FILE):
+            with open(INTERACTIONS_FILE, 'r', encoding='utf-8') as f:
+                reader = csv.reader(f)
+                next(reader, None)  # skip header
+                stats['nb_interactions'] = sum(1 for _ in reader)
+
+        return jsonify(stats)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/admin/retrain', methods=['POST'])
+@admin_required
+def admin_retrain():
+    """Lance le réentraînement du modèle ALS en arrière-plan."""
+    try:
+        import subprocess
+        train_script = os.path.join(BASE_DIR, 'src', 'models', 'train_als.py')
+        if not os.path.exists(train_script):
+            return jsonify({'error': 'Script train_als.py introuvable'}), 404
+
+        subprocess.Popen(
+            ['python', train_script],
+            stdout=open(os.path.join(MODELS_DIR, 'retrain_log.txt'), 'w'),
+            stderr=subprocess.STDOUT
+        )
+        return jsonify({'status': 'ok', 'message': 'Réentraînement lancé en arrière-plan'}), 202
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/orders/me')
+def orders_me():
+    # Renvoie la dernière commande + invoice + tracking du user connecté
+    user = None
+    auth_header = request.headers.get('Authorization', '')
+    if auth_header.startswith('Bearer '):
+        token = auth_header.split(' ', 1)[1]
+        from api.auth import verify_jwt
+        user = verify_jwt(token)
+    if not user:
+        return jsonify({'error': 'Authentication required'}), 401
+
+    order = Order.query.filter_by(user_id=user.id).order_by(Order.created_at.desc()).first()
+    if not order:
+        return jsonify({'order': None, 'invoice': None, 'tracking': None}), 200
+
+    invoice = Invoice.query.filter_by(id=order.invoice_id).first() if order.invoice_id else None
+    tracking = OrderTracking.query.filter_by(order_id=order.id).first() if order else None
+    return jsonify({ 'order': order.to_dict(), 'invoice': invoice.to_dict() if invoice else None, 'tracking': tracking.to_dict() if tracking else None }), 200
+
+
+@app.route('/api/orders/<int:order_id>')
+def get_order(order_id):
+    user = None
+    auth_header = request.headers.get('Authorization', '')
+    if auth_header.startswith('Bearer '):
+        token = auth_header.split(' ', 1)[1]
+        from api.auth import verify_jwt
+        user = verify_jwt(token)
+    if not user:
+        return jsonify({'error': 'Authentication required'}), 401
+
+    order = Order.query.filter_by(id=order_id, user_id=user.id).first()
+    if not order:
+        return jsonify({'error': 'Order not found'}), 404
+    return jsonify(order.to_dict()), 200
+
+
+@app.route('/api/orders/<int:order_id>/invoice')
+def get_order_invoice(order_id):
+    user = None
+    auth_header = request.headers.get('Authorization', '')
+    if auth_header.startswith('Bearer '):
+        token = auth_header.split(' ', 1)[1]
+        from api.auth import verify_jwt
+        user = verify_jwt(token)
+    if not user:
+        return jsonify({'error': 'Authentication required'}), 401
+
+    order = Order.query.filter_by(id=order_id, user_id=user.id).first()
+    if not order:
+        return jsonify({'error': 'Order not found'}), 404
+
+    invoice = Invoice.query.filter_by(id=order.invoice_id).first() if order.invoice_id else None
+    return jsonify(invoice.to_dict() if invoice else None), 200
+
+
+@app.route('/api/orders/<int:order_id>/tracking')
+def get_order_tracking(order_id):
+    user = None
+    auth_header = request.headers.get('Authorization', '')
+    if auth_header.startswith('Bearer '):
+        token = auth_header.split(' ', 1)[1]
+        from api.auth import verify_jwt
+        user = verify_jwt(token)
+    if not user:
+        return jsonify({'error': 'Authentication required'}), 401
+
+    order = Order.query.filter_by(id=order_id, user_id=user.id).first()
+    if not order:
+        return jsonify({'error': 'Order not found'}), 404
+
+    tracking = OrderTracking.query.filter_by(order_id=order.id).first()
+    return jsonify(tracking.to_dict() if tracking else None), 200
+
+
+@app.route('/api/invoices/<int:order_id>/download')
+def download_invoice(order_id):
+    from flask import Response
+
+    order = Order.query.get(order_id)
+    if not order:
+        return jsonify({'error': 'Order not found'}), 404
+
+    invoice = Invoice.query.get(order.invoice_id) if order.invoice_id else None
+    invoice_number = invoice.invoice_number if invoice else f"INV-{order.id:06d}"
+
+    try:
+        items = json.loads(order.items) if order.items else []
+    except (json.JSONDecodeError, TypeError):
+        items = []
+
+    customer_name = None
+    customer_email = None
+    if order.user_id:
+        user = User.query.get(order.user_id)
+        if user:
+            customer_name = user.username
+            customer_email = user.email
+
+    pdf_bytes = generate_invoice_pdf(
+        order_id=order.id,
+        invoice_number=invoice_number,
+        items=items,
+        total=order.total,
+        order_date=order.created_at,
+        customer_name=customer_name,
+        customer_email=customer_email,
+    )
+
+    return Response(
+        pdf_bytes,
+        mimetype='application/pdf',
+        headers={'Content-Disposition': f'inline; filename=invoice-{order_id}.pdf'}
+    )
+
+
+# ════════════════════════════════════════════════════════════════
+#  API — ORDERS
+# ════════════════════════════════════════════════════════════════
+
+@app.route('/api/orders', methods=['GET'])
+def get_orders():
+    """Retourne toutes les commandes de l'utilisateur connecté (paginé)."""
+    user = None
+    auth_header = request.headers.get('Authorization', '')
+    if auth_header.startswith('Bearer '):
+        token = auth_header.split(' ', 1)[1]
+        from api.auth import verify_jwt
+        user = verify_jwt(token)
+    if not user:
+        return jsonify({'error': 'Authentication required'}), 401
+
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+    status_filter = request.args.get('status', '')
+    period = request.args.get('period', '')
+
+    query = Order.query.filter_by(user_id=user.id).order_by(Order.created_at.desc())
+
+    if status_filter:
+        query = query.filter(Order.status == status_filter)
+
+    # Filtre période (simplifié)
+    if period == '3m':
+        from datetime import timedelta
+        three_months_ago = datetime.utcnow() - timedelta(days=90)
+        query = query.filter(Order.created_at >= three_months_ago)
+    elif period == '2023':
+        query = query.filter(Order.created_at >= '2023-01-01', Order.created_at < '2024-01-01')
+
+    total = query.count()
+    orders = query.offset((page - 1) * per_page).limit(per_page).all()
+
+    # Enrichir les données pour le frontend
+    result = []
+    for order in orders:
+        items = []
+        try:
+            items = json.loads(order.items) if order.items else []
+        except:
+            items = []
+
+       # RÃ©cupÃ©rer les images des produits
+        # Garder uniquement les product_id numeriques valides (ignore les anciens
+        # formats type "prod-001" issus du catalogue statique pre-migration)
+        raw_product_ids = [item.get('product_id') or item.get('id') for item in items if item]
+        product_ids = []
+        for pid in raw_product_ids:
+            try:
+                product_ids.append(int(pid))
+            except (ValueError, TypeError):
+                continue
+        products = {}
+        if product_ids:
+            for p in Product.query.filter(Product.id.in_(product_ids)).all():
+                products[p.id] = p.to_dict()
+
+        enriched_items = []
+        for item in items:
+            pid = item.get('product_id') or item.get('id')
+            prod = products.get(pid, {})
+            enriched_items.append({
+                'name': item.get('name', prod.get('nom', 'Article')),
+                'image': item.get('image', prod.get('image', '')),
+                'price': item.get('price', prod.get('prix', 0)),
+                'quantity': item.get('quantity', 1)
+            })
+
+        result.append({
+            'id': order.id,
+            'reference': f"ORD-{order.id:04d}",
+            'date': order.created_at.strftime('%d %b %Y') if order.created_at else '—',
+            'status': order.status,
+            'total': order.total,
+            'items': enriched_items
+        })
+
+    return jsonify({
+        'orders': result,
+        'total': total,
+        'page': page,
+        'per_page': per_page,
+        'pages': (total + per_page - 1) // per_page,
+        'has_more': page * per_page < total
+    }), 200
+
+
+@app.route('/api/commandes', methods=['POST'])
+def create_order():
+    """Crée une commande + initialise invoice + tracking (données dynamiques)."""
+    try:
+        data = request.get_json() or {}
+        items = data.get('items') or json.loads(request.form.get('items', '[]')) if request.form.get('items') else data.get('items', [])
+        total = float(data.get('total', 0.0))
+        payment_method = data.get('payment_method')
+
+        # Identify user via Authorization header
+        user = None
+        auth_header = request.headers.get('Authorization', '')
+        if auth_header.startswith('Bearer '):
+            token = auth_header.split(' ', 1)[1]
+            from api.auth import verify_jwt
+            user = verify_jwt(token)
+
+        user_id = user.id if user else None
+
+        order = Order(user_id=user_id, items=json.dumps(items), total=total, status='created')
+        db.session.add(order)
+        db.session.flush()  # get order.id
+
+        # Create Invoice (placeholder PDF URL; can be wired to MinIO later)
+        invoice = Invoice(
+            user_id=user_id,
+            order_id=order.id,
+            invoice_number=f"INV-{order.id:06d}",
+            status='ready',
+            pdf_url=f"/api/invoices/{order.id}/download"  # virtual link for now
+        )
+        db.session.add(invoice)
+        db.session.flush()
+
+        # Create Tracking
+        tracking = OrderTracking(
+            user_id=user_id,
+            order_id=order.id,
+            tracking_number=f"SAI-{order.id:07d}X",
+            carrier='Moroccan Express Logistics',
+            status='created',
+            last_location='Casablanca, Maroc',
+            last_lat=33.5731,
+            last_lng=-7.5898,
+            timeline=json.dumps([
+                {'status': 'Commande passée', 'at': datetime.utcnow().isoformat(), 'location': 'Casablanca, Maroc'},
+                {'status': 'Paiement confirmé', 'at': datetime.utcnow().isoformat(), 'location': 'Casablanca, Maroc'},
+                {'status': 'En préparation', 'at': datetime.utcnow().isoformat(), 'location': 'Casablanca, Maroc'},
+                {'status': 'Expédiée', 'at': datetime.utcnow().isoformat(), 'location': 'Rabat, Maroc'},
+            ])
+        )
+        db.session.add(tracking)
+
+        # Link order -> invoice
+        order.invoice_id = invoice.id
+        order.status = 'paid' if payment_method in ('card', 'wallet', 'paypal') else 'created'
+
+        db.session.commit()
+
+        return jsonify({'status': 'ok', 'order': order.to_dict(), 'invoice': invoice.to_dict(), 'tracking': tracking.to_dict()}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+# ════════════════════════════════════════════════════════════════
+#  SHOPAI CHATBOT — GROQ API (Llama 3 / Mixtral)
+# ════════════════════════════════════════════════════════════════
+
+import re
+import uuid
+import json
+import os
+from datetime import datetime
+from groq import Groq
+
+# ─── MODÈLES CHATBOT ─────────────────────────────────────────────
+
+class ChatConversation(db.Model):
+    __tablename__ = 'chat_conversations'
+    id = db.Column(db.String(50), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+    title = db.Column(db.String(200), default='Nouvelle conversation')
+    status = db.Column(db.String(20), default='active')
+    context_summary = db.Column(db.Text, default='')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    messages = db.relationship('ChatMessage', backref='conversation', lazy='dynamic', cascade='all, delete-orphan')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'title': self.title,
+            'status': self.status,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'message_count': self.messages.count()
+        }
+
+
+class ChatMessage(db.Model):
+    __tablename__ = 'chat_messages'
+    id = db.Column(db.Integer, primary_key=True)
+    conversation_id = db.Column(db.String(50), db.ForeignKey('chat_conversations.id'), nullable=False)
+    sender = db.Column(db.String(20), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    message_type = db.Column(db.String(30), default='text')
+    metadata_json = db.Column(db.Text, default='{}')
+    intent = db.Column(db.String(50), default='')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        meta = {}
+        try:
+            meta = json.loads(self.metadata_json) if self.metadata_json else {}
+        except:
+            pass
+        return {
+            'id': self.id,
+            'conversation_id': self.conversation_id,
+            'sender': self.sender,
+            'content': self.content,
+            'message_type': self.message_type,
+            'metadata': meta,
+            'intent': self.intent,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
+
+
+# Créer les tables
+with app.app_context():
+    db.create_all()
+
+
+# ─── MOTEUR IA GROQ ──────────────────────────────────────────────
+
+class ShopAIEngine:
+    SYSTEM_PROMPT = """Tu es ShopAI, l'assistant virtuel intelligent de ShopAI Marketplace Maroc.
+
+MISSIONS:
+1. RECOMMANDER des produits pertinents selon le budget et les besoins du client
+2. SUIVRE les commandes et donner les infos de livraison precises
+3. RESOUDRE les problemes (retours, remboursements, articles defectueux)
+4. AIDER a la navigation (catalogue, panier, paiement)
+
+REGLES STRICTES:
+- Reponds en francais ou darija marocaine selon la langue du client
+- Sois chaleureux, professionnel et concis (max 3-4 phrases)
+- Prix toujours en MAD (Dirhams)
+- Pour les commandes: donne le numero de suivi, statut exact, derniere localisation
+- Si probleme grave -> propose de connecter avec un agent humain
+- Utilise des emojis pertinents
+
+FORMAT REPONSE:
+- Texte normal pour conversation
+- [PRODUCTS] pour suggestions produits
+- [ORDER] pour infos commande
+- [ESCALATE] pour transfert humain"""
+
+    MODELS = {
+        'fast': 'llama-3.1-8b-instant',
+        'balanced': 'llama-3.3-70b-versatile',
+        'smart': 'deepseek-r1-distill-llama-70b',
+        'mixtral': 'mixtral-8x7b-32768',
+    }
+
+    def __init__(self, model='balanced'):
+        self.api_key = os.environ.get('GROQ_API_KEY', '')
+        self.client = Groq(api_key=self.api_key) if self.api_key else None
+        self.model = self.MODELS.get(model, self.MODELS['balanced'])
+        self.groq_available = self.client is not None
+        print(f"[ShopAI] Modele: {self.model} | Groq disponible: {self.groq_available}")
+
+    def detect_intent(self, message: str) -> str:
+        msg = message.lower()
+        patterns = {
+            'order_tracking': [r'commande', r'colis', r'livraison', r'suivi', r'expedie', r'arrive', r'numero de suivi', r'ou est', r'quand'],
+            'product_search': [r'cherche', r'trouve', r'recommande', r'suggere', r'besoin', r'quel', r'quelle', r'je veux', r'je cherche'],
+            'price_query': [r'prix', r'budget', r'combien', r'moins cher', r'pas cher', r'solde', r'promo', r'reduction', r'dh', r'mad'],
+            'support_issue': [r'probleme', r'retour', r'remboursement', r'casse', r'defectueux', r'erreur', r'plainte', r'insatisfait', r'mauvais'],
+            'payment_help': [r'paiement', r'carte', r'paypal', r'virement', r'cash', r'livraison', r'comment payer'],
+            'greeting': [r'salam', r'bonjour', r'bonsoir', r'ca va', r'hello', r'hi', r'coucou', r'hey'],
+            'cart_help': [r'panier', r'ajouter', r'supprimer', r'vider', r'modifier'],
+        }
+        for intent, regex_list in patterns.items():
+            if any(re.search(p, msg) for p in regex_list):
+                return intent
+        return 'general'
+
+    def get_order_context(self, user_id: int) -> str:
+        orders = Order.query.filter_by(user_id=user_id).order_by(Order.created_at.desc()).limit(5).all()
+        if not orders:
+            return "Aucune commande trouvee pour cet utilisateur."
+        
+        context = "COMMANDES RECENTES:\n"
+        for o in orders:
+            tracking = OrderTracking.query.filter_by(order_id=o.id).first()
+            status_map = {
+                'created': 'Creee', 'paid': 'Payee', 'processing': 'En preparation',
+                'shipped': 'Expediee', 'delivered': 'Livree', 'cancelled': 'Annulee'
+            }
+            status = status_map.get(o.status, o.status)
+            tracking_num = tracking.tracking_number if tracking else 'N/A'
+            location = tracking.last_location if tracking else 'Casablanca'
+            context += f"- Commande #{o.id}: {status}, Suivi: {tracking_num}, Localisation: {location}, Total: {o.total} MAD\n"
+        return context
+
+    def get_product_context(self, query: str, max_price: float = None) -> str:
+        q = Product.query
+        if query:
+            q = q.filter(
+                db.or_(
+                    Product.name.ilike(f'%{query}%'),
+                    Product.category.ilike(f'%{query}%'),
+                    Product.description.ilike(f'%{query}%')
+                )
+            )
+        if max_price:
+            q = q.filter(Product.price <= max_price)
+        
+        products = q.order_by(Product.price.asc()).limit(5).all()
+        if not products:
+            return "Aucun produit trouve pour cette recherche."
+        
+        context = "PRODUITS DISPONIBLES:\n"
+        for p in products:
+            context += f"- {p.name}: {p.price} MAD, Categorie: {p.category}, Stock: {p.stock or 'disponible'}\n"
+        return context
+
+    def get_user_preferences_context(self, user_id: int) -> str:
+        if not user_id:
+            return ""
+        prefs = UserPreference.query.filter_by(user_id=user_id).all()
+        if prefs:
+            cats = [p.category for p in prefs]
+            return f"PREFERENCES CLIENT: {', '.join(cats)}\n"
+        return ""
+
+    def generate_response(self, message: str, user_id: int = None, conversation_history: list = None) -> dict:
+        intent = self.detect_intent(message)
+        
+        context_parts = [self.SYSTEM_PROMPT]
+        
+        if user_id:
+            context_parts.append(self.get_user_preferences_context(user_id))
+            context_parts.append(self.get_order_context(user_id))
+        
+        budget_match = re.search(r'(\d+)\s*(?:dh|mad|DH|MAD|€|\$)', message.lower())
+        max_price = float(budget_match.group(1)) if budget_match else None
+        
+        if intent in ['product_search', 'price_query']:
+            context_parts.append(self.get_product_context(message, max_price))
+        
+        if conversation_history:
+            hist_text = "\n".join([
+                f"{'Client' if h['sender'] == 'user' else 'ShopAI'}: {h['content'][:200]}"
+                for h in conversation_history[-6:]
+            ])
+            context_parts.append(f"HISTORIQUE:\n{hist_text}")
+        
+        full_prompt = "\n\n".join(context_parts) + f"\n\nClient: {message}\nShopAI:"
+        
+        if self.groq_available:
+            try:
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=[
+                        {"role": "system", "content": self.SYSTEM_PROMPT},
+                        {"role": "user", "content": full_prompt}
+                    ],
+                    temperature=0.7,
+                    max_tokens=500,
+                    top_p=0.9,
+                )
+                ai_text = response.choices[0].message.content.strip()
+                return self._parse_response(ai_text, intent, user_id, max_price)
+            except Exception as e:
+                print(f"[ShopAI] Erreur Groq: {e}")
+                return self._try_fallback_model(message, intent, user_id, max_price)
+        
+        return self._fallback_response(message, intent, user_id, max_price)
+
+    def _try_fallback_model(self, message: str, intent: str, user_id: int, max_price: float) -> dict:
+        fallback_models = ['llama-3.1-8b-instant', 'mixtral-8x7b-32768']
+        for model in fallback_models:
+            if model == self.model:
+                continue
+            try:
+                response = self.client.chat.completions.create(
+                    model=model,
+                    messages=[
+                        {"role": "system", "content": self.SYSTEM_PROMPT},
+                        {"role": "user", "content": message}
+                    ],
+                    temperature=0.7,
+                    max_tokens=400,
+                )
+                ai_text = response.choices[0].message.content.strip()
+                return self._parse_response(ai_text, intent, user_id, max_price)
+            except Exception:
+                continue
+        return self._fallback_response(message, intent, user_id, max_price)
+
+    def _parse_response(self, text: str, intent: str, user_id: int, max_price: float) -> dict:
+        result = {
+            'text': text,
+            'intent': intent,
+            'message_type': 'text',
+            'metadata': {}
+        }
+        
+        if '[PRODUCTS]' in text or intent in ['product_search', 'price_query']:
+            result['message_type'] = 'product_suggestions'
+            result['metadata']['products'] = self._get_products_for_response(user_id, max_price)
+        elif '[ORDER]' in text or intent == 'order_tracking':
+            result['message_type'] = 'order_status'
+            result['metadata']['orders'] = self._get_user_orders_summary(user_id)
+        elif '[ESCALATE]' in text or intent == 'support_issue':
+            result['message_type'] = 'escalate'
+            result['metadata']['action'] = 'connect_human_agent'
+        
+        result['text'] = re.sub(r'\[(PRODUCTS|ORDER|ESCALATE)\]', '', text).strip()
+        return result
+
+    def _fallback_response(self, message: str, intent: str, user_id: int, max_price: float) -> dict:
+        responses = {
+            'greeting': {
+                'text': "Salam ! 👋 Je suis ShopAI, votre assistant shopping. Je peux vous aider a trouver des produits, suivre vos commandes ou resoudre un probleme. Comment puis-je vous aider ?",
+                'message_type': 'text',
+                'metadata': {'quick_replies': ['Suivre ma commande', 'Recommandations', 'Probleme avec ma commande']}
+            },
+            'order_tracking': {
+                'text': self._get_order_status_text(user_id),
+                'message_type': 'order_status',
+                'metadata': {'orders': self._get_user_orders_summary(user_id)}
+            },
+            'product_search': {
+                'text': "Voici ce que j'ai trouve pour vous ! 🔍",
+                'message_type': 'product_suggestions',
+                'metadata': {'products': self._get_products_for_response(user_id, max_price)}
+            },
+            'price_query': {
+                'text': f"Je cherche des produits dans votre budget {'de ' + str(int(max_price)) + ' MAD' if max_price else 'optimal'} ! 💰",
+                'message_type': 'product_suggestions',
+                'metadata': {'products': self._get_products_for_response(user_id, max_price)}
+            },
+            'support_issue': {
+                'text': "Je suis desole pour ce probleme. 😔 Je vais vous connecter avec un agent qui pourra vous aider immediatement. Voulez-vous que je prepare un recapitulatif ?",
+                'message_type': 'escalate',
+                'metadata': {'action': 'connect_human_agent', 'estimated_wait': '2 min'}
+            },
+            'payment_help': {
+                'text': "Nous acceptons plusieurs moyens de paiement securises : 💳 Carte bancaire (Visa/Mastercard), 📱 PayPal, 💰 Paiement a la livraison (Cash on Delivery). Lequel preferez-vous ?",
+                'message_type': 'text',
+                'metadata': {'quick_replies': ['Carte bancaire', 'PayPal', 'Paiement a la livraison']}
+            },
+            'cart_help': {
+                'text': "Je peux vous aider avec votre panier ! 🛒 Vous pouvez ajouter des produits, modifier les quantites ou vider le panier. Que souhaitez-vous faire ?",
+                'message_type': 'text',
+                'metadata': {'quick_replies': ['Voir mon panier', 'Ajouter un produit', 'Vider le panier']}
+            },
+            'general': {
+                'text': "Je suis la pour vous aider ! 😊 Vous pouvez me demander de trouver un produit, suivre une commande, ou obtenir de l'aide. Que souhaitez-vous faire ?",
+                'message_type': 'text',
+                'metadata': {'quick_replies': ['Chercher un produit', 'Mes commandes', 'Aide']}
+            }
+        }
+        return responses.get(intent, responses['general'])
+
+    def _get_order_status_text(self, user_id: int) -> str:
+        if not user_id:
+            return "Pour consulter vos commandes, veuillez vous connecter a votre compte. 🔐"
+        orders = Order.query.filter_by(user_id=user_id).order_by(Order.created_at.desc()).limit(3).all()
+        if not orders:
+            return "Vous n'avez pas encore de commande. Decouvrez notre catalogue ! 🛍️"
+        
+        texts = []
+        for o in orders:
+            tracking = OrderTracking.query.filter_by(order_id=o.id).first()
+            status_emoji = {'delivered': '✅', 'shipped': '🚚', 'processing': '📦', 'paid': '💳', 'created': '📝'}
+            emoji = status_emoji.get(o.status, '📋')
+            track_num = tracking.tracking_number if tracking else 'N/A'
+            texts.append(f"{emoji} Commande #{o.id}: {o.status.upper()} — Suivi: {track_num}")
+        
+        return "Voici vos commandes recentes :\n\n" + "\n".join(texts) + "\n\nSouhaitez-vous des details sur l'une d'elles ?"
+
+    def _get_user_orders_summary(self, user_id: int) -> list:
+        if not user_id:
+            return []
+        orders = Order.query.filter_by(user_id=user_id).order_by(Order.created_at.desc()).limit(5).all()
+        result = []
+        for o in orders:
+            tracking = OrderTracking.query.filter_by(order_id=o.id).first()
+            result.append({
+                'id': o.id,
+                'reference': f"ORD-{o.id:04d}",
+                'status': o.status,
+                'total': o.total,
+                'tracking_number': tracking.tracking_number if tracking else None,
+                'carrier': tracking.carrier if tracking else 'Moroccan Express Logistics',
+                'last_location': tracking.last_location if tracking else 'Casablanca, Maroc',
+                'date': o.created_at.strftime('%d/%m/%Y') if o.created_at else '—'
+            })
+        return result
+
+    def _get_products_for_response(self, user_id: int, max_price: float = None) -> list:
+        q = Product.query
+        if max_price:
+            q = q.filter(Product.price <= max_price)
+        
+        if user_id:
+            prefs = UserPreference.query.filter_by(user_id=user_id).all()
+            categories = [p.category for p in prefs if p.category]
+            if categories:
+                q = q.filter(Product.category.in_(categories))
+        
+        products = q.order_by(Product.price.asc()).limit(4).all()
+        if not products:
+            products = Product.query.order_by(Product.price.asc()).limit(4).all()
+        
+        return [{
+            'id': p.id,
+            'name': p.name,
+            'price': p.price,
+            'category': p.category,
+            'image': p.image_url or '/static/images/product-placeholder.jpg',
+            'stock': p.stock or 10,
+            'description': (p.description or '')[:100] + '...' if p.description and len(p.description) > 100 else (p.description or '')
+        } for p in products]
+
+
+# Instance globale
+shopai_engine = ShopAIEngine(model='balanced')
+
+
+# ════════════════════════════════════════════════════════════════
+#  ROUTES API CHATBOT — CORRIGÉES (support anonyme + auth)
+# ════════════════════════════════════════════════════════════════
+
+@app.route('/api/chat/conversations', methods=['GET'])
+def get_conversations():
+    """Liste les conversations de l'utilisateur connecté, ou liste vide en anonyme"""
+    user = _get_auth_user()
+
+    if user:
+        conversations = ChatConversation.query.filter_by(user_id=user.id).order_by(ChatConversation.updated_at.desc()).all()
+        return jsonify({
+            'conversations': [c.to_dict() for c in conversations],
+            'anonymous': False
+        }), 200
+    else:
+        # Pour les utilisateurs non connectés, ne pas renvoyer d'erreur
+        return jsonify({'conversations': [], 'anonymous': True}), 200
+
+
+@app.route('/api/chat/conversations', methods=['POST'])
+def create_conversation():
+    """Crée une nouvelle conversation (anonyme ou authentifiée)"""
+    user = _get_auth_user()
+
+    data = request.get_json(silent=True) or {}
+    title = data.get('title', 'Nouvelle conversation')
+
+    conv = ChatConversation(
+        user_id=user.id if user else None,
+        title=title
+    )
+    db.session.add(conv)
+    db.session.commit()
+
+    # Message de bienvenue
+    welcome = ChatMessage(
+        conversation_id=conv.id,
+        sender='ai',
+        content="Salam ! 👋 Je suis ShopAI. Comment puis-je vous aider aujourd'hui ?",
+        message_type='text',
+        intent='greeting'
+    )
+    db.session.add(welcome)
+    db.session.commit()
+
+    return jsonify({
+        'conversation': conv.to_dict(),
+        'welcome_message': welcome.to_dict()
+    }), 201
+
+
+@app.route('/api/chat/conversations/<conv_id>/messages', methods=['GET'])
+def get_messages(conv_id):
+    """Récupère les messages d'une conversation (anonyme ou authentifiée)"""
+    user = _get_auth_user()
+
+    conv = ChatConversation.query.get_or_404(conv_id)
+
+    # Vérifier l'accès : soit l'utilisateur est le propriétaire, soit c'est une conversation anonyme
+    if user and conv.user_id and conv.user_id != user.id:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    messages = ChatMessage.query.filter_by(conversation_id=conv_id).order_by(ChatMessage.created_at.asc()).all()
+    return jsonify({
+        'conversation': conv.to_dict(),
+        'messages': [m.to_dict() for m in messages]
+    }), 200
+
+
+@app.route('/api/chat/conversations/<conv_id>/messages', methods=['POST'])
+def send_chat_message(conv_id):
+    """Envoie un message et reçoit la réponse IA (anonyme ou authentifié)"""
+    user = _get_auth_user()
+
+    conv = ChatConversation.query.get_or_404(conv_id)
+
+    # Vérifier l'accès
+    if user and conv.user_id and conv.user_id != user.id:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    data = request.get_json(silent=True) or {}
+    content = data.get('content', '').strip()
+
+    if not content:
+        return jsonify({'error': 'Message vide'}), 400
+
+    # Sauvegarder le message utilisateur
+    user_msg = ChatMessage(
+        conversation_id=conv_id,
+        sender='user',
+        content=content,
+        intent=shopai_engine.detect_intent(content)
+    )
+    db.session.add(user_msg)
+    db.session.commit()
+
+    # Récupérer l'historique
+    history = [m.to_dict() for m in ChatMessage.query.filter_by(conversation_id=conv_id).order_by(ChatMessage.created_at.asc()).all()]
+
+    # Générer la réponse IA
+    user_id = user.id if user else None
+    ai_result = shopai_engine.generate_response(content, user_id=user_id, conversation_history=history)
+
+    # Sauvegarder la réponse IA
+    ai_msg = ChatMessage(
+        conversation_id=conv_id,
+        sender='ai',
+        content=ai_result['text'],
+        message_type=ai_result['message_type'],
+        metadata_json=json.dumps(ai_result.get('metadata', {})),
+        intent=ai_result['intent']
+    )
+    db.session.add(ai_msg)
+
+    # Mettre à jour la conversation
+    conv.updated_at = datetime.utcnow()
+    if ai_result['intent'] == 'escalate':
+        conv.status = 'escalated'
+
+    db.session.commit()
+
+    return jsonify({
+        'user_message': user_msg.to_dict(),
+        'ai_response': ai_msg.to_dict(),
+        'metadata': ai_result.get('metadata', {})
+    }), 201
+
+
+@app.route('/api/chat/conversations/<conv_id>', methods=['DELETE'])
+def delete_conversation(conv_id):
+    """Supprime une conversation"""
+    user = _get_auth_user()
+
+    conv = ChatConversation.query.get_or_404(conv_id)
+
+    # Vérifier l'accès : soit le propriétaire, soit conversation anonyme
+    if user and conv.user_id and conv.user_id != user.id:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    db.session.delete(conv)
+    db.session.commit()
+
+    return jsonify({'message': 'Conversation supprimee'}), 200
+
+
+@app.route('/api/chat/quick-actions', methods=['GET'])
+def get_quick_actions():
+    """Actions rapides disponibles pour le chatbot (public)"""
+    return jsonify({
+        'actions': [
+            {'id': 'track_order', 'label': '📦 Suivre ma commande', 'intent': 'order_tracking'},
+            {'id': 'find_product', 'label': '🔍 Trouver un produit', 'intent': 'product_search'},
+            {'id': 'best_deals', 'label': '💰 Meilleures offres', 'intent': 'price_query'},
+            {'id': 'support', 'label': '🆘 Support client', 'intent': 'support_issue'},
+            {'id': 'payment_help', 'label': '💳 Aide paiement', 'intent': 'payment_help'},
+        ]
+    }), 200
+
+
+@app.route('/api/admin/chatbot/model', methods=['POST'])
+@admin_required
+def change_chatbot_model():
+    data = request.get_json() or {}
+    model = data.get('model', 'balanced')
+    if model not in ShopAIEngine.MODELS:
+        return jsonify({'error': f'Modele invalide. Choix: {list(ShopAIEngine.MODELS.keys())}'}), 400
+
+    global shopai_engine
+    shopai_engine = ShopAIEngine(model=model)
+    return jsonify({
+        'status': 'ok',
+        'model': model,
+        'model_id': ShopAIEngine.MODELS[model]
+    }), 200
+
+
+@app.route('/api/admin/chatbot/model', methods=['GET'])
+@admin_required
+def get_chatbot_model():
+    return jsonify({
+        'current_model': shopai_engine.model,
+        'available_models': ShopAIEngine.MODELS
+    }), 200
+
+
+# ════════════════════════════════════════════════════════════════
+#  FIN CHATBOT
+# ════════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════════
+# ════════════════════════════════════════════════════════════════
+#  API ADMIN — À coller dans main.py juste avant le bloc LANCEMENT
+# ════════════════════════════════════════════════════════════════
+
+@app.route('/api/products', methods=['GET'])
+def get_products_admin():
+    """Liste tous les produits pour l'admin (avec stats)."""
+    try:
+        q = request.args.get('q', '')
+        category = request.args.get('category', '')
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 12, type=int)
+
+        query = Product.query
+        if q:
+            query = query.filter(Product.name.ilike(f'%{q}%'))
+        if category:
+            query = query.filter(Product.category.ilike(category))
+
+        total = query.count()
+        products = query.offset((page - 1) * per_page).limit(per_page).all()
+
+        result = []
+        for p in products:
+            try:
+                meta = json.loads(p.product_metadata) if p.product_metadata else {}
+            except Exception:
+                meta = {}
+            result.append({
+                'id': p.id,
+                'external_id': p.external_id,
+                'name': p.name,
+                'price': p.price,
+                'category': p.category,
+                'image': meta.get('image_url', 'https://placehold.co/400x400?text=Produit'),
+                'rating': meta.get('rating', 4.5),
+                'vendor': meta.get('vendor', 'ShopAI Store'),
+                'stock': meta.get('stock', 99),
+                'sales': meta.get('sales', 0),
+                'status': meta.get('status', 'in_stock'),
+            })
+
+        return jsonify({
+            'products': result,
+            'total': total,
+            'page': page,
+            'per_page': per_page,
+            'pages': (total + per_page - 1) // per_page,
+        }), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/products', methods=['POST'])
+def create_product():
+    """Crée un nouveau produit (admin)."""
+    user = _get_auth_user()
+    if not user or user.role != 'admin':
+        return jsonify({'error': 'Admin required'}), 403
+
+    data = request.get_json(silent=True) or {}
+    try:
+        meta = {
+            'image_url': data.get('image', ''),
+            'rating': 4.5,
+            'vendor': 'ShopAI Store',
+            'stock': int(data.get('stock', 0)),
+            'sales': 0,
+            'status': data.get('status', 'in_stock'),
+            'description': data.get('description', ''),
+            'ref': data.get('ref', ''),
+        }
+        product = Product(
+            name=data.get('name'),
+            price=float(data.get('price', 0)),
+            category=data.get('category', 'Tech'),
+            product_metadata=json.dumps(meta),
+        )
+        db.session.add(product)
+        db.session.commit()
+        return jsonify({'status': 'ok', 'id': product.id, 'message': 'Produit créé'}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/products/<int:product_id>', methods=['PUT'])
+def update_product(product_id):
+    """Met à jour un produit (admin)."""
+    user = _get_auth_user()
+    if not user or user.role != 'admin':
+        return jsonify({'error': 'Admin required'}), 403
+
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({'error': 'Produit introuvable'}), 404
+
+    data = request.get_json(silent=True) or {}
+    try:
+        meta = json.loads(product.product_metadata) if product.product_metadata else {}
+        if 'name' in data:
+            product.name = data['name']
+        if 'price' in data:
+            product.price = float(data['price'])
+        if 'category' in data:
+            product.category = data['category']
+        if 'image' in data:
+            meta['image_url'] = data['image']
+        if 'stock' in data:
+            meta['stock'] = int(data['stock'])
+        if 'status' in data:
+            meta['status'] = data['status']
+        if 'description' in data:
+            meta['description'] = data['description']
+        product.product_metadata = json.dumps(meta)
+        db.session.commit()
+        return jsonify({'status': 'ok', 'message': 'Produit mis à jour'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/products/<int:product_id>', methods=['DELETE'])
+def delete_product(product_id):
+    """Supprime un produit (admin)."""
+    user = _get_auth_user()
+    if not user or user.role != 'admin':
+        return jsonify({'error': 'Admin required'}), 403
+
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({'error': 'Produit introuvable'}), 404
+
+    try:
+        db.session.delete(product)
+        db.session.commit()
+        return jsonify({'status': 'ok', 'message': 'Produit supprimé'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/admin/stats/full')
+def admin_stats_full():
+    """Stats complètes depuis la DB pour le dashboard admin."""
+    user = _get_auth_user()
+    if not user or user.role != 'admin':
+        return jsonify({'error': 'Admin required'}), 403
+
+    try:
+        nb_users = User.query.count()
+        nb_products = Product.query.count()
+        nb_orders = Order.query.count()
+        nb_interactions = Interaction.query.count()
+
+        # Revenus totaux
+        revenue = db.session.query(db.func.sum(Order.total)).filter(
+            Order.status.in_(['paid', 'created'])
+        ).scalar() or 0
+
+        # Commandes récentes (10 dernières)
+        recent_orders = Order.query.order_by(Order.created_at.desc()).limit(10).all()
+        orders_data = []
+        for o in recent_orders:
+            user_obj = User.query.get(o.user_id) if o.user_id else None
+            orders_data.append({
+                'id': o.id,
+                'reference': f'ORD-{o.id:04d}',
+                'user': user_obj.username if user_obj else 'Anonyme',
+                'total': o.total,
+                'status': o.status,
+                'date': o.created_at.strftime('%d %b %Y') if o.created_at else '—',
+            })
+
+        # Répartition par catégorie
+        from sqlalchemy import func
+        categories = db.session.query(
+            Product.category, func.count(Product.id)
+        ).group_by(Product.category).all()
+
+        return jsonify({
+            'nb_users': nb_users,
+            'nb_products': nb_products,
+            'nb_orders': nb_orders,
+            'nb_interactions': nb_interactions,
+            'revenue_total': round(float(revenue), 2),
+            'recent_orders': orders_data,
+            'categories': [{'name': c[0] or 'Autre', 'count': c[1]} for c in categories],
+        }), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/admin/orders', methods=['GET'])
+def admin_get_orders():
+    """Toutes les commandes pour l'admin."""
+    user = _get_auth_user()
+    if not user or user.role != 'admin':
+        return jsonify({'error': 'Admin required'}), 403
+
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+    status_filter = request.args.get('status', '')
+
+    query = Order.query.order_by(Order.created_at.desc())
+    if status_filter:
+        query = query.filter(Order.status == status_filter)
+
+    total = query.count()
+    orders = query.offset((page - 1) * per_page).limit(per_page).all()
+
+    result = []
+    for o in orders:
+        user_obj = User.query.get(o.user_id) if o.user_id else None
+        result.append({
+            'id': o.id,
+            'reference': f'ORD-{o.id:04d}',
+            'user': user_obj.username if user_obj else 'Anonyme',
+            'email': user_obj.email if user_obj else '—',
+            'total': o.total,
+            'status': o.status,
+            'date': o.created_at.strftime('%d %b %Y %H:%M') if o.created_at else '—',
+        })
+
+    return jsonify({
+        'orders': result,
+        'total': total,
+        'page': page,
+        'pages': (total + per_page - 1) // per_page,
+    }), 200
+
+
+@app.route('/api/admin/orders/<int:order_id>/status', methods=['PUT'])
+def admin_update_order_status(order_id):
+    """Met à jour le statut d'une commande (admin)."""
+    user = _get_auth_user()
+    if not user or user.role != 'admin':
+        return jsonify({'error': 'Admin required'}), 403
+
+    order = Order.query.get(order_id)
+    if not order:
+        return jsonify({'error': 'Commande introuvable'}), 404
+
+    data = request.get_json(silent=True) or {}
+    new_status = data.get('status')
+    if not new_status:
+        return jsonify({'error': 'status requis'}), 400
+
+    try:
+        order.status = new_status
+        db.session.commit()
+        return jsonify({'status': 'ok', 'message': f'Commande #{order_id} → {new_status}'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+#  LANCEMENT
+# ════════════════════════════════════════════════════════════════
+
+if __name__ == '__main__':
+    print('[ShopAI] Serveur démarré sur http://127.0.0.1:8000')
+    print('[ShopAI] Routes disponibles :')
+    print('  Pages  : /, /login, /inscription, /dashboard, /catalogue...')
+    print('  API    : /api/recommandations/<id>, /api/produits, /api/interactions')
+    print('  Admin  : /api/admin/stats, /api/admin/retrain')
+    app.run(debug=True, port=8000)

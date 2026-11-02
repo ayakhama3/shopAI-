@@ -1,0 +1,275 @@
+﻿<!DOCTYPE html>
+<html class="light" lang="fr">
+
+<head>
+
+<meta charset="utf-8"/>
+<script src="/static/js/toast.js"></script>
+<script src="/static/js/auth.js"></script>
+<script>
+  // assure compat: expose global
+  window.ShopAIAuth = window.ShopAIAuth || (window.ShopAIAuth);
+</script>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Connexion - ShopAI</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;900&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed": "#d8e3fb",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-bright": "#f7f9fb",
+                        "on-primary": "#ffffff",
+                        "outline": "#76777d",
+                        "on-error": "#ffffff",
+                        "surface-container": "#eceef0",
+                        "primary-fixed": "#dae2fd",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "on-secondary-fixed-variant": "#763300",
+                        "on-secondary-fixed": "#331200",
+                        "tertiary-container": "#111c2d",
+                        "on-secondary-container": "#682c00",
+                        "surface": "#f7f9fb",
+                        "on-primary-container": "#7c839b",
+                        "secondary-container": "#fd8a42",
+                        "on-secondary-container": "#682c00",
+                        "surface-container-high": "#e6e8ea",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed-dim": "#bec6e0",
+                        "tertiary": "#000000",
+                        "on-tertiary-fixed-variant": "#3c475a",
+                        "surface-variant": "#e0e3e5",
+                        "inverse-surface": "#2d3133",
+                        "on-primary-fixed": "#131b2e",
+                        "background": "#f7f9fb",
+                        "inverse-primary": "#bec6e0",
+                        "surface-container-highest": "#e0e3e5",
+                        "secondary": "#9b4500",
+                        "surface-dim": "#d8dadc",
+                        "inverse-on-surface": "#eff1f3",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#111c2d",
+                        "tertiary-fixed-dim": "#bcc7de",
+                        "on-surface": "#191c1e",
+                        "primary": "#000000",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#f2f4f6",
+                        "on-surface-variant": "#45464d",
+                        "secondary-fixed-dim": "#ffb68e",
+                        "primary-container": "#131b2e",
+                        "secondary-fixed": "#ffdbca",
+                        "outline-variant": "#c6c6cd",
+                        "surface-tint": "#565e74",
+                        "on-background": "#191c1e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1280px",
+                        "gutter": "1.5rem",
+                        "margin-mobile": "1rem",
+                        "stack-lg": "2rem",
+                        "margin-desktop": "2.5rem",
+                        "stack-md": "1rem",
+                        "stack-sm": "0.5rem"
+                    },
+                    "fontFamily": {
+                        "headline-xl": ["Montserrat"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Montserrat"],
+                        "headline-lg": ["Montserrat"],
+                        "headline-lg-mobile": ["Montserrat"],
+                        "body-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "price-display": ["Montserrat"]
+                    },
+                    "fontSize": {
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                        "price-display": ["20px", {"lineHeight": "24px", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #F8FAFC; /* Base Level from Style Guidance */
+        }
+        .login-card {
+            box-shadow: 0px 4px 20px rgba(15, 23, 42, 0.05); /* Ambient Shadow from Style Guidance */
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen text-on-surface selection:bg-secondary-fixed selection:text-on-secondary-fixed">
+<!-- Top Navigation Suppression: Not rendered as per Destination Rule for transactional page -->
+<main class="flex-grow flex items-center justify-center px-margin-mobile py-stack-lg md:px-margin-desktop">
+<div class="w-full max-w-md bg-surface-container-lowest login-card border border-outline-variant p-8 md:p-10 rounded-xl">
+<!-- Branding Header -->
+<header class="flex flex-col items-center mb-10">
+<div class="mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-4xl" data-icon="shopping_bag">shopping_bag</span>
+<h1 class="font-headline-md text-headline-md font-bold tracking-tight text-primary">ShopAI</h1>
+</div>
+<p class="text-on-surface-variant font-body-md text-body-md text-center">Connectez-vous pour continuer votre shopping intelligent.</p>
+</header>
+<!-- Login Form -->
+<form class="space-y-6" id="loginForm">
+<!-- Email Field -->
+<div>
+<label class="block font-label-sm text-label-sm mb-2 text-on-surface" for="email">Adresse e-mail</label>
+<input class="w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-lg focus:ring-0 focus:border-primary focus:bg-white transition-all outline-none font-body-md text-body-md" id="email" name="email" placeholder="nom@exemple.ma" required="" type="email"/>
+</div>
+<!-- Password Field -->
+<div class="relative">
+<div class="flex justify-between items-center mb-2">
+<label class="font-label-sm text-label-sm text-on-surface" for="password">Mot de passe</label>
+<a class="font-label-sm text-label-sm text-secondary hover:underline transition-all" href="#">Mot de passe oubliÃ© ?</a>
+</div>
+<div class="relative">
+<input class="w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-lg focus:ring-0 focus:border-primary focus:bg-white transition-all outline-none font-body-md text-body-md pr-12" id="password" name="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required="" type="password"/>
+<button class="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors focus:outline-none" id="togglePassword" type="button">
+<span class="material-symbols-outlined" data-icon="visibility">visibility</span>
+</button>
+</div>
+</div>
+<!-- Remember Me -->
+<div class="flex items-center">
+<input class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary focus:ring-offset-0 transition-all cursor-pointer" id="remember" name="remember" type="checkbox"/>
+<label class="ml-3 font-body-md text-body-md text-on-surface-variant cursor-pointer" for="remember">Se souvenir de moi</label>
+</div>
+<!-- Submit Button -->
+<button class="w-full py-4 px-6 bg-primary text-on-primary font-headline-md text-headline-md rounded-lg hover:opacity-90 active:scale-95 transition-all shadow-sm" type="submit">
+                    Se connecter
+                </button>
+</form>
+<!-- Separator -->
+<div class="relative my-8">
+<div aria-hidden="true" class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-outline-variant"></div>
+</div>
+<div class="relative flex justify-center text-label-sm font-label-sm">
+<span class="px-4 bg-surface-container-lowest text-on-surface-variant uppercase tracking-widest">ou continuer avec</span>
+</div>
+</div>
+<!-- Social Logins -->
+<div class="grid grid-cols-2 gap-4">
+<button class="flex items-center justify-center gap-2 py-3 px-4 border border-outline-variant rounded-lg hover:bg-surface-variant transition-all font-body-md text-body-md text-on-surface" type="button">
+<svg class="w-5 h-5" viewbox="0 0 24 24">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 12-4.53z" fill="#EA4335"></path>
+</svg>
+                    Google
+                </button>
+<button class="flex items-center justify-center gap-2 py-3 px-4 border border-outline-variant rounded-lg hover:bg-surface-variant transition-all font-body-md text-body-md text-on-surface" type="button">
+<svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24">
+<path d="M17.05 20.28c-.98.95-2.05 1.78-3.41 1.72-1.31-.05-1.72-.85-3.25-.85-1.53 0-2 .83-3.25.88-1.28.05-2.43-.87-3.41-1.75C1.72 18.25.5 14.3.5 10.5c0-4 2.5-6.2 5-6.2 1.25 0 2.45.85 3.25.85.8 0 2-.85 3.25-.85 2 0 3.75 1 4.75 2.75-4.25 2-3.5 8 1.05 10.28zM12 3.5c-.05-2.25 1.85-4.5 4.15-4.5.15 2.35-2.15 4.5-4.15 4.5z"></path>
+</svg>
+                    Apple
+                </button>
+</div>
+<!-- Create Account Link -->
+<footer class="mt-10 text-center">
+<p class="font-body-md text-body-md text-on-surface-variant">
+                    Vous n'avez pas de compte ? 
+<a class="font-headline-md text-body-md font-bold text-primary hover:underline transition-all ml-1" href="/inscription">CrÃ©er un compte</a>
+</p>
+</footer>
+</div>
+</main>
+<!-- Footer Component Integration (Minimal Style for Auth Pages) -->
+<footer class="w-full py-8 px-margin-desktop max-w-container-max mx-auto flex flex-col items-center gap-4 bg-transparent">
+<div class="flex flex-wrap justify-center gap-6">
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:text-primary transition-all" href="#">LÃ©gal</a>
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:text-primary transition-all" href="#">Politique de confidentialitÃ©</a>
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:text-primary transition-all" href="#">Conditions d'utilisation</a>
+<a class="text-label-sm font-label-sm text-on-surface-variant hover:text-primary transition-all" href="#">Contactez-nous</a>
+</div>
+<p class="text-label-sm font-label-sm text-on-surface-variant opacity-60">Â© 2024 ShopAI Platform. All rights reserved.</p>
+</footer>
+<script>
+        // Toggle Password Visibility Logic
+
+        // Si auth.js n'est pas chargÃ© (mauvais chemin), on stop pour Ã©viter un faux submit.
+        if (!window.ShopAIAuth || typeof window.ShopAIAuth.login !== 'function') {
+            console.error('ShopAIAuth non disponible: auth.js non chargÃ©');
+        }
+        const togglePassword = document.querySelector('#togglePassword');
+        const passwordInput = document.querySelector('#password');
+        const visibilityIcon = togglePassword.querySelector('.material-symbols-outlined');
+
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            visibilityIcon.textContent = type === 'password' ? 'visibility' : 'visibility_off';
+        });
+
+        // Auth Login wiring
+        const loginForm = document.querySelector('#loginForm');
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = loginForm.querySelector('button[type="submit"]');
+            btn.innerHTML = '<span class="flex items-center justify-center gap-2"><svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Connexion...</span>';
+            btn.disabled = true;
+
+            const email = document.querySelector('#email')?.value?.trim();
+            const password = document.querySelector('#password')?.value;
+
+            // shopai/auth.js redirige dÃ©jÃ  en cas de succÃ¨s
+            const ok = await (window.ShopAIAuth?.login?.(email, password));
+            if (!ok) {
+                btn.disabled = false;
+                btn.textContent = 'Se connecter';
+                return;
+            }
+
+            // fallback sÃ©curitÃ© si la redirection ne se dÃ©clenche pas
+            setTimeout(() => {
+                const user = window.ShopAIAuth?.getUser?.();
+                const role = user?.role;
+                window.location.href = role === 'admin' ? '/dashboard' : '/';
+            }, 200);
+
+        });
+
+        // Navigation helper
+        // (nav.js gÃ¨re aussi l'Ã©tat actif et le logout, mais sur la page login il n'y a rien)
+    </script>
+
+
+<script src="/static/js/toast.js"></script>
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/cart.js"></script>
+<script src="/static/js/nav.js"></script>
+<script src="/static/js/page-links.js"></script>
+</body></html>
+
+
+

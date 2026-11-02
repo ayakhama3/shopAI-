@@ -1,0 +1,429 @@
+﻿<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ShopAI Admin - Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-pill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "on-primary-container": "#7c839b",
+                        "tertiary-fixed-dim": "#bcc7de",
+                        "inverse-primary": "#bec6e0",
+                        "on-secondary-container": "#682c00",
+                        "secondary-fixed-dim": "#ffb68e",
+                        "on-tertiary": "#ffffff",
+                        "surface-container": "#eceef0",
+                        "on-error": "#ffffff",
+                        "surface-tint": "#565e74",
+                        "secondary-fixed": "#ffdbca",
+                        "surface-variant": "#e0e3e5",
+                        "tertiary": "#000000",
+                        "primary-container": "#131b2e",
+                        "on-tertiary-fixed-variant": "#3c475a",
+                        "inverse-on-surface": "#eff1f3",
+                        "surface-container-high": "#e6e8ea",
+                        "primary-fixed": "#dae2fd",
+                        "error": "#ba1a1a",
+                        "primary-fixed-dim": "#bec6e0",
+                        "on-error-container": "#93000a",
+                        "on-surface-variant": "#45464d",
+                        "surface-dim": "#d8dadc",
+                        "tertiary-fixed": "#d8e3fb",
+                        "tertiary-container": "#111c2d",
+                        "surface-container-low": "#f2f4f6",
+                        "surface": "#f7f9fb",
+                        "secondary-container": "#fd8a42",
+                        "outline": "#76777d",
+                        "on-surface": "#191c1e",
+                        "error-container": "#ffdad6",
+                        "background": "#f7f9fb",
+                        "on-primary": "#ffffff",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-background": "#191c1e",
+                        "on-tertiary-container": "#79849a",
+                        "on-secondary-fixed": "#331200",
+                        "secondary": "#9b4500",
+                        "on-secondary": "#ffffff",
+                        "surface-bright": "#f7f9fb",
+                        "on-secondary-fixed-variant": "#763300",
+                        "on-primary-fixed": "#131b2e",
+                        "primary": "#000000",
+                        "outline-variant": "#c6c6cd",
+                        "on-tertiary-fixed": "#111c2d",
+                        "inverse-surface": "#2d3133"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "1rem",
+                        "stack-md": "1rem",
+                        "gutter": "1.5rem",
+                        "stack-sm": "0.5rem",
+                        "margin-desktop": "2.5rem",
+                        "container-max": "1280px",
+                        "stack-lg": "2rem"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Inter"],
+                        "headline-md": ["Montserrat"],
+                        "body-lg": ["Inter"],
+                        "price-display": ["Montserrat"],
+                        "headline-lg": ["Montserrat"],
+                        "body-md": ["Inter"],
+                        "headline-xl": ["Montserrat"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "price-display": ["20px", {"lineHeight": "24px", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md overflow-x-hidden">
+<!-- SideNavBar Anchor -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container-lowest shadow-sm flex flex-col border-r border-outline-variant z-50">
+<div class="px-6 py-8">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">ShopAI</h1>
+<p class="text-xs text-on-surface-variant uppercase tracking-widest mt-1">Admin Console</p>
+</div>
+<nav class="flex-1 px-4 space-y-2 overflow-y-auto">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg font-body-md" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg font-body-md" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span>Catalog</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg font-body-md" href="#">
+<span class="material-symbols-outlined" data-icon="shopping_cart">shopping_cart</span>
+<span>Orders</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg font-body-md" href="#">
+<span class="material-symbols-outlined" data-icon="chat">chat</span>
+<span>Messages</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg font-body-md" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span>Wallet</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg font-body-md" href="#">
+<span class="material-symbols-outlined" data-icon="card_membership">card_membership</span>
+<span>Loyalty</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-lg font-bold font-body-md" href="#">
+<span class="material-symbols-outlined" data-icon="settings" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span>Settings</span>
+</a>
+</nav>
+<div class="p-4 border-t border-outline-variant">
+<div class="flex items-center gap-3 p-2 rounded-lg hover:bg-surface-container-high cursor-pointer transition-all">
+<img alt="Admin" class="w-10 h-10 rounded-full object-cover" data-alt="A professional headshot of a corporate administrator in a bright, modern office setting. The person is smiling confidently, wearing a dark blazer over a crisp white shirt. The background is a blurred high-end office with soft bokeh and clean white walls, reflecting a premium minimalist aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiDhtN1S2dG0RF6mFnhfZTgererWPrJvtw1J8PIez6kUGdPfNtJHY1_V07TZz0e2lmYfAPsZWvYR_UYT6slbAv50DmwDlgpC_diEPIMjXGbtjTfEMxUHjc0-0iOYDSanZeiYoMDkTktnfbvAMFwNGsgARsn21NYJfLvxyAcxByb3dwVEpUTh9Fvkz-6y_J2Kl0Gp6eMrlyTVMWzaT-B_onygq__cx5rdQsEIG7RxKU6xTf8h8OezHrMBoXJqaSfPPYhHNmmFYsP6c"/>
+<div>
+<p class="text-sm font-bold text-on-surface">Alex Rivera</p>
+<p class="text-xs text-on-surface-variant">Super Admin</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen">
+<!-- TopNavBar Anchor -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 bg-surface/80 backdrop-blur-md flex justify-between items-center px-8 z-40">
+<div class="flex items-center flex-1 max-w-md">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-on-surface-variant" placeholder="Search settings, users, or help..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="hover:bg-surface-container rounded-full p-2 transition-all relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-secondary rounded-full border-2 border-surface"></span>
+</button>
+<button class="hover:bg-surface-container rounded-full p-2 transition-all">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<button class="hover:bg-surface-container rounded-full p-2 transition-all">
+<span class="material-symbols-outlined" data-icon="apps">apps</span>
+</button>
+</div>
+</header>
+<!-- Content Canvas -->
+<div class="pt-24 px-8 pb-12">
+<!-- Header Section -->
+<div class="mb-10">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-2">Settings</h2>
+<p class="text-on-surface-variant font-body-md">Configure your global platform parameters and team access levels.</p>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-12 gap-6">
+<!-- General Store Info - Large Card -->
+<div class="col-span-12 lg:col-span-8 bg-surface-container-lowest p-8 rounded-xl shadow-sm border border-outline-variant/30">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-secondary" data-icon="storefront">storefront</span>
+<h3 class="font-headline-md text-headline-md">General Store Information</h3>
+</div>
+<div class="grid grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant">Store Name</label>
+<input class="w-full bg-surface-container-low border-none rounded-lg p-3 text-body-md focus:ring-2 focus:ring-primary/20" type="text" value="ShopAI Official Morocco"/>
+</div>
+<div class="space-y-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant">Legal Business Name</label>
+<input class="w-full bg-surface-container-low border-none rounded-lg p-3 text-body-md focus:ring-2 focus:ring-primary/20" type="text" value="ShopAI Tech S.A.R.L"/>
+</div>
+<div class="space-y-2 col-span-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant">Store Email Address</label>
+<input class="w-full bg-surface-container-low border-none rounded-lg p-3 text-body-md focus:ring-2 focus:ring-primary/20" type="email" value="contact@shopai.ma"/>
+</div>
+<div class="space-y-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant">Default Currency</label>
+<select class="w-full bg-surface-container-low border-none rounded-lg p-3 text-body-md focus:ring-2 focus:ring-primary/20">
+<option>MAD - Moroccan Dirham</option>
+<option>USD - US Dollar</option>
+<option>EUR - Euro</option>
+</select>
+</div>
+<div class="space-y-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant">Timezone</label>
+<select class="w-full bg-surface-container-low border-none rounded-lg p-3 text-body-md focus:ring-2 focus:ring-primary/20">
+<option>(GMT+01:00) Casablanca</option>
+<option>(GMT+00:00) UTC</option>
+</select>
+</div>
+</div>
+<div class="mt-8 flex justify-end">
+<button class="bg-primary text-on-primary px-8 py-3 rounded-lg font-bold font-label-sm hover:scale-[1.02] transition-transform shadow-md">
+                            Save Changes
+                        </button>
+</div>
+</div>
+<!-- API & Integrations - Side Card -->
+<div class="col-span-12 lg:col-span-4 bg-primary-container text-on-primary-fixed p-8 rounded-xl shadow-lg flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-inverse-primary" data-icon="key">key</span>
+<h3 class="font-headline-md text-headline-md text-white">Payment Gateways</h3>
+</div>
+<div class="space-y-6">
+<div class="p-4 bg-white/5 rounded-lg border border-white/10">
+<div class="flex justify-between items-center mb-2">
+<span class="font-bold text-white">Stripe API</span>
+<span class="text-[10px] bg-forest-green px-2 py-0.5 rounded text-white font-bold uppercase tracking-wider bg-green-600">Active</span>
+</div>
+<code class="text-xs text-on-primary-container break-all">pk_live_51M...R4u2</code>
+</div>
+<div class="p-4 bg-white/5 rounded-lg border border-white/10">
+<div class="flex justify-between items-center mb-2">
+<span class="font-bold text-white">CMI Morocco</span>
+<span class="text-[10px] bg-secondary px-2 py-0.5 rounded text-white font-bold uppercase tracking-wider">Config Required</span>
+</div>
+<code class="text-xs text-on-primary-container opacity-50">********************</code>
+</div>
+</div>
+</div>
+<button class="w-full mt-8 py-3 rounded-lg border border-white/20 text-white font-bold font-label-sm hover:bg-white/10 transition-colors">
+                        Manage Gateways
+                    </button>
+</div>
+<!-- Tax Rates & Shipping Zones - Mid Card -->
+<div class="col-span-12 lg:col-span-6 bg-surface-container-lowest p-8 rounded-xl shadow-sm border border-outline-variant/30">
+<div class="flex items-center justify-between mb-8">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary" data-icon="local_shipping">local_shipping</span>
+<h3 class="font-headline-md text-headline-md">Shipping Zones</h3>
+</div>
+<button class="text-primary font-bold font-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span> Add Zone
+                        </button>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-4 bg-surface rounded-lg">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-secondary/10 flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined text-secondary" data-icon="location_on">location_on</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Casablanca - Greater Area</p>
+<p class="text-xs text-on-surface-variant font-label-sm">Standard: 25 MAD | Express: 45 MAD</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer" data-icon="edit">edit</span>
+</div>
+<div class="flex items-center justify-between p-4 bg-surface rounded-lg">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-secondary/10 flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined text-secondary" data-icon="public">public</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">National - Other Regions</p>
+<p class="text-xs text-on-surface-variant font-label-sm">Flat rate: 55 MAD</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer" data-icon="edit">edit</span>
+</div>
+</div>
+</div>
+<!-- Team Permissions - Asymmetric Layout -->
+<div class="col-span-12 lg:col-span-6 bg-surface-container-lowest p-8 rounded-xl shadow-sm border border-outline-variant/30">
+<div class="flex items-center justify-between mb-8">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary" data-icon="group">group</span>
+<h3 class="font-headline-md text-headline-md">Team Permissions</h3>
+</div>
+<button class="text-primary font-bold font-label-sm flex items-center gap-1">
+                            Invite User
+                        </button>
+</div>
+<div class="overflow-hidden">
+<table class="w-full">
+<thead>
+<tr class="text-left border-b border-outline-variant">
+<th class="pb-3 font-label-sm text-on-surface-variant">User</th>
+<th class="pb-3 font-label-sm text-on-surface-variant">Role</th>
+<th class="pb-3 font-label-sm text-on-surface-variant text-right">Access</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/50">
+<tr>
+<td class="py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-tertiary-fixed text-primary flex items-center justify-center font-bold text-xs">SK</div>
+<span class="font-bold text-sm">Sara K.</span>
+</div>
+</td>
+<td class="py-4 text-sm">Manager</td>
+<td class="py-4 text-right">
+<span class="px-2 py-1 bg-surface-container text-[10px] font-bold rounded uppercase">Full</span>
+</td>
+</tr>
+<tr>
+<td class="py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-fixed text-secondary flex items-center justify-center font-bold text-xs">YM</div>
+<span class="font-bold text-sm">Youssef M.</span>
+</div>
+</td>
+<td class="py-4 text-sm">Logistics</td>
+<td class="py-4 text-right">
+<span class="px-2 py-1 bg-surface-container text-[10px] font-bold rounded uppercase">Limited</span>
+</td>
+</tr>
+<tr>
+<td class="py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-xs">AD</div>
+<span class="font-bold text-sm">Amine D.</span>
+</div>
+</td>
+<td class="py-4 text-sm">Analyst</td>
+<td class="py-4 text-right">
+<span class="px-2 py-1 bg-surface-container text-[10px] font-bold rounded uppercase">Read-only</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Taxes & Compliance - Full Width -->
+<div class="col-span-12 bg-white p-8 rounded-xl shadow-sm border border-outline-variant/30 flex flex-col md:flex-row gap-8 items-center">
+<div class="md:w-1/3 space-y-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary" data-icon="receipt_long">receipt_long</span>
+<h3 class="font-headline-md text-headline-md">Taxes &amp; Compliance</h3>
+</div>
+<p class="text-on-surface-variant font-body-md">Configure VAT rates for your region. Taxes are calculated at checkout based on shipping destination.</p>
+<div class="flex gap-4">
+<div class="flex-1 p-4 bg-surface-container-low rounded-lg">
+<p class="text-[10px] text-on-surface-variant font-bold uppercase mb-1">Standard VAT</p>
+<p class="text-2xl font-bold text-primary">20%</p>
+</div>
+<div class="flex-1 p-4 bg-surface-container-low rounded-lg">
+<p class="text-[10px] text-on-surface-variant font-bold uppercase mb-1">Reduced VAT</p>
+<p class="text-2xl font-bold text-primary">7%</p>
+</div>
+</div>
+</div>
+<div class="md:w-2/3 w-full bg-surface-container-lowest p-6 rounded-xl border-2 border-dashed border-outline-variant flex flex-col items-center justify-center gap-4 text-center">
+<div class="w-16 h-16 bg-surface-container-high rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant text-3xl" data-icon="upload_file">upload_file</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Auto-Tax Integration</p>
+<p class="text-sm text-on-surface-variant">Connect your Moroccan Tax Portal (DI) for automatic filing.</p>
+</div>
+<button class="px-6 py-2 bg-primary text-on-primary rounded-full font-bold font-label-sm hover:scale-105 transition-all">
+                            Setup Connection
+                        </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Contextual FAB Suppression: NO FAB on Settings screen as per mandate -->
+<script>
+        // Micro-interactions
+        document.querySelectorAll('input, select').forEach(element => {
+            element.addEventListener('focus', () => {
+                element.parentElement.classList.add('scale-[1.01]');
+                element.parentElement.style.transition = 'transform 0.2s ease-out';
+            });
+            element.addEventListener('blur', () => {
+                element.parentElement.classList.remove('scale-[1.01]');
+            });
+        });
+
+        // Simple Tab active state simulation (optional for the shell logic)
+        const navItems = document.querySelectorAll('aside nav a');
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                navItems.forEach(nav => {
+                    nav.className = "flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg font-body-md";
+                    const icon = nav.querySelector('.material-symbols-outlined');
+                    if(icon) icon.style.fontVariationSettings = "'FILL' 0";
+                });
+                item.className = "flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-lg font-bold font-body-md";
+                const activeIcon = item.querySelector('.material-symbols-outlined');
+                if(activeIcon) activeIcon.style.fontVariationSettings = "'FILL' 1";
+            });
+        });
+    </script>
+
+<script src="/static/js/toast.js"></script>
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/cart.js"></script>
+<script src="/static/js/nav.js"></script>
+<script src="/static/js/page-links.js"></script>
+</body></html>
+
+

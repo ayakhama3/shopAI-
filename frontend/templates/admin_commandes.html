@@ -1,0 +1,341 @@
+﻿<!DOCTYPE html>
+<html class="light" lang="fr">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>ShopAI Admin - Orders Management</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "surface-container-lowest": "#ffffff",
+                "on-primary-fixed-variant": "#3f465c",
+                "on-primary-container": "#7c839b",
+                "tertiary-fixed-dim": "#bcc7de",
+                "inverse-primary": "#bec6e0",
+                "on-secondary-container": "#682c00",
+                "secondary-fixed-dim": "#ffb68e",
+                "on-tertiary": "#ffffff",
+                "surface-container": "#eceef0",
+                "on-error": "#ffffff",
+                "surface-tint": "#565e74",
+                "secondary-fixed": "#ffdbca",
+                "surface-variant": "#e0e3e5",
+                "tertiary": "#000000",
+                "primary-container": "#131b2e",
+                "on-tertiary-fixed-variant": "#3c475a",
+                "inverse-on-surface": "#eff1f3",
+                "surface-container-high": "#e6e8ea",
+                "primary-fixed": "#dae2fd",
+                "error": "#ba1a1a",
+                "primary-fixed-dim": "#bec6e0",
+                "on-error-container": "#93000a",
+                "on-surface-variant": "#45464d",
+                "surface-dim": "#d8dadc",
+                "tertiary-fixed": "#d8e3fb",
+                "tertiary-container": "#111c2d",
+                "surface-container-low": "#f2f4f6",
+                "surface": "#f7f9fb",
+                "secondary-container": "#fd8a42",
+                "outline": "#76777d",
+                "on-surface": "#191c1e",
+                "error-container": "#ffdad6",
+                "background": "#f7f9fb",
+                "on-primary": "#ffffff",
+                "surface-container-highest": "#e0e3e5",
+                "on-background": "#191c1e",
+                "on-tertiary-container": "#79849a",
+                "on-secondary-fixed": "#331200",
+                "secondary": "#9b4500",
+                "on-secondary": "#ffffff",
+                "surface-bright": "#f7f9fb",
+                "on-secondary-fixed-variant": "#763300",
+                "on-primary-fixed": "#131b2e",
+                "primary": "#000000",
+                "outline-variant": "#c6c6cd",
+                "on-tertiary-fixed": "#111c2d",
+                "inverse-surface": "#2d3133"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+            },
+            "spacing": {
+                "margin-mobile": "1rem",
+                "stack-md": "1rem",
+                "gutter": "1.5rem",
+                "stack-sm": "0.5rem",
+                "margin-desktop": "2.5rem",
+                "container-max": "1280px",
+                "stack-lg": "2rem"
+            },
+            "fontFamily": {
+                "label-sm": ["Inter"],
+                "headline-md": ["Montserrat"],
+                "body-lg": ["Inter"],
+                "price-display": ["Montserrat"],
+                "headline-lg-mobile": ["Montserrat"],
+                "headline-lg": ["Montserrat"],
+                "body-md": ["Inter"],
+                "headline-xl": ["Montserrat"]
+            },
+            "fontSize": {
+                "label-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                "price-display": ["20px", {"lineHeight": "24px", "fontWeight": "700"}],
+                "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+    <style>
+        body { background-color: #f7f9fb; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-tab { font-variation-settings: 'FILL' 1; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e0e3e5; border-radius: 10px; }
+    </style>
+</head>
+<body class="font-body-md text-on-surface">
+
+<!-- Side Navigation -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container-lowest flex flex-col border-r border-outline-variant shadow-sm z-50">
+    <div class="px-6 py-8">
+        <h1 class="font-headline-md text-headline-md font-bold text-primary">ShopAI</h1>
+        <p class="font-label-sm text-label-sm text-on-surface-variant opacity-70">Admin Console</p>
+    </div>
+    <nav class="flex-1 px-4 space-y-1">
+        <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="/dashboard">
+            <span class="material-symbols-outlined">dashboard</span>
+            <span class="font-body-md text-body-md">Dashboard</span>
+        </a>
+        <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="/admin_catalogue">
+            <span class="material-symbols-outlined">inventory_2</span>
+            <span class="font-body-md text-body-md">Catalogue</span>
+        </a>
+        <a class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-lg font-bold" href="/admin_commandes">
+            <span class="material-symbols-outlined active-tab">shopping_cart</span>
+            <span class="font-body-md text-body-md">Commandes</span>
+        </a>
+        
+    </nav>
+    <div class="p-4 border-t border-outline-variant">
+        <div class="flex items-center gap-3 px-2">
+            <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center flex-shrink-0">
+                <span class="material-symbols-outlined text-on-primary">person</span>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="font-label-sm text-label-sm font-bold" id="admin-name">Admin</p>
+                <p class="text-[10px] uppercase tracking-wider text-on-surface-variant">Super Admin</p>
+            </div>
+            <button data-action="logout" title="Se déconnecter"
+                class="p-2 hover:bg-error-container rounded-lg transition-colors group flex-shrink-0">
+                <span class="material-symbols-outlined text-on-surface-variant group-hover:text-error text-[20px]">logout</span>
+            </button>
+        </div>
+    </div>
+</aside>
+
+<!-- Main Content -->
+<main class="ml-64 min-h-screen flex flex-col">
+    <header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 bg-surface/80 backdrop-blur-md flex justify-between items-center px-8 z-40">
+        <div class="flex items-center gap-4 flex-1">
+            <div class="relative w-96">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                <input class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 font-label-sm focus:ring-2 focus:ring-primary/20 transition-all" id="search-orders" placeholder="Search orders..." type="text"/>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button class="hover:bg-surface-container rounded-full p-2 text-on-surface-variant transition-all">
+                <span class="material-symbols-outlined">notifications</span>
+            </button>
+            <button class="hover:bg-surface-container rounded-full p-2 text-on-surface-variant transition-all">
+                <span class="material-symbols-outlined">help</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="mt-16 p-8 flex-1">
+        <div class="flex justify-between items-end mb-8">
+            <div>
+                <h2 class="font-headline-lg text-headline-lg text-primary">Orders Management</h2>
+                <p class="font-body-md text-on-surface-variant">Manage customer transactions.</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="exportCSV()" class="px-6 py-2.5 rounded-lg border border-outline-variant font-label-sm text-label-sm flex items-center gap-2 hover:bg-surface-container transition-all">
+                    <span class="material-symbols-outlined text-[20px]">ios_share</span>
+                    Export CSV
+                </button>
+                <button onclick="createManualOrder()" class="px-6 py-2.5 rounded-lg bg-primary text-on-primary font-label-sm text-label-sm flex items-center gap-2 hover:opacity-90 shadow-lg transition-all active:scale-[0.98]">
+                    <span class="material-symbols-outlined text-[20px]">add</span>
+                    Create Manual Order
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm">
+                <div class="flex justify-between items-start mb-4">
+                    <span class="material-symbols-outlined p-2 bg-primary-container text-on-primary-container rounded-lg">list_alt</span>
+                    <span class="text-green-600 font-bold text-xs">+12% ↑</span>
+                </div>
+                <p class="text-on-surface-variant font-label-sm">Total Orders</p>
+                <p class="font-headline-md text-headline-md mt-1" id="stat-total">—</p>
+            </div>
+            <div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm">
+                <div class="flex justify-between items-start mb-4">
+                    <span class="material-symbols-outlined p-2 bg-secondary-container text-on-secondary-container rounded-lg">pending</span>
+                    <span class="text-secondary font-bold text-xs" id="stat-pending-badge">—</span>
+                </div>
+                <p class="text-on-surface-variant font-label-sm">Pending</p>
+                <p class="font-headline-md text-headline-md mt-1" id="stat-pending">—</p>
+            </div>
+            <div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm">
+                <div class="flex justify-between items-start mb-4">
+                    <span class="material-symbols-outlined p-2 bg-tertiary-fixed text-on-tertiary-fixed rounded-lg">local_shipping</span>
+                    <span class="text-on-surface-variant font-bold text-xs">On Time</span>
+                </div>
+                <p class="text-on-surface-variant font-label-sm">In Transit</p>
+                <p class="font-headline-md text-headline-md mt-1" id="stat-shipped">—</p>
+            </div>
+            <div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm">
+                <div class="flex justify-between items-start mb-4">
+                    <span class="material-symbols-outlined p-2 bg-surface-container-highest text-on-surface-variant rounded-lg">payments</span>
+                    <span class="text-green-600 font-bold text-xs">+5.4% ↑</span>
+                </div>
+                <p class="text-on-surface-variant font-label-sm">Revenue</p>
+                <p class="font-headline-md text-headline-md mt-1" id="stat-revenue">—</p>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant shadow-sm mb-6 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-2">
+                <div class="flex bg-surface-container rounded-lg p-1" id="status-filters">
+                    <button class="px-4 py-1.5 rounded-md bg-white shadow-sm font-label-sm text-label-sm transition-all" data-status="">All</button>
+                    <button class="px-4 py-1.5 font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-all" data-status="created">En attente</button>
+                    <button class="px-4 py-1.5 font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-all" data-status="paid">Payée</button>
+                    <button class="px-4 py-1.5 font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-all" data-status="shipped">Expédié</button>
+                    <button class="px-4 py-1.5 font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-all" data-status="delivered">Livré</button>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="font-label-sm text-label-sm text-on-surface-variant">Bulk:</span>
+                <select class="bg-surface-container-low border border-outline-variant rounded-lg py-2 pl-3 pr-8 font-label-sm text-label-sm" id="bulk-action">
+                    <option>Choose Action...</option>
+                    <option value="shipped">Shipped</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="cancelled">Cancel</option>
+                </select>
+                <button class="p-2 bg-primary text-on-primary rounded-lg shadow-sm hover:opacity-90" onclick="executeBulkAction()">
+                    <span class="material-symbols-outlined text-[20px]">play_arrow</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-surface-container-low/50">
+                        <tr>
+                            <th class="p-4 w-12"><input class="rounded border-outline-variant text-primary focus:ring-primary" id="select-all" type="checkbox"/></th>
+                            <th class="p-4 font-label-sm text-label-sm text-on-surface-variant uppercase">Order ID</th>
+                            <th class="p-4 font-label-sm text-label-sm text-on-surface-variant uppercase">Customer</th>
+                            <th class="p-4 font-label-sm text-label-sm text-on-surface-variant uppercase">Date</th>
+                            <th class="p-4 font-label-sm text-label-sm text-on-surface-variant uppercase">Status</th>
+                            <th class="p-4 font-label-sm text-label-sm text-on-surface-variant uppercase text-right">Total</th>
+                            <th class="p-4 font-label-sm text-label-sm text-on-surface-variant uppercase text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-outline-variant" id="orders-tbody">
+                        <tr>
+                            <td colspan="7" class="p-8 text-center text-on-surface-variant">
+                                <span class="material-symbols-outlined animate-spin text-3xl">refresh</span>
+                                <p class="mt-2">Chargement des commandes...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="p-4 flex items-center justify-between border-t border-outline-variant bg-surface-container-low/20">
+                <p class="font-label-sm text-label-sm text-on-surface-variant" id="showing-text">Showing 0 to 0 of 0 entries</p>
+                <div class="flex gap-1" id="pagination"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== MODAL CREATE MANUAL ORDER ========== -->
+    <div id="modal-create-order" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 m-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-headline-md text-headline-md">Créer une commande manuelle</h3>
+                <button onclick="closeModal()" class="p-1 hover:bg-surface-container rounded">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <form id="form-create-order" onsubmit="event.preventDefault(); submitManualOrder();">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block font-label-sm text-label-sm mb-1">Produit</label>
+                        <input type="text" name="product_name" required class="w-full border border-outline-variant rounded-lg px-3 py-2" placeholder="Nom du produit"/>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block font-label-sm text-label-sm mb-1">Prix unitaire (MAD)</label>
+                            <input type="number" name="price" step="0.01" required class="w-full border border-outline-variant rounded-lg px-3 py-2" placeholder="0.00"/>
+                        </div>
+                        <div>
+                            <label class="block font-label-sm text-label-sm mb-1">Quantité</label>
+                            <input type="number" name="quantity" value="1" min="1" required class="w-full border border-outline-variant rounded-lg px-3 py-2"/>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block font-label-sm text-label-sm mb-1">ID Client (optionnel)</label>
+                        <input type="number" name="user_id" class="w-full border border-outline-variant rounded-lg px-3 py-2" placeholder="ID utilisateur"/>
+                    </div>
+                    <div>
+                        <label class="block font-label-sm text-label-sm mb-1">Méthode de paiement</label>
+                        <select name="payment_method" class="w-full border border-outline-variant rounded-lg px-3 py-2">
+                            <option value="cash">Cash on Delivery</option>
+                            <option value="card">Carte Bancaire</option>
+                            <option value="paypal">PayPal</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3 mt-6">
+                    <button type="button" onclick="closeModal()" class="flex-1 py-2 border border-outline-variant rounded-lg font-label-sm">Annuler</button>
+                    <button type="submit" class="flex-1 py-2 bg-primary text-on-primary rounded-lg font-label-sm">Créer la commande</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<script src="/static/js/toast.js"></script>
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/cart.js"></script>
+<script src="/static/js/nav.js"></script>
+<script src="/static/js/page-links.js"></script>
+<script src="/static/js/admin_commandes.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,410 @@
+﻿<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ParamÃ¨tres - ShopAI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&amp;family=Inter:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-tab .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1;
+        }
+        body {
+            background-color: #f7f9fb;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-bright": "#f7f9fb",
+                      "primary-container": "#131b2e",
+                      "surface-tint": "#565e74",
+                      "on-tertiary-fixed": "#111c2d",
+                      "surface-variant": "#e0e3e5",
+                      "on-secondary-fixed-variant": "#763300",
+                      "on-surface-variant": "#45464d",
+                      "background": "#f7f9fb",
+                      "primary-fixed": "#dae2fd",
+                      "on-tertiary": "#ffffff",
+                      "primary-fixed-dim": "#bec6e0",
+                      "on-surface": "#191c1e",
+                      "on-secondary": "#ffffff",
+                      "inverse-on-surface": "#eff1f3",
+                      "secondary-fixed": "#ffdbca",
+                      "on-error": "#ffffff",
+                      "tertiary-container": "#111c2d",
+                      "surface-container-highest": "#e0e3e5",
+                      "surface": "#f7f9fb",
+                      "on-primary-fixed": "#131b2e",
+                      "tertiary-fixed": "#d8e3fb",
+                      "tertiary-fixed-dim": "#bcc7de",
+                      "surface-container-high": "#e6e8ea",
+                      "on-tertiary-fixed-variant": "#3c475a",
+                      "on-primary": "#ffffff",
+                      "secondary": "#9b4500",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "error-container": "#ffdad6",
+                      "on-secondary-container": "#682c00",
+                      "on-background": "#191c1e",
+                      "surface-container-low": "#f2f4f6",
+                      "outline-variant": "#c6c6cd",
+                      "surface-dim": "#d8dadc",
+                      "outline": "#76777d",
+                      "error": "#ba1a1a",
+                      "on-primary-container": "#7c839b",
+                      "secondary-fixed-dim": "#ffb68e",
+                      "primary": "#000000",
+                      "on-tertiary-container": "#79849a",
+                      "on-secondary-fixed": "#331200",
+                      "secondary-container": "#fd8a42",
+                      "inverse-primary": "#bec6e0",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container": "#eceef0",
+                      "inverse-surface": "#2d3133",
+                      "tertiary": "#000000",
+                      "on-error-container": "#93000a"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "stack-md": "1rem",
+                      "margin-desktop": "2.5rem",
+                      "stack-sm": "0.5rem",
+                      "stack-lg": "2rem",
+                      "margin-mobile": "1rem",
+                      "gutter": "1.5rem",
+                      "container-max": "1280px"
+              },
+              "fontFamily": {
+                      "headline-md": ["Montserrat"],
+                      "headline-lg-mobile": ["Montserrat"],
+                      "body-lg": ["Inter"],
+                      "body-md": ["Inter"],
+                      "price-display": ["Montserrat"],
+                      "headline-lg": ["Montserrat"],
+                      "label-sm": ["Inter"],
+                      "headline-xl": ["Montserrat"]
+              },
+              "fontSize": {
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "price-display": ["20px", {"lineHeight": "24px", "fontWeight": "700"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "label-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                      "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+              }
+            },
+          },
+        }
+      </script>
+</head>
+<body class="bg-background text-on-surface font-body-md overflow-x-hidden">
+<!-- TopNavBar -->
+<nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile md:px-margin-desktop h-16 bg-surface-container-lowest dark:bg-primary-container shadow-sm">
+<div class="flex items-center gap-4">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">ShopAI</span>
+</div>
+<div class="flex items-center gap-stack-md">
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2 rounded-full transition-colors active:scale-95 transition-transform" data-icon="notifications">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2 rounded-full transition-colors active:scale-95 transition-transform" data-icon="favorite">favorite</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high p-2 rounded-full transition-colors active:scale-95 transition-transform" data-icon="shopping_cart">shopping_cart</button>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-high">
+<img alt="Photo de profil utilisateur" data-alt="A professional headshot of a modern executive in a bright, minimalist studio setting. The lighting is soft and high-key, highlighting clean features against a subtle grey-blue background. The overall aesthetic is professional, corporate, and clean, perfectly matching a high-end e-commerce user interface with a sophisticated color palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuASqWyMRup7SrTw1PLDM0e2CUsjEPi4rQmQZAtnedmLRYz7Lk0NhVLX3Jg1ehYSeS34OrqA85X7T9hMlHilNywPZ4RzDX1l3Z9bMvL8O4Dd7L8Xnl_EhyfWMxe2Q6NJerTY9RcLpjcBU-FfWRw--kzkgO2Jrywlo5tEQfRD1Sbn2T10JHd1p1BoLeD7luhWWtaWZ2EdTx3nGVCuzxmXljbwuB4rDBOZLSSG4pxHb82CRMQdCf5VlKfyTIc-j3oLtTeDKr23QcOdTr8"/>
+</div>
+</div>
+</nav>
+<div class="flex pt-16 min-h-screen">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full z-40 flex flex-col p-stack-md bg-surface-container-low dark:bg-primary-container shadow-lg hidden md:flex docked left-0 h-full w-64 pt-20">
+<div class="mb-stack-lg px-2">
+<h2 class="font-headline-md text-headline-md font-bold text-primary mb-1">ShopAI Premium</h2>
+<p class="text-on-surface-variant font-label-sm">E-commerce Maroc</p>
+</div>
+<div class="flex flex-col gap-1 overflow-y-auto pr-2">
+<!-- Determined Active Navigation: ParamÃ¨tres -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-on-tertiary-fixed-variant hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant active:translate-x-1 transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-body-md">Accueil</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-on-tertiary-fixed-variant hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant active:translate-x-1 transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="font-body-md">Catalogue</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-on-tertiary-fixed-variant hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant active:translate-x-1 transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="sell">sell</span>
+<span class="font-body-md">Deals</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-on-tertiary-fixed-variant hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant active:translate-x-1 transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="package_2">package_2</span>
+<span class="font-body-md">Commandes</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-lg font-bold active-tab active:translate-x-1 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="settings" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="font-body-md">ParamÃ¨tres</span>
+</a>
+</div>
+<div class="mt-auto p-4 bg-primary-container rounded-xl text-on-primary">
+<p class="text-label-sm font-bold mb-2">Devenir Membre Gold</p>
+<p class="text-xs opacity-80 mb-3">AccÃ©dez Ã  des offres exclusives et livraisons gratuites.</p>
+<button class="w-full py-2 bg-secondary-container text-on-secondary-container rounded-lg font-bold text-xs uppercase tracking-wider">Upgrade</button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 p-margin-mobile md:p-margin-desktop">
+<div class="max-w-5xl mx-auto">
+<header class="mb-stack-lg">
+<h1 class="font-headline-xl text-headline-xl text-primary mb-2">ParamÃ¨tres de compte</h1>
+<p class="text-on-surface-variant font-body-lg">GÃ©rez vos informations personnelles, votre sÃ©curitÃ© et vos prÃ©fÃ©rences de shopping IA.</p>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- Internal Settings Navigation -->
+<nav class="lg:col-span-3 flex lg:flex-col gap-2 overflow-x-auto lg:overflow-x-visible pb-4 lg:pb-0 whitespace-nowrap sticky top-24">
+<button class="settings-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl bg-surface-container-lowest shadow-sm border border-outline-variant text-primary font-bold" id="btn-info" onclick="switchTab('info')">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-sm">Infos Personnelles</span>
+</button>
+<button class="settings-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-colors" id="btn-address" onclick="switchTab('address')">
+<span class="material-symbols-outlined" data-icon="location_on">location_on</span>
+<span class="font-label-sm">Adresses</span>
+</button>
+<button class="settings-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-colors" id="btn-security" onclick="switchTab('security')">
+<span class="material-symbols-outlined" data-icon="security">security</span>
+<span class="font-label-sm">SÃ©curitÃ©</span>
+</button>
+<button class="settings-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-colors" id="btn-ai" onclick="switchTab('ai')">
+<span class="material-symbols-outlined" data-icon="psychology">psychology</span>
+<span class="font-label-sm">PrÃ©fÃ©rences IA</span>
+</button>
+<button class="settings-tab-btn flex items-center gap-3 px-4 py-3 rounded-xl text-on-surface-variant hover:bg-surface-container-high transition-colors" id="btn-notifications" onclick="switchTab('notifications')">
+<span class="material-symbols-outlined" data-icon="notifications_active">notifications_active</span>
+<span class="font-label-sm">Notifications</span>
+</button>
+</nav>
+<!-- Content Area -->
+<div class="lg:col-span-9 bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant p-stack-lg overflow-hidden">
+<!-- Section: Personal Info -->
+<section class="settings-section animate-in fade-in duration-300" id="section-info">
+<div class="flex items-center justify-between mb-stack-md">
+<h3 class="font-headline-md text-headline-md">Informations Personnelles</h3>
+<span class="bg-secondary-container/10 text-secondary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest">Ã‰dition</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+<div class="space-y-1">
+<label class="text-label-sm text-on-surface-variant">Nom complet</label>
+<input class="w-full rounded-lg border-outline-variant bg-surface-container-low focus:ring-primary focus:border-primary px-4 py-2 font-body-md" type="text" value="Anas Alami"/>
+</div>
+<div class="space-y-1">
+<label class="text-label-sm text-on-surface-variant">Email</label>
+<input class="w-full rounded-lg border-outline-variant bg-surface-container-low focus:ring-primary focus:border-primary px-4 py-2 font-body-md" type="email" value="anas.alami@email.ma"/>
+</div>
+<div class="space-y-1">
+<label class="text-label-sm text-on-surface-variant">TÃ©lÃ©phone</label>
+<input class="w-full rounded-lg border-outline-variant bg-surface-container-low focus:ring-primary focus:border-primary px-4 py-2 font-body-md" type="tel" value="+212 6 00 00 00 00"/>
+</div>
+<div class="space-y-1">
+<label class="text-label-sm text-on-surface-variant">Date de naissance</label>
+<input class="w-full rounded-lg border-outline-variant bg-surface-container-low focus:ring-primary focus:border-primary px-4 py-2 font-body-md" type="date" value="1990-05-15"/>
+</div>
+</div>
+<div class="mt-stack-lg pt-stack-md border-t border-outline-variant flex justify-end gap-stack-md">
+<button class="px-6 py-2 rounded-lg font-bold text-on-surface-variant hover:bg-surface-container-high transition-colors">Annuler</button>
+<button class="px-6 py-2 rounded-lg bg-primary text-on-primary font-bold shadow-sm hover:opacity-90 transition-opacity">Sauvegarder</button>
+</div>
+</section>
+<!-- Section: Address (Hidden by default) -->
+<section class="settings-section hidden animate-in fade-in duration-300" id="section-address">
+<div class="flex items-center justify-between mb-stack-md">
+<h3 class="font-headline-md text-headline-md">Adresses de livraison</h3>
+<button class="flex items-center gap-2 px-4 py-2 bg-secondary-container text-on-secondary-container rounded-lg font-bold text-sm">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span> Ajouter
+                                </button>
+</div>
+<div class="space-y-4">
+<div class="p-4 border border-outline-variant rounded-xl flex items-start gap-4 hover:bg-surface-container-low transition-colors">
+<div class="bg-primary/5 p-3 rounded-lg text-primary">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+</div>
+<div class="flex-1">
+<p class="font-bold">Maison (Principale)</p>
+<p class="text-on-surface-variant text-sm">123 Boulevard Mohammed V, Casablanca 20000, Maroc</p>
+</div>
+<button class="material-symbols-outlined text-outline" data-icon="edit">edit</button>
+</div>
+<div class="p-4 border border-outline-variant rounded-xl flex items-start gap-4 hover:bg-surface-container-low transition-colors">
+<div class="bg-primary/5 p-3 rounded-lg text-primary">
+<span class="material-symbols-outlined" data-icon="work">work</span>
+</div>
+<div class="flex-1">
+<p class="font-bold">Bureau</p>
+<p class="text-on-surface-variant text-sm">Technopark, Route de Nouaceur, Casablanca, Maroc</p>
+</div>
+<button class="material-symbols-outlined text-outline" data-icon="edit">edit</button>
+</div>
+</div>
+</section>
+<!-- Section: AI Preferences (Hidden by default) -->
+<section class="settings-section hidden animate-in fade-in duration-300" id="section-ai">
+<h3 class="font-headline-md text-headline-md mb-stack-md">PrÃ©fÃ©rences ShopAI</h3>
+<div class="bg-primary-container text-on-primary p-6 rounded-2xl mb-stack-lg relative overflow-hidden">
+<div class="relative z-10">
+<p class="font-headline-md mb-2">Optimisez votre expÃ©rience</p>
+<p class="text-sm opacity-80 mb-4">L'IA de ShopAI apprend de vos habitudes pour vous proposer des produits marocains authentiques et des offres exclusives.</p>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-white/10 rounded-full text-xs font-medium">Style Moderne</span>
+<span class="px-3 py-1 bg-white/10 rounded-full text-xs font-medium">Budget Premium</span>
+<span class="px-3 py-1 bg-white/10 rounded-full text-xs font-medium">Eco-responsable</span>
+</div>
+</div>
+<div class="absolute -right-8 -bottom-8 opacity-20 transform rotate-12">
+<span class="material-symbols-outlined text-9xl" data-icon="psychology">psychology</span>
+</div>
+</div>
+<div class="space-y-6">
+<div class="flex items-center justify-between">
+<div>
+<p class="font-bold">Recommandations intelligentes</p>
+<p class="text-sm text-on-surface-variant">Autoriser l'IA Ã  analyser vos achats pour suggÃ©rer des produits similaires.</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary-container"></div>
+</label>
+</div>
+<div class="flex items-center justify-between">
+<div>
+<p class="font-bold">Ajustement automatique des prix</p>
+<p class="text-sm text-on-surface-variant">L'IA nÃ©gocie automatiquement les meilleurs deals pour vous selon votre fidÃ©litÃ©.</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary-container"></div>
+</label>
+</div>
+</div>
+</section>
+<!-- Security & Notifications Section would follow the same pattern -->
+<section class="settings-section hidden animate-in fade-in duration-300" id="section-security">
+<h3 class="font-headline-md text-headline-md mb-stack-md">SÃ©curitÃ© &amp; Authentification</h3>
+<div class="space-y-6">
+<div class="p-4 border border-outline-variant rounded-xl flex items-center justify-between">
+<div>
+<p class="font-bold">Mot de passe</p>
+<p class="text-sm text-on-surface-variant">DerniÃ¨re modification il y a 3 mois</p>
+</div>
+<button class="px-4 py-2 border border-outline text-primary font-bold rounded-lg text-sm">Changer</button>
+</div>
+<div class="p-4 border border-outline-variant rounded-xl flex items-center justify-between">
+<div>
+<p class="font-bold">Authentification Ã  deux facteurs (2FA)</p>
+<p class="text-sm text-on-surface-variant text-error">Non activÃ©</p>
+</div>
+<button class="px-4 py-2 bg-primary text-on-primary font-bold rounded-lg text-sm">Activer</button>
+</div>
+</div>
+</section>
+<section class="settings-section hidden animate-in fade-in duration-300" id="section-notifications">
+<h3 class="font-headline-md text-headline-md mb-stack-md">Canaux de Notifications</h3>
+<div class="space-y-4">
+<div class="flex items-center gap-4">
+<input checked="" class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+<div>
+<p class="font-bold">Alertes de livraison</p>
+<p class="text-sm text-on-surface-variant">Suivi en temps rÃ©el de vos colis ShopAI.</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<input checked="" class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary" type="checkbox"/>
+<div>
+<p class="font-bold">Promotions &amp; Flash Deals</p>
+<p class="text-sm text-on-surface-variant">Soyez le premier averti des baisses de prix.</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Mobile Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 w-full z-50 bg-surface-container-lowest md:hidden flex justify-around items-center h-16 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="text-[10px] font-medium">Accueil</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="text-[10px] font-medium">Catalogue</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="sell">sell</span>
+<span class="text-[10px] font-medium">Deals</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-primary font-bold">
+<span class="material-symbols-outlined" data-icon="settings" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="text-[10px] font-bold">ParamÃ¨tres</span>
+</button>
+</nav>
+<script>
+        function switchTab(tabId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.settings-section');
+            sections.forEach(section => section.classList.add('hidden'));
+
+            // Show target section
+            document.getElementById('section-' + tabId).classList.remove('hidden');
+
+            // Reset all buttons
+            const buttons = document.querySelectorAll('.settings-tab-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-surface-container-lowest', 'shadow-sm', 'border', 'border-outline-variant', 'text-primary', 'font-bold');
+                btn.classList.add('text-on-surface-variant', 'hover:bg-surface-container-high');
+                btn.querySelector('.material-symbols-outlined').style.fontVariationSettings = "'FILL' 0";
+            });
+
+            // Activate current button
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.classList.add('bg-surface-container-lowest', 'shadow-sm', 'border', 'border-outline-variant', 'text-primary', 'font-bold');
+            activeBtn.classList.remove('text-on-surface-variant', 'hover:bg-surface-container-high');
+            activeBtn.querySelector('.material-symbols-outlined').style.fontVariationSettings = "'FILL' 1";
+        }
+
+        // Initialize with Personal Info active
+        document.addEventListener('DOMContentLoaded', () => {
+            switchTab('info');
+        });
+    </script>
+
+<script src="/static/js/toast.js"></script>
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/cart.js"></script>
+<script src="/static/js/nav.js"></script>
+<script src="/static/js/page-links.js"></script>
+</body></html>
+
+

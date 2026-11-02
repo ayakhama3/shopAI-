@@ -1,0 +1,583 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ShopAI - Mode de Paiement</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+tailwind.config = {
+    darkMode: "class",
+    theme: {
+        extend: {
+            "colors": {
+                "surface-bright": "#f7f9fb", "primary-container": "#131b2e", "surface-tint": "#565e74",
+                "on-tertiary-fixed": "#111c2d", "surface-variant": "#e0e3e5", "on-secondary-fixed-variant": "#763300",
+                "on-surface-variant": "#45464d", "background": "#f7f9fb", "primary-fixed": "#dae2fd",
+                "on-tertiary": "#ffffff", "primary-fixed-dim": "#bec6e0", "on-surface": "#191c1e",
+                "on-secondary": "#ffffff", "inverse-on-surface": "#eff1f3", "secondary-fixed": "#ffdbca",
+                "on-error": "#ffffff", "tertiary-container": "#111c2d", "surface-container-highest": "#e0e3e5",
+                "surface": "#f7f9fb", "on-primary-fixed": "#131b2e", "tertiary-fixed": "#d8e3fb",
+                "tertiary-fixed-dim": "#bcc7de", "surface-container-high": "#e6e8ea",
+                "on-tertiary-fixed-variant": "#3c475a", "on-primary": "#ffffff", "secondary": "#9b4500",
+                "on-primary-fixed-variant": "#3f465c", "error-container": "#ffdad6", "on-secondary-container": "#682c00",
+                "on-background": "#191c1e", "surface-container-low": "#f2f4f6", "outline-variant": "#c6c6cd",
+                "surface-dim": "#d8dadc", "outline": "#76777d", "error": "#ba1a1a", "on-primary-container": "#7c839b",
+                "secondary-fixed-dim": "#ffb68e", "primary": "#000000", "on-tertiary-container": "#79849a",
+                "on-secondary-fixed": "#331200", "secondary-container": "#fd8a42", "inverse-primary": "#bec6e0",
+                "surface-container-lowest": "#ffffff", "surface-container": "#eceef0", "inverse-surface": "#2d3133",
+                "tertiary": "#000000", "on-error-container": "#93000a"
+            },
+            "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+            "spacing": { "stack-md": "1rem", "margin-desktop": "2.5rem", "stack-sm": "0.5rem", "stack-lg": "2rem", "margin-mobile": "1rem", "gutter": "1.5rem", "container-max": "1280px" },
+            "fontFamily": { "headline-md": ["Montserrat"], "price-display": ["Montserrat"], "headline-lg": ["Montserrat"], "body-md": ["Inter"], "headline-lg-mobile": ["Montserrat"], "headline-xl": ["Montserrat"], "label-sm": ["Inter"], "body-lg": ["Inter"] },
+            "fontSize": {
+                "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                "price-display": ["20px", {"lineHeight": "24px", "fontWeight": "700"}],
+                "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "label-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+            }
+        },
+    },
+}
+</script>
+<style>
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+.input-error { border: 2px solid #ba1a1a !important; background-color: #ffdad6 !important; }
+.error-message { color: #ba1a1a; font-size: 12px; margin-top: 4px; display: none; }
+.input-error + .error-message { display: block; }
+</style>
+</head>
+<body class="bg-background text-on-surface font-body-md antialiased">
+
+<!-- Top Navigation -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile md:px-margin-desktop h-16 bg-surface-container-lowest shadow-sm">
+<div class="flex items-center gap-4">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">ShopAI</h1>
+</div>
+<div class="flex items-center gap-stack-md">
+<span class="material-symbols-outlined text-primary">notifications</span>
+<span class="material-symbols-outlined text-primary">favorite</span>
+<div class="h-8 w-8 rounded-full bg-surface-container-high overflow-hidden border border-outline-variant">
+<img alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2kqhoKPtetn6WeoLlpLEQjQlGCzs7t8WqGdp1MeoH7Xf4KaXULRtpYUfwUlBSAEIEtetaM1RqBd_cHorYHzhgs8d0d8nZWjwDXZ5D81XaGk8bMa3hbgUBVZCFHdLrR4OMrROp7oQowlGBbYDVmhIuC0aNeCWucVaC8QvnXuFxSSwmVeOuiolm6_a8l_3-19fKBq1zLFtYIgunTKAXvl_s3cWJFiuSPdX31PehApl_HG_5-wfNgTYU_8L-dOBbTu9TmQqpdYv7m9U"/>
+</div>
+</div>
+</header>
+
+<main class="pt-24 pb-12 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<div class="flex flex-col lg:flex-row gap-gutter">
+
+<!-- Left Side: Payment -->
+<div class="flex-1 space-y-stack-lg">
+<nav class="flex items-center gap-4 mb-stack-lg">
+<div class="flex items-center gap-2 text-on-surface-variant cursor-pointer" onclick="window.location.href='/paiement_1'">
+<span class="w-8 h-8 rounded-full border border-primary flex items-center justify-center font-bold text-primary">1</span>
+<span class="font-label-sm text-label-sm">Expédition</span>
+</div>
+<div class="h-px w-8 bg-outline-variant"></div>
+<div class="flex items-center gap-2 text-primary">
+<span class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold">2</span>
+<span class="font-label-sm text-label-sm font-bold">Paiement</span>
+</div>
+<div class="h-px w-8 bg-outline-variant"></div>
+<div class="flex items-center gap-2 text-on-surface-variant opacity-50">
+<span class="w-8 h-8 rounded-full border border-outline flex items-center justify-center font-bold">3</span>
+<span class="font-label-sm text-label-sm">Confirmation</span>
+</div>
+</nav>
+
+<section>
+<h2 class="font-headline-lg text-headline-lg mb-stack-md">Mode de paiement</h2>
+<p class="text-on-surface-variant mb-stack-lg">Sélectionnez votre méthode de paiement préférée.</p>
+
+<form class="space-y-stack-md" id="payment-form">
+<div class="relative">
+<input checked class="peer absolute opacity-0" id="card" name="payment_method" type="radio" value="card"/>
+<label class="peer-checked:border-primary peer-checked:bg-surface-container-low cursor-pointer block border border-outline-variant rounded-xl p-stack-md transition-all hover:shadow-md bg-surface-container-lowest" for="card">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">credit_card</span>
+<span class="font-bold">Carte Bancaire</span>
+</div>
+<div class="flex gap-2">
+<div class="h-6 w-10 bg-surface-container rounded flex items-center justify-center text-[10px] font-bold border border-outline-variant">VISA</div>
+<div class="h-6 w-10 bg-surface-container rounded flex items-center justify-center text-[10px] font-bold border border-outline-variant">MC</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 mt-4" id="card-form-fields">
+<div class="col-span-2">
+<label class="block text-label-sm font-label-sm text-on-surface-variant mb-1">Numéro de carte <span class="text-error">*</span></label>
+<input id="card-number" class="w-full bg-surface-container-low border border-outline-variant rounded-lg p-3 focus:ring-2 focus:ring-primary" placeholder="0000 0000 0000 0000" type="text" maxlength="19"/>
+<p class="error-message" id="error-card-number">Numéro de carte requis (16 chiffres)</p>
+</div>
+<div>
+<label class="block text-label-sm font-label-sm text-on-surface-variant mb-1">Date d'expiration <span class="text-error">*</span></label>
+<input id="card-expiry" class="w-full bg-surface-container-low border border-outline-variant rounded-lg p-3 focus:ring-2 focus:ring-primary" placeholder="MM/YY" type="text" maxlength="5"/>
+<p class="error-message" id="error-card-expiry">Format MM/YY requis</p>
+</div>
+<div>
+<label class="block text-label-sm font-label-sm text-on-surface-variant mb-1">CVV <span class="text-error">*</span></label>
+<input id="card-cvv" class="w-full bg-surface-container-low border border-outline-variant rounded-lg p-3 focus:ring-2 focus:ring-primary" placeholder="123" type="text" maxlength="4"/>
+<p class="error-message" id="error-card-cvv">CVV requis (3-4 chiffres)</p>
+</div>
+<div class="col-span-2">
+<label class="block text-label-sm font-label-sm text-on-surface-variant mb-1">Titulaire de la carte <span class="text-error">*</span></label>
+<input id="card-holder" class="w-full bg-surface-container-low border border-outline-variant rounded-lg p-3 focus:ring-2 focus:ring-primary" placeholder="Nom complet" type="text"/>
+<p class="error-message" id="error-card-holder">Nom du titulaire requis</p>
+</div>
+</div>
+</label>
+</div>
+
+<div class="relative">
+<input class="peer absolute opacity-0" id="paypal" name="payment_method" type="radio" value="paypal"/>
+<label class="peer-checked:border-primary peer-checked:bg-surface-container-low cursor-pointer flex items-center justify-between border border-outline-variant rounded-xl p-stack-md transition-all hover:shadow-md bg-surface-container-lowest" for="paypal">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#003087]">account_balance_wallet</span>
+<span class="font-bold">PayPal</span>
+</div>
+<span class="text-on-surface-variant text-label-sm">Connectez-vous à votre compte</span>
+</label>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+<div class="relative">
+<input class="peer absolute opacity-0" id="applepay" name="payment_method" type="radio" value="applepay"/>
+<label class="peer-checked:border-primary peer-checked:bg-surface-container-low cursor-pointer flex items-center gap-3 border border-outline-variant rounded-xl p-stack-md transition-all hover:shadow-md bg-surface-container-lowest h-full" for="applepay">
+<span class="material-symbols-outlined">ios</span>
+<span class="font-bold">Apple Pay</span>
+</label>
+</div>
+<div class="relative">
+<input class="peer absolute opacity-0" id="googlepay" name="payment_method" type="radio" value="googlepay"/>
+<label class="peer-checked:border-primary peer-checked:bg-surface-container-low cursor-pointer flex items-center gap-3 border border-outline-variant rounded-xl p-stack-md transition-all hover:shadow-md bg-surface-container-lowest h-full" for="googlepay">
+<span class="material-symbols-outlined text-[#4285F4]">google</span>
+<span class="font-bold">Google Pay</span>
+</label>
+</div>
+</div>
+
+<div class="space-y-stack-md">
+<div class="relative">
+<input class="peer absolute opacity-0" id="cod" name="payment_method" type="radio" value="cod"/>
+<label class="peer-checked:border-primary peer-checked:bg-surface-container-low cursor-pointer flex items-center justify-between border border-outline-variant rounded-xl p-stack-md transition-all hover:shadow-md bg-surface-container-lowest" for="cod">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">payments</span>
+<span class="font-bold">Paiement à la livraison</span>
+</div>
+<span class="bg-secondary-container text-on-secondary-container px-2 py-1 rounded text-[12px] font-bold">Frais : +15 MAD</span>
+</label>
+</div>
+<div class="relative">
+<input class="peer absolute opacity-0" id="wallet" name="payment_method" type="radio" value="wallet"/>
+<label class="peer-checked:border-primary peer-checked:bg-surface-container-low cursor-pointer border border-outline-variant rounded-xl p-stack-md transition-all hover:shadow-md bg-surface-container-lowest block" for="wallet">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary">account_balance_wallet</span>
+<span class="font-bold">Portefeuille ShopAI</span>
+</div>
+<span class="font-price-display text-price-display text-secondary" id="wallet-balance">1,240.00 MAD</span>
+</div>
+<p class="text-label-sm text-on-surface-variant">Payez instantanément avec votre solde.</p>
+</label>
+</div>
+</div>
+</form>
+</section>
+
+<div class="flex lg:hidden flex-col gap-4">
+<button class="w-full bg-primary text-on-primary py-4 rounded-xl font-bold hover:bg-opacity-90 transition-all active:scale-95 shadow-lg btn-confirm-payment">Confirmer le paiement</button>
+<button class="w-full text-primary font-bold py-2" onclick="window.location.href='/paiement_1'">Retour à l'expédition</button>
+</div>
+</div>
+
+<!-- Right Side: Order Summary -->
+<aside class="w-full lg:w-[400px]">
+<div class="bg-surface-container-lowest rounded-2xl shadow-sm border border-outline-variant p-stack-lg sticky top-24">
+<h3 class="font-headline-md text-headline-md mb-stack-md">Récapitulatif</h3>
+
+<div id="checkout-items-container" class="space-y-4 mb-stack-lg max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
+  <div class="flex gap-4 animate-pulse">
+    <div class="h-20 w-20 rounded-lg flex-shrink-0 bg-surface-container"></div>
+    <div class="flex-1 space-y-2">
+      <div class="h-4 bg-surface-container rounded w-3/4"></div>
+      <div class="h-3 bg-surface-container rounded w-1/2"></div>
+      <div class="h-4 bg-surface-container rounded w-1/3"></div>
+    </div>
+  </div>
+</div>
+
+<div class="border-t border-outline-variant pt-stack-md space-y-3">
+<div class="flex justify-between text-on-surface-variant">
+<span>Sous-total (<span id="checkout-item-count">0 article</span>)</span>
+<span id="checkout-subtotal">0.00 MAD</span>
+</div>
+<div class="flex justify-between text-on-surface-variant">
+<span>Livraison</span>
+<span class="text-secondary font-bold" id="checkout-shipping">Gratuit</span>
+</div>
+<div class="flex justify-between text-on-surface-variant">
+<span>TVA (20%)</span>
+<span id="checkout-tva">0.00 MAD</span>
+</div>
+<div class="flex justify-between items-center border-t border-outline-variant pt-4 mt-2">
+<span class="font-headline-md text-headline-md">Total</span>
+<span class="font-headline-md text-headline-md text-primary" id="checkout-total">0.00 MAD</span>
+</div>
+</div>
+
+<div class="mt-stack-lg space-y-4 hidden lg:block">
+<button class="w-full bg-primary text-on-primary py-4 rounded-xl font-bold hover:bg-opacity-90 transition-all active:scale-95 shadow-lg flex items-center justify-center gap-2 btn-confirm-payment">
+    Confirmer le paiement
+    <span class="material-symbols-outlined text-sm">lock</span>
+</button>
+<p class="text-[12px] text-center text-on-surface-variant flex items-center justify-center gap-1">
+<span class="material-symbols-outlined text-xs">verified_user</span>
+    Paiement 100% sécurisé via cryptage SSL
+</p>
+</div>
+
+<div class="mt-6 p-4 bg-surface-container rounded-xl">
+<label class="block text-label-sm font-bold mb-2">Code Promo</label>
+<div class="flex gap-2">
+<input class="flex-1 bg-surface-container-lowest border-outline-variant rounded-lg text-sm px-3 focus:ring-primary focus:border-primary" placeholder="Entrez votre code" type="text"/>
+<button class="bg-primary text-on-primary px-4 py-2 rounded-lg text-sm font-bold">Appliquer</button>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+
+<footer class="mt-12 py-8 border-t border-outline-variant bg-surface-container-low px-margin-mobile md:px-margin-desktop">
+<div class="max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+<div class="flex items-center gap-stack-md text-on-surface-variant text-sm">
+<span>© 2024 ShopAI Premium Maroc</span>
+<span class="hidden md:inline">•</span>
+<a class="hover:text-primary" href="#">Conditions générales</a>
+<span class="hidden md:inline">•</span>
+<a class="hover:text-primary" href="#">Politique de confidentialité</a>
+</div>
+<div class="flex gap-4 opacity-50 grayscale hover:grayscale-0 transition-all">
+<span class="material-symbols-outlined">shield</span>
+<span class="material-symbols-outlined">local_shipping</span>
+<span class="material-symbols-outlined">help</span>
+</div>
+</div>
+</footer>
+
+<!-- ============================================================
+     SCRIPTS - Même logique que favoris.js
+     ============================================================ -->
+<script>
+// Même helper que dans favoris.js / auth.js
+function getToken() {
+    // PRIORITÉ 1: Utiliser ShopAIAuth si disponible (comme favoris.js)
+    if (window.ShopAIAuth && typeof window.ShopAIAuth.getToken === 'function') {
+        return window.ShopAIAuth.getToken();
+    }
+    // PRIORITÉ 2: Chercher shopai_token (clé utilisée par auth.js)
+    return sessionStorage.getItem('shopai_token') || 
+           localStorage.getItem('shopai_token') || 
+           sessionStorage.getItem('token') || 
+           localStorage.getItem('token') || 
+           '';
+}
+
+function getCartItemsSync() {
+    if (window.cartData && Array.isArray(window.cartData.items) && window.cartData.items.length > 0) {
+        return window.cartData.items;
+    }
+    try {
+        var guest = JSON.parse(localStorage.getItem('shopai_cart_guest') || '{"items":[]}');
+        if (guest.items && guest.items.length > 0) return guest.items;
+    } catch(e) {}
+    return [];
+}
+
+function computeTotals(items) {
+    var subtotal = 0, itemCount = 0;
+    for (var i = 0; i < items.length; i++) {
+        var qty = parseInt(items[i].quantity || 1);
+        var price = parseFloat(items[i].price || 0);
+        subtotal += qty * price;
+        itemCount += qty;
+    }
+    var tva = Math.round(subtotal * 0.20 * 100) / 100;
+    var shipping = subtotal > 500 ? 0 : 15;
+    var total = Math.round((subtotal + tva + shipping) * 100) / 100;
+    return { subtotal: subtotal, tva: tva, shipping: shipping, total: total, itemCount: itemCount };
+}
+
+function renderOrderSummary() {
+    var container = document.getElementById('checkout-items-container');
+    var subtotalEl = document.getElementById('checkout-subtotal');
+    var tvaEl = document.getElementById('checkout-tva');
+    var shippingEl = document.getElementById('checkout-shipping');
+    var totalEl = document.getElementById('checkout-total');
+    var countEl = document.getElementById('checkout-item-count');
+
+    var items = getCartItemsSync();
+
+    if (!items || items.length === 0) {
+        container.innerHTML = [
+            '<div class="text-center py-8">',
+            '  <span class="material-symbols-outlined text-4xl text-on-surface-variant mb-2">shopping_bag</span>',
+            '  <p class="text-on-surface-variant">Votre panier est vide</p>',
+            '  <a href="/panier_ia" class="text-secondary underline text-label-sm mt-2 inline-block">Retourner au panier</a>',
+            '</div>'
+        ].join('');
+        if (subtotalEl) subtotalEl.textContent = '0.00 MAD';
+        if (tvaEl) tvaEl.textContent = '0.00 MAD';
+        if (shippingEl) shippingEl.textContent = 'Gratuit';
+        if (totalEl) totalEl.textContent = '0.00 MAD';
+        if (countEl) countEl.textContent = '0 article';
+        window._checkoutCartData = { items: [], totals: computeTotals([]) };
+        return;
+    }
+
+    var totals = computeTotals(items);
+
+    var html = items.map(function(item) {
+        var qty = parseInt(item.quantity || 1);
+        var price = parseFloat(item.price || 0);
+        var name = item.name || 'Produit';
+        var image = item.image || 'https://placehold.co/80x80?text=Produit';
+        var variant = item.category || item.variant || '';
+        var itemTotal = Math.round(price * qty * 100) / 100;
+
+        return [
+            '<div class="flex gap-4">',
+            '  <div class="h-20 w-20 rounded-lg overflow-hidden flex-shrink-0 bg-surface-container border border-outline-variant">',
+            '    <img class="w-full h-full object-cover" alt="' + name.replace(/"/g, '&quot;') + '" src="' + image + '" onerror="this.src=\'https://placehold.co/80x80?text=ShopAI\'"/>',
+            '  </div>',
+            '  <div class="flex-1">',
+            '    <p class="font-bold text-on-surface line-clamp-1">' + name.replace(/</g, '&lt;') + '</p>',
+            (variant ? '    <p class="text-label-sm text-on-surface-variant">' + variant + '</p>' : ''),
+            '    <p class="text-label-sm text-on-surface-variant">Quantité: ' + qty + '</p>',
+            '    <p class="font-price-display text-label-sm text-primary mt-1">' + itemTotal.toLocaleString('fr-MA', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' MAD</p>',
+            '  </div>',
+            '</div>'
+        ].join('');
+    }).join('');
+
+    container.innerHTML = html;
+
+    if (subtotalEl) subtotalEl.textContent = totals.subtotal.toLocaleString('fr-MA', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' MAD';
+    if (tvaEl) tvaEl.textContent = totals.tva.toLocaleString('fr-MA', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' MAD';
+    if (shippingEl) shippingEl.textContent = totals.shipping === 0 ? 'Gratuit' : totals.shipping.toLocaleString('fr-MA') + ' MAD';
+    if (totalEl) totalEl.textContent = totals.total.toLocaleString('fr-MA', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' MAD';
+    if (countEl) countEl.textContent = totals.itemCount + (totals.itemCount > 1 ? ' articles' : ' article');
+
+    window._checkoutCartData = { items: items, totals: totals };
+}
+
+function validateCardFields() {
+    var isValid = true;
+    var cardNumber = document.getElementById('card-number');
+    if (!/^\d{16}$/.test(cardNumber.value.replace(/\s/g, ''))) {
+        cardNumber.classList.add('input-error'); isValid = false;
+    } else { cardNumber.classList.remove('input-error'); }
+    
+    var cardExpiry = document.getElementById('card-expiry');
+    if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(cardExpiry.value)) {
+        cardExpiry.classList.add('input-error'); isValid = false;
+    } else {
+        var p = cardExpiry.value.split('/');
+        if (new Date(2000 + parseInt(p[1]), parseInt(p[0]), 0) < new Date()) {
+            cardExpiry.classList.add('input-error'); isValid = false;
+        } else { cardExpiry.classList.remove('input-error'); }
+    }
+    
+    var cardCvv = document.getElementById('card-cvv');
+    if (!/^\d{3,4}$/.test(cardCvv.value)) {
+        cardCvv.classList.add('input-error'); isValid = false;
+    } else { cardCvv.classList.remove('input-error'); }
+    
+    var cardHolder = document.getElementById('card-holder');
+    if (cardHolder.value.trim().length < 3) {
+        cardHolder.classList.add('input-error'); isValid = false;
+    } else { cardHolder.classList.remove('input-error'); }
+    
+    return isValid;
+}
+
+function getSelectedPaymentMethod() {
+    var checked = document.querySelector('input[name="payment_method"]:checked');
+    return checked ? checked.value : 'card';
+}
+
+async function confirmPayment() {
+    var paymentMethod = getSelectedPaymentMethod();
+    
+    if (paymentMethod === 'card' && !validateCardFields()) {
+        if (typeof showToast === 'function') showToast('Veuillez remplir correctement les champs de la carte', 'error');
+        return;
+    }
+    
+    var cartData = window._checkoutCartData;
+    var items = cartData ? cartData.items : getCartItemsSync();
+    if (!items || items.length === 0) {
+        if (typeof showToast === 'function') showToast('Votre panier est vide.', 'error');
+        return;
+    }
+
+    var totals = cartData ? cartData.totals : computeTotals(items);
+    var token = getToken();
+    
+    console.log('[ShopAI] Token récupéré:', token ? 'OK (' + token.substring(0, 20) + '...)' : 'VIDE');
+    
+    if (!token) {
+        if (typeof showToast === 'function') showToast('Veuillez vous connecter.', 'error');
+        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+        return;
+    }
+
+    try {
+        var res = await fetch('/api/commandes', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({
+                items: items.map(function(it) {
+                    return {
+                        product_id: it.product_id || it.id,
+                        name: it.name,
+                        price: parseFloat(it.price || 0),
+                        quantity: parseInt(it.quantity || 1),
+                        image: it.image || ''
+                    };
+                }),
+                total: totals.total,
+                payment_method: paymentMethod,
+                card_details: paymentMethod === 'card' ? {
+                    number: document.getElementById('card-number').value.replace(/\s/g, ''),
+                    expiry: document.getElementById('card-expiry').value,
+                    cvv: document.getElementById('card-cvv').value,
+                    holder: document.getElementById('card-holder').value
+                } : null,
+                shipping_address: {
+                    first_name: sessionStorage.getItem('ship_firstname') || '',
+                    last_name: sessionStorage.getItem('ship_lastname') || '',
+                    address: sessionStorage.getItem('ship_address') || '',
+                    city: sessionStorage.getItem('ship_city') || 'Casablanca',
+                    postal_code: sessionStorage.getItem('ship_postal') || '',
+                    phone: sessionStorage.getItem('ship_phone') || ''
+                }
+            }),
+        });
+
+        var data = await res.json().catch(function() { return {}; });
+        
+        if (res.status === 401) {
+            sessionStorage.removeItem('shopai_token');
+            throw new Error('Session expirée.');
+        }
+        if (!res.ok) throw new Error(data.error || data.message || 'Erreur ' + res.status);
+
+        if (typeof clearCart === 'function') clearCart();
+        localStorage.removeItem('shopai_cart_guest');
+        
+        sessionStorage.setItem('shopai_last_payment_method', paymentMethod);
+        sessionStorage.setItem('shopai_payment_total', String(totals.total));
+        sessionStorage.setItem('shopai_payment_status', 'paid');
+        
+        if (typeof showToast === 'function') showToast('Commande confirmée !', 'success');
+        window.location.href = '/suivi_1';
+
+    } catch (e) {
+        console.error('[ShopAI] Erreur:', e);
+        if (typeof showToast === 'function') showToast(e.message || 'Paiement impossible', 'error');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    renderOrderSummary();
+    
+    window.addEventListener('cart-updated', function() { renderOrderSummary(); });
+    
+    var cardNumber = document.getElementById('card-number');
+    if (cardNumber) {
+        cardNumber.addEventListener('input', function(e) {
+            var val = e.target.value.replace(/\D/g, '');
+            var fmt = '';
+            for (var i = 0; i < val.length && i < 16; i++) {
+                if (i > 0 && i % 4 === 0) fmt += ' ';
+                fmt += val[i];
+            }
+            e.target.value = fmt;
+            e.target.classList.remove('input-error');
+        });
+    }
+    var cardExpiry = document.getElementById('card-expiry');
+    if (cardExpiry) {
+        cardExpiry.addEventListener('input', function(e) {
+            var val = e.target.value.replace(/\D/g, '');
+            e.target.value = val.length >= 2 ? val.substring(0,2) + '/' + val.substring(2,4) : val;
+            e.target.classList.remove('input-error');
+        });
+    }
+    var cardCvv = document.getElementById('card-cvv');
+    if (cardCvv) {
+        cardCvv.addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/\D/g, '').substring(0,4);
+            e.target.classList.remove('input-error');
+        });
+    }
+    var cardHolder = document.getElementById('card-holder');
+    if (cardHolder) cardHolder.addEventListener('input', function(e) { e.target.classList.remove('input-error'); });
+
+    document.querySelectorAll('.btn-confirm-payment').forEach(function(btn) {
+        btn.addEventListener('click', function(e) { e.preventDefault(); confirmPayment(); });
+    });
+
+    var mainEl = document.querySelector('main');
+    if (mainEl) {
+        mainEl.classList.add('opacity-0', 'translate-y-4');
+        setTimeout(function() {
+            mainEl.classList.remove('opacity-0', 'translate-y-4');
+            mainEl.classList.add('transition-all', 'duration-700', 'opacity-100', 'translate-y-0');
+        }, 100);
+    }
+
+    document.querySelectorAll('input[name="payment_method"]').forEach(function(radio) {
+        radio.addEventListener('change', function(e) {
+            var cardFields = document.getElementById('card-form-fields');
+            if (cardFields) cardFields.style.display = e.target.value === 'card' ? 'grid' : 'none';
+            var cartData = window._checkoutCartData;
+            if (!cartData || !cartData.totals) return;
+            var shippingEl = document.getElementById('checkout-shipping');
+            var totalEl = document.getElementById('checkout-total');
+            var subtotal = cartData.totals.subtotal, tva = cartData.totals.tva;
+            if (e.target.value === 'cod') {
+                var nt = Math.round((subtotal + tva + 15) * 100) / 100;
+                if (shippingEl) shippingEl.textContent = '15.00 MAD';
+                if (totalEl) totalEl.textContent = nt.toLocaleString('fr-MA', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' MAD';
+            } else {
+                var sh = subtotal > 500 ? 0 : 15;
+                var nt = Math.round((subtotal + tva + sh) * 100) / 100;
+                if (shippingEl) shippingEl.textContent = sh === 0 ? 'Gratuit' : '15.00 MAD';
+                if (totalEl) totalEl.textContent = nt.toLocaleString('fr-MA', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' MAD';
+            }
+        });
+    });
+});
+</script>
+
+<script src="/static/js/toast.js"></script>
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/cart.js"></script>
+<script src="/static/js/nav.js"></script>
+<script src="/static/js/page-links.js"></script>
+</body>
+</html>

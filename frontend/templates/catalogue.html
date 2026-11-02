@@ -1,0 +1,539 @@
+﻿<!DOCTYPE html>
+<html class="light" lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Catalogue | ShopAI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "error": "#ba1a1a","on-error-container": "#93000a","tertiary-fixed": "#d8e3fb",
+          "surface-container-lowest": "#ffffff","surface-bright": "#f7f9fb","on-primary": "#ffffff",
+          "outline": "#76777d","on-error": "#ffffff","surface-container": "#eceef0",
+          "primary-fixed": "#dae2fd","on-primary-fixed-variant": "#3f465c",
+          "on-secondary-fixed-variant": "#763300","on-secondary-fixed": "#331200",
+          "tertiary-container": "#111c2d","on-secondary-container": "#682c00","surface": "#f7f9fb",
+          "on-primary-container": "#7c839b","secondary-container": "#fd8a42",
+          "on-tertiary-container": "#79849a","surface-container-high": "#e6e8ea",
+          "on-secondary": "#ffffff","primary-fixed-dim": "#bec6e0","tertiary": "#000000",
+          "on-tertiary-fixed-variant": "#3c475a","surface-variant": "#e0e3e5",
+          "inverse-surface": "#2d3133","on-primary-fixed": "#131b2e","background": "#f7f9fb",
+          "inverse-primary": "#bec6e0","surface-container-highest": "#e0e3e5",
+          "secondary": "#9b4500","surface-dim": "#d8dadc","inverse-on-surface": "#eff1f3",
+          "on-tertiary": "#ffffff","on-tertiary-fixed": "#111c2d","tertiary-fixed-dim": "#bcc7de",
+          "on-surface": "#191c1e","primary": "#000000","error-container": "#ffdad6",
+          "surface-container-low": "#f2f4f6","on-surface-variant": "#45464d",
+          "secondary-fixed-dim": "#ffb68e","primary-container": "#131b2e",
+          "secondary-fixed": "#ffdbca","outline-variant": "#c6c6cd",
+          "surface-tint": "#565e74","on-background": "#191c1e"
+        },
+        borderRadius: {"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},
+        spacing: {
+          "container-max":"1280px","gutter":"1.5rem","margin-mobile":"1rem",
+          "stack-lg":"2rem","margin-desktop":"2.5rem","stack-md":"1rem","stack-sm":"0.5rem"
+        },
+        fontFamily: {
+          "headline-xl":["Montserrat"],"body-lg":["Inter"],"headline-md":["Montserrat"],
+          "headline-lg":["Montserrat"],"headline-lg-mobile":["Montserrat"],
+          "body-md":["Inter"],"label-sm":["Inter"],"price-display":["Montserrat"]
+        },
+        fontSize: {
+          "headline-xl":["40px",{lineHeight:"48px",letterSpacing:"-0.02em",fontWeight:"700"}],
+          "body-lg":["18px",{lineHeight:"28px",fontWeight:"400"}],
+          "headline-md":["24px",{lineHeight:"32px",fontWeight:"600"}],
+          "headline-lg":["32px",{lineHeight:"40px",letterSpacing:"-0.01em",fontWeight:"600"}],
+          "body-md":["16px",{lineHeight:"24px",fontWeight:"400"}],
+          "label-sm":["14px",{lineHeight:"20px",letterSpacing:"0.01em",fontWeight:"500"}],
+          "price-display":["20px",{lineHeight:"24px",fontWeight:"700"}]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body { background-color: #f7f9fb; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align:middle; }
+  .product-card { cursor: pointer; }
+  .product-card:hover .card-title { color: #9b4500; }
+  .favorite-btn.is-active .material-symbols-outlined {
+    font-variation-settings: 'FILL' 1;
+    color: #ba1a1a;
+  }
+</style>
+</head>
+<body class="font-body-md text-on-surface">
+
+<!-- SideNavBar -->
+<aside class="hidden md:flex flex-col h-full py-6 px-4 gap-y-2 bg-surface-container-low border-r border-outline-variant fixed left-0 h-screen w-64 z-40">
+  <div class="px-4 mb-8">
+    <a href="/" class="text-headline-md font-black text-primary block">ShopAI</a>
+    <p class="text-label-sm text-on-surface-variant">AI-Powered Shopping</p>
+  </div>
+  <nav class="flex flex-col gap-y-1">
+    <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-variant transition-all hover:translate-x-1 duration-200 rounded-lg" href="/">
+      <span class="material-symbols-outlined">home</span><span class="text-label-sm">Accueil</span>
+    </a>
+    <a class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-lg font-bold" href="/catalogue">
+      <span class="material-symbols-outlined">grid_view</span><span class="text-label-sm">Catalogue</span>
+    </a>
+  
+    </a>
+    <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-variant transition-all hover:translate-x-1 duration-200 rounded-lg" href="/favoris">
+      <span class="material-symbols-outlined">favorite</span><span class="text-label-sm">Favoris</span>
+    </a>
+    <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-variant transition-all hover:translate-x-1 duration-200 rounded-lg" href="/panier_ia">
+      <span class="material-symbols-outlined">shopping_cart</span><span class="text-label-sm">Panier</span>
+    </a>
+    <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-variant transition-all hover:translate-x-1 duration-200 rounded-lg" href="/historique">
+      <span class="material-symbols-outlined">receipt_long</span><span class="text-label-sm">Historique</span>
+    </a>
+    <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-variant transition-all hover:translate-x-1 duration-200 rounded-lg" href="/messagerie">
+      <span class="material-symbols-outlined">chat</span><span class="text-label-sm">Messagerie</span>
+    </a>
+    
+
+  </nav>
+</aside>
+
+<div class="md:pl-64 flex flex-col min-h-screen">
+
+  <!-- TopNavBar -->
+  <header class="bg-surface border-b border-outline-variant shadow-sm sticky top-0 z-50">
+    <div class="flex justify-between items-center w-full px-4 md:px-margin-desktop py-4 max-w-container-max mx-auto">
+      <div class="flex items-center gap-6">
+        <div class="hidden md:flex items-center bg-surface-container rounded-full px-4 py-2 w-96">
+          <span class="material-symbols-outlined text-outline">search</span>
+          <input id="catalog-search" class="bg-transparent border-none focus:ring-0 text-body-md w-full" placeholder="Rechercher des produits..." type="text"/>
+        </div>
+      </div>
+      <div class="flex items-center gap-4 md:gap-6">
+        <button onclick="window.location.href='/messagerie'" class="text-primary hover:text-secondary transition-colors">
+          <span class="material-symbols-outlined">notifications</span>
+        </button>
+        <button onclick="window.location.href='/favoris'" class="text-primary hover:text-secondary transition-colors">
+          <span class="material-symbols-outlined">favorite</span>
+        </button>
+        <button onclick="window.location.href='/panier_ia'" class="relative text-primary hover:text-secondary transition-colors">
+          <span class="material-symbols-outlined">shopping_cart</span>
+          <span class="cart-badge absolute -top-1 -right-1 bg-secondary text-on-secondary text-[10px] w-4 h-4 flex items-center justify-center rounded-full font-bold" style="display:none">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow">
+    <div class="max-w-container-max mx-auto px-4 md:px-margin-desktop py-8">
+      <h2 class="text-headline-lg font-headline-lg text-primary mb-8">Catalogue Premium</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+
+        <!-- Filtres -->
+        <aside class="md:col-span-3">
+          <div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant">
+            <h3 class="text-headline-md font-headline-md mb-6">Filtres</h3>
+            <div class="mb-8">
+              <h4 class="text-label-sm font-bold uppercase tracking-wider mb-4">Catégories</h4>
+              <ul class="space-y-3 text-body-md" id="category-filter-list">
+                <li data-category="" class="text-primary font-semibold cursor-pointer hover:text-secondary transition-colors">Toutes</li>
+                <!-- Catégories injectées dynamiquement -->
+              </ul>
+            </div>
+            <div class="mb-4">
+              <h4 class="text-label-sm font-bold uppercase tracking-wider mb-4">Prix (DH)</h4>
+              <div class="flex justify-between text-label-sm text-on-surface-variant">
+                <span>50 DH</span><span>15 000 DH</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Grille produits -->
+        <section class="md:col-span-9">
+          <div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant mb-6 flex justify-between items-center">
+            <span class="text-label-sm text-on-surface-variant"><span class="font-bold text-primary" id="product-count">0</span> produits trouvés</span>
+            <select id="sort-select" class="bg-surface-container border-none rounded-lg text-label-sm font-semibold focus:ring-0 cursor-pointer">
+              <option value="">Pertinence IA</option>
+              <option value="price_asc">Prix: Croissant</option>
+              <option value="price_desc">Prix: Décroissant</option>
+            </select>
+          </div>
+
+          <!-- ═══ GRILLE GÉNÉRÉE PAR JS ════════════════════════════════════ -->
+          <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Les cartes sont injectées par renderCatalogue() -->
+          </div>
+          <div id="loading-state" class="text-center py-12 text-on-surface-variant">
+            Chargement des produits...
+          </div>
+
+          <!-- Pagination -->
+          <div id="pagination-container" class="mt-stack-lg flex justify-center items-center gap-2 flex-wrap">
+            <!-- Boutons injectés par renderPagination() -->
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-surface-container-high border-t border-outline-variant mt-stack-lg">
+    <div class="w-full py-12 px-margin-desktop max-w-container-max mx-auto flex flex-col items-center gap-6">
+      <div class="font-bold text-primary text-xl">ShopAI</div>
+      <div class="flex flex-wrap justify-center gap-6">
+        <a class="text-on-surface-variant hover:text-primary hover:underline text-body-md" href="/parametres">Legal</a>
+        <a class="text-on-surface-variant hover:text-primary hover:underline text-body-md" href="/parametres">Privacy Policy</a>
+        <a class="text-on-surface-variant hover:text-primary hover:underline text-body-md" href="/parametres">Terms of Service</a>
+        <a class="text-on-surface-variant hover:text-primary hover:underline text-body-md" href="/messagerie">Contact Us</a>
+      </div>
+      <p class="text-label-sm text-on-surface-variant">© 2024 ShopAI Platform. All rights reserved.</p>
+    </div>
+  </footer>
+</div>
+
+<!-- Mobile Nav -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-surface-container border-t border-outline-variant px-4 py-2 flex justify-around items-center z-50">
+  <a class="flex flex-col items-center p-2 text-on-surface-variant" href="/"><span class="material-symbols-outlined">home</span><span class="text-[10px]">Accueil</span></a>
+  <a class="flex flex-col items-center p-2 text-primary font-bold" href="/catalogue"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">grid_view</span><span class="text-[10px]">Catalog</span></a>
+  <a class="flex flex-col items-center p-2 text-on-surface-variant" href="/favoris"><span class="material-symbols-outlined">favorite</span><span class="text-[10px]">Favoris</span></a>
+  <a class="flex flex-col items-center p-2 text-on-surface-variant" href="/panier_ia"><span class="material-symbols-outlined">shopping_cart</span><span class="text-[10px]">Panier</span></a>
+</nav>
+
+<!-- ═══ LOGIQUE CATALOGUE DYNAMIQUE ════════════════════════════════════════ -->
+<script>
+  var ALL_PRODUCTS = [];       // tous les produits chargés depuis l'API
+  var FAVORITE_IDS = new Set(); // ids des produits déjà en favoris (pour cocher les coeurs)
+  var CURRENT_PAGE = 1;
+  var PAGE_SIZE = 12;
+
+  function getAuthToken() {
+    if (window.ShopAIAuth && typeof window.ShopAIAuth.getToken === 'function') {
+      return window.ShopAIAuth.getToken();
+    }
+    return sessionStorage.getItem('shopai_token') || localStorage.getItem('shopai_token');
+  }
+
+  // ── Navigation vers la page produit ───────────────────────────────────────
+  function goToProductPage(productId) {
+    var product = ALL_PRODUCTS.find(function(p) { return String(p.id) === String(productId); });
+    if (!product) return;
+    try {
+      // On traduit vers les clés attendues par produit.html (anglais)
+      var translated = {
+        id: product.id,
+        name: product.nom,
+        price: product.prix,
+        image: product.image,
+        category: product.categorie,
+        rating: product.note,
+        vendor: product.vendor,
+        description: 'Découvert via le moteur de recommandation ShopAI (ALS), catégorie ' + (product.categorie || 'générale') + '.'
+      };
+      sessionStorage.setItem('shopai_selected_product', JSON.stringify(translated));
+      sessionStorage.setItem('shopai_selected_product_id', productId);
+    } catch(e) { console.error('[ShopAI] sessionStorage:', e); }
+    window.location.href = '/produit';
+  }
+
+  // ── Ajouter au panier depuis le catalogue ─────────────────────────────────
+  function addToCartFromCatalogue(event, productId) {
+    event.stopPropagation();
+    var product = ALL_PRODUCTS.find(function(p) { return String(p.id) === String(productId); });
+    if (!product) return;
+    var item = { id: product.id, name: product.nom, price: product.prix, quantity: 1, image: product.image, vendor: product.vendor };
+
+    if (typeof addToCart === 'function') {
+      addToCart(item);
+    } else {
+      var cart = JSON.parse(sessionStorage.getItem('shopai_cart') || '[]');
+      var existing = cart.find(function(e) { return e.id === item.id; });
+      if (existing) existing.quantity = (existing.quantity || 1) + 1;
+      else cart.push(item);
+      sessionStorage.setItem('shopai_cart', JSON.stringify(cart));
+    }
+
+    if (typeof showToast === 'function') showToast(product.nom + ' ajouté au panier', 'success');
+
+    var btn = event.currentTarget;
+    var oldHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="material-symbols-outlined text-[18px]">check</span> Ajouté';
+    setTimeout(function() { btn.disabled = false; btn.innerHTML = oldHtml; }, 1200);
+  }
+
+  // ── Toggle favori (coeur) depuis le catalogue ─────────────────────────────
+  async function toggleFavoriteFromCatalogue(event, productId) {
+    event.stopPropagation();
+    var btn = event.currentTarget;
+    var token = getAuthToken();
+
+    if (!token) {
+      if (typeof showToast === 'function') showToast('Veuillez vous connecter pour ajouter un favori.', 'error');
+      return;
+    }
+
+    var isActive = btn.classList.contains('is-active');
+
+    try {
+      if (isActive) {
+        var resp = await fetch('/api/favorites/' + productId, {
+          method: 'DELETE',
+          headers: { Authorization: 'Bearer ' + token }
+        });
+        if (resp.ok) {
+          btn.classList.remove('is-active');
+          FAVORITE_IDS.delete(String(productId));
+          if (typeof showToast === 'function') showToast('Retiré des favoris', 'info');
+        }
+      } else {
+        var resp2 = await fetch('/api/favorites', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+          body: JSON.stringify({ product_id: productId })
+        });
+        if (resp2.ok) {
+          btn.classList.add('is-active');
+          FAVORITE_IDS.add(String(productId));
+          if (typeof showToast === 'function') showToast('Ajouté aux favoris', 'success');
+        }
+      }
+    } catch (err) {
+      console.error('[ShopAI][catalogue] toggleFavorite', err);
+      if (typeof showToast === 'function') showToast('Erreur réseau', 'error');
+    }
+  }
+
+  // ── Charger les favoris existants (pour cocher les coeurs au chargement) ──
+  async function loadFavoriteIds() {
+    var token = getAuthToken();
+    if (!token) return;
+    try {
+      var resp = await fetch('/api/favorites', { headers: { Authorization: 'Bearer ' + token } });
+      if (!resp.ok) return;
+      var data = await resp.json();
+      (data.favorites || []).forEach(function(entry) {
+        FAVORITE_IDS.add(String(entry.product.id));
+      });
+    } catch (err) {
+      console.error('[ShopAI][catalogue] loadFavoriteIds', err);
+    }
+  }
+
+  // ── Rendu des cartes produit (avec pagination) ──────────────────────────────
+  function renderCatalogue(products) {
+    var grid = document.getElementById('product-grid');
+    var loadingEl = document.getElementById('loading-state');
+    if (!grid) return;
+
+    loadingEl.style.display = 'none';
+    document.getElementById('product-count').textContent = products.length;
+
+    if (products.length === 0) {
+      grid.innerHTML = '<p class="col-span-full text-center text-on-surface-variant py-12">Aucun produit trouvé.</p>';
+      document.getElementById('pagination-container').innerHTML = '';
+      return;
+    }
+
+    var totalPages = Math.max(1, Math.ceil(products.length / PAGE_SIZE));
+    if (CURRENT_PAGE > totalPages) CURRENT_PAGE = totalPages;
+    if (CURRENT_PAGE < 1) CURRENT_PAGE = 1;
+
+    var startIdx = (CURRENT_PAGE - 1) * PAGE_SIZE;
+    var pageProducts = products.slice(startIdx, startIdx + PAGE_SIZE);
+
+    grid.innerHTML = pageProducts.map(function(p) {
+      var isFav = FAVORITE_IDS.has(String(p.id));
+      var price = (p.prix !== null && p.prix !== undefined) ? Number(p.prix).toLocaleString('fr-MA') + ' DH' : 'Prix sur demande';
+      var rating = p.note !== null && p.note !== undefined ? p.note : 4.5;
+      var imageUrl = p.image || 'https://placehold.co/400x400?text=Produit';
+
+      return [
+        '<div class="product-card group bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden hover:shadow-lg transition-all duration-300"',
+        '     onclick="goToProductPage(\'' + p.id + '\')" role="button" tabindex="0"',
+        '     onkeydown="if(event.key===\'Enter\')goToProductPage(\'' + p.id + '\')">',
+        '  <div class="relative h-64 bg-surface-container-high overflow-hidden">',
+        '    <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="' + imageUrl + '" alt="' + (p.nom || '') + '"/>',
+        '    <button class="favorite-btn' + (isFav ? ' is-active' : '') + ' absolute top-3 right-3 w-8 h-8 rounded-full bg-white flex items-center justify-center text-on-surface-variant hover:text-error transition-colors shadow-sm"',
+        '            onclick="toggleFavoriteFromCatalogue(event, \'' + p.id + '\')" aria-label="Ajouter aux favoris">',
+        '      <span class="material-symbols-outlined text-[20px]">favorite</span>',
+        '    </button>',
+        '  </div>',
+        '  <div class="p-5">',
+        '    <div class="flex justify-between items-start mb-2">',
+        '      <p class="text-label-sm text-secondary font-semibold">' + (p.categorie || '') + '</p>',
+        '      <div class="flex items-center gap-1">',
+        '        <span class="material-symbols-outlined text-[14px] text-secondary-container" style="font-variation-settings:\'FILL\' 1;">star</span>',
+        '        <span class="text-label-sm font-bold">' + rating + '</span>',
+        '      </div>',
+        '    </div>',
+        '    <h4 class="card-title text-body-lg font-bold text-primary mb-4 leading-tight transition-colors">' + (p.nom || 'Produit') + '</h4>',
+        '    <div class="flex justify-between items-end">',
+        '      <p class="text-price-display font-price-display text-primary">' + price + '</p>',
+        '      <button class="bg-primary text-on-primary px-4 py-2 rounded-lg text-label-sm font-bold hover:bg-secondary transition-all active:scale-95 flex items-center gap-2"',
+        '              onclick="addToCartFromCatalogue(event, \'' + p.id + '\')">',
+        '        <span class="material-symbols-outlined text-[18px]">shopping_cart</span> Ajouter',
+        '      </button>',
+        '    </div>',
+        '  </div>',
+        '</div>'
+      ].join('\n');
+    }).join('\n');
+
+    renderPagination(totalPages, products);
+  }
+
+  // ── Rendu de la pagination (boutons numérotés + précédent/suivant) ─────────
+  function renderPagination(totalPages, products) {
+    var container = document.getElementById('pagination-container');
+    if (!container) return;
+
+    if (totalPages <= 1) {
+      container.innerHTML = '';
+      return;
+    }
+
+    var html = [];
+
+    // Bouton précédent
+    html.push(
+      '<button onclick="goToPage(' + (CURRENT_PAGE - 1) + ')" ' + (CURRENT_PAGE === 1 ? 'disabled' : '') + '',
+      '  class="w-10 h-10 rounded-lg border border-outline-variant flex items-center justify-center text-primary hover:bg-surface-variant disabled:opacity-40 disabled:cursor-not-allowed">',
+      '  <span class="material-symbols-outlined">chevron_left</span>',
+      '</button>'
+    );
+
+    // Calcul de la fenêtre de pages affichées (max 7 boutons numérotés)
+    var windowSize = 7;
+    var startPage = Math.max(1, CURRENT_PAGE - Math.floor(windowSize / 2));
+    var endPage = Math.min(totalPages, startPage + windowSize - 1);
+    startPage = Math.max(1, endPage - windowSize + 1);
+
+    if (startPage > 1) {
+      html.push('<button onclick="goToPage(1)" class="w-10 h-10 rounded-lg border border-outline-variant text-primary hover:bg-surface-variant">1</button>');
+      if (startPage > 2) html.push('<span class="px-1 text-on-surface-variant">…</span>');
+    }
+
+    for (var i = startPage; i <= endPage; i++) {
+      var isActive = i === CURRENT_PAGE;
+      html.push(
+        '<button onclick="goToPage(' + i + ')" class="w-10 h-10 rounded-lg ' +
+        (isActive ? 'bg-primary text-on-primary font-bold' : 'border border-outline-variant text-primary hover:bg-surface-variant') +
+        '">' + i + '</button>'
+      );
+    }
+
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) html.push('<span class="px-1 text-on-surface-variant">…</span>');
+      html.push('<button onclick="goToPage(' + totalPages + ')" class="w-10 h-10 rounded-lg border border-outline-variant text-primary hover:bg-surface-variant">' + totalPages + '</button>');
+    }
+
+    // Bouton suivant
+    html.push(
+      '<button onclick="goToPage(' + (CURRENT_PAGE + 1) + ')" ' + (CURRENT_PAGE === totalPages ? 'disabled' : '') + '',
+      '  class="w-10 h-10 rounded-lg border border-outline-variant flex items-center justify-center text-primary hover:bg-surface-variant disabled:opacity-40 disabled:cursor-not-allowed">',
+      '  <span class="material-symbols-outlined">chevron_right</span>',
+      '</button>'
+    );
+
+    container.innerHTML = html.join('\n');
+  }
+
+  // ── Changer de page ──────────────────────────────────────────────────────
+  function goToPage(page) {
+    CURRENT_PAGE = page;
+    applyFilters();
+    document.getElementById('product-grid').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ── Construire la liste des catégories disponibles ─────────────────────────
+  function renderCategoryFilters(products) {
+    var list = document.getElementById('category-filter-list');
+    var categories = Array.from(new Set(products.map(function(p) { return p.categorie; }).filter(Boolean)));
+
+    categories.forEach(function(cat) {
+      var li = document.createElement('li');
+      li.dataset.category = cat;
+      li.className = 'text-on-surface-variant cursor-pointer hover:text-primary transition-colors';
+      li.textContent = cat;
+      list.appendChild(li);
+    });
+
+    list.addEventListener('click', function(e) {
+      var li = e.target.closest('li');
+      if (!li) return;
+      list.querySelectorAll('li').forEach(function(el) {
+        el.className = 'text-on-surface-variant cursor-pointer hover:text-primary transition-colors';
+      });
+      li.className = 'text-primary font-semibold cursor-pointer hover:text-secondary transition-colors';
+      applyFilters();
+    });
+  }
+
+  function getSelectedCategory() {
+    var active = document.querySelector('#category-filter-list li.text-primary');
+    return active ? (active.dataset.category || '') : '';
+  }
+
+  // ── Appliquer recherche + catégorie + tri (cote client, sur ALL_PRODUCTS) ──
+  function applyFilters(resetPage) {
+    if (resetPage) CURRENT_PAGE = 1;
+
+    var searchInput = document.getElementById('catalog-search');
+    var sortSelect = document.getElementById('sort-select');
+    var q = (searchInput.value || '').toLowerCase().trim();
+    var category = getSelectedCategory();
+    var sort = sortSelect.value;
+
+    var filtered = ALL_PRODUCTS.filter(function(p) {
+      var matchesSearch = !q || (p.nom || '').toLowerCase().includes(q);
+      var matchesCategory = !category || p.categorie === category;
+      return matchesSearch && matchesCategory;
+    });
+
+    if (sort === 'price_asc') {
+      filtered.sort(function(a, b) { return (a.prix || 0) - (b.prix || 0); });
+    } else if (sort === 'price_desc') {
+      filtered.sort(function(a, b) { return (b.prix || 0) - (a.prix || 0); });
+    }
+
+    renderCatalogue(filtered);
+  }
+
+  // ── Chargement initial ──────────────────────────────────────────────────────
+  async function loadCatalogue() {
+    try {
+      await loadFavoriteIds();
+
+      var resp = await fetch('/api/produits');
+      var data = await resp.json();
+      ALL_PRODUCTS = data.produits || [];
+
+      renderCategoryFilters(ALL_PRODUCTS);
+      renderCatalogue(ALL_PRODUCTS);
+    } catch (err) {
+      console.error('[ShopAI][catalogue] loadCatalogue', err);
+      document.getElementById('loading-state').textContent = 'Erreur lors du chargement des produits.';
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    loadCatalogue();
+
+    document.getElementById('catalog-search').addEventListener('input', applyFilters);
+    document.getElementById('sort-select').addEventListener('change', applyFilters);
+  });
+</script>
+
+<script src="/static/js/toast.js"></script>
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/cart.js"></script>
+<script src="/static/js/nav.js"></script>
+<script src="/static/js/page-links.js"></script>
+</body>
+</html>

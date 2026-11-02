@@ -1,0 +1,37 @@
+# Secrets
+.env
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+dist/
+build/
+.ipynb_checkpoints/
+
+# Node
+node_modules/
+
+# Données et modèles (trop lourds, à régénérer)
+data/raw/
+data/models/
+data/processed/
+src/api/data/models/
+
+# Spark
+spark-warehouse/
+metastore_db/
+derby.log
+checkpoint/
+*.crc
+
+# Bases locales et logs
+*.db
+*.log
+
+# Éditeur et système
+.vscode/
+.idea/
+.DS_Store

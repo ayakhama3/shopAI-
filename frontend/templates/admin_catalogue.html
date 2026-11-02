@@ -1,0 +1,222 @@
+﻿<!DOCTYPE html>
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ShopAI - Gestion du Catalogue</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Montserrat:wght@600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-lowest": "#ffffff",
+                      "on-primary-fixed-variant": "#3f465c",
+                      "on-primary-container": "#7c839b",
+                      "tertiary-fixed-dim": "#bcc7de",
+                      "inverse-primary": "#bec6e0",
+                      "on-secondary-container": "#682c00",
+                      "secondary-fixed-dim": "#ffb68e",
+                      "on-tertiary": "#ffffff",
+                      "surface-container": "#eceef0",
+                      "on-error": "#ffffff",
+                      "surface-tint": "#565e74",
+                      "secondary-fixed": "#ffdbca",
+                      "surface-variant": "#e0e3e5",
+                      "tertiary": "#000000",
+                      "primary-container": "#131b2e",
+                      "on-tertiary-fixed-variant": "#3c475a",
+                      "inverse-on-surface": "#eff1f3",
+                      "surface-container-high": "#e6e8ea",
+                      "primary-fixed": "#dae2fd",
+                      "error": "#ba1a1a",
+                      "primary-fixed-dim": "#bec6e0",
+                      "on-error-container": "#93000a",
+                      "on-surface-variant": "#45464d",
+                      "surface-dim": "#d8dadc",
+                      "tertiary-fixed": "#d8e3fb",
+                      "tertiary-container": "#111c2d",
+                      "surface-container-low": "#f2f4f6",
+                      "surface": "#f7f9fb",
+                      "secondary-container": "#fd8a42",
+                      "outline": "#76777d",
+                      "on-surface": "#191c1e",
+                      "error-container": "#ffdad6",
+                      "background": "#f7f9fb",
+                      "on-primary": "#ffffff",
+                      "surface-container-highest": "#e0e3e5",
+                      "on-background": "#191c1e",
+                      "on-tertiary-container": "#79849a",
+                      "on-secondary-fixed": "#331200",
+                      "secondary": "#9b4500",
+                      "on-secondary": "#ffffff",
+                      "surface-bright": "#f7f9fb",
+                      "on-secondary-fixed-variant": "#763300",
+                      "on-primary-fixed": "#131b2e",
+                      "primary": "#000000",
+                      "outline-variant": "#c6c6cd",
+                      "on-tertiary-fixed": "#111c2d",
+                      "inverse-surface": "#2d3133"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"
+              },
+              "spacing": {
+                      "margin-mobile": "1rem", "stack-md": "1rem", "gutter": "1.5rem",
+                      "stack-sm": "0.5rem", "margin-desktop": "2.5rem",
+                      "container-max": "1280px", "stack-lg": "2rem"
+              },
+              "fontFamily": {
+                      "label-sm": ["Inter"], "headline-md": ["Montserrat"], "body-lg": ["Inter"],
+                      "price-display": ["Montserrat"], "headline-lg-mobile": ["Montserrat"],
+                      "headline-lg": ["Montserrat"], "body-md": ["Inter"], "headline-xl": ["Montserrat"]
+              },
+              "fontSize": {
+                      "label-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "price-display": ["20px", {"lineHeight": "24px", "fontWeight": "700"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen">
+<!-- Side Navigation Shell -->
+<aside class="h-screen w-64 fixed left-0 top-0 flex flex-col bg-surface-container-lowest border-r border-outline-variant shadow-sm z-50">
+<div class="px-6 py-8">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">ShopAI</h1>
+<p class="text-on-primary-container font-label-sm text-label-sm">Admin Console</p>
+</div>
+<nav class="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg group" href="/dashboard">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-lg font-bold" href="/admin_catalogue">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-body-md text-body-md">Catalog</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg group" href="/admin_commandes">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="font-body-md text-body-md">Orders</span>
+</a>
+
+</nav>
+<div class="p-4 border-t border-outline-variant">
+<div class="flex items-center gap-3 p-2">
+<div class="w-10 h-10 rounded-full bg-surface-container-high shadow-sm flex items-center justify-center font-bold text-on-surface-variant">AD</div>
+<div class="overflow-hidden">
+<p class="font-label-sm text-label-sm font-bold truncate">Admin</p>
+<p class="text-[10px] text-on-surface-variant truncate">Principal Manager</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Top Navigation Shell -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 flex justify-between items-center px-6 py-2 z-40 bg-surface/80 backdrop-blur-md shadow-sm">
+<div class="flex items-center flex-1 max-w-xl">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input id="search-input" class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 font-label-sm text-label-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none" placeholder="Rechercher un produit, une référence..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="hover:bg-surface-container rounded-full p-2 transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="hover:bg-surface-container rounded-full p-2 transition-all">
+<span class="material-symbols-outlined">help</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-16 min-h-screen">
+<div class="p-8 max-w-[1400px] mx-auto">
+<!-- Page Header Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-primary">Gestion du Catalogue</h2>
+<p class="text-on-surface-variant font-body-md text-body-md mt-1">Gérez vos produits, stocks et tarifications en temps réel.</p>
+</div>
+<button id="btn-add-product" class="inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-3 rounded-lg font-bold shadow-md hover:translate-y-[-2px] transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined">add</span>
+                    Ajouter un nouveau produit
+                </button>
+</div>
+<!-- Dashboard Quick Stats -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+<div class="col-span-1 md:col-span-2 bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm flex items-center justify-between overflow-hidden relative">
+<div>
+<p class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">Total Produits</p>
+<h3 id="stat-total-products" class="font-headline-xl text-headline-xl text-primary mt-2">—</h3>
+</div>
+<div class="opacity-10 absolute -right-4 -bottom-4">
+<span class="material-symbols-outlined text-[120px]">inventory</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm">
+<p class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">Catalogue</p>
+<h3 class="font-headline-xl text-headline-xl text-primary mt-2">Live</h3>
+<p class="text-xs text-on-surface-variant mt-2 font-medium">Connecté à la base de données</p>
+</div>
+</div>
+<!-- Filters Bar -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 mb-6 flex flex-wrap items-center gap-4">
+<div class="flex items-center gap-2 px-3 py-2 bg-background border border-outline-variant rounded-lg">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Catégorie:</span>
+<select id="filter-category" class="bg-transparent border-none p-0 font-bold focus:ring-0 text-sm">
+<option value="">Toutes</option>
+<option value="Tech">Tech</option>
+<option value="Mode">Mode</option>
+<option value="Maison">Maison</option>
+<option value="Beaute">Beauté</option>
+<option value="Sport">Sport</option>
+<option value="Accessoires">Accessoires</option>
+<option value="Audio">Audio</option>
+<option value="Bureau">Bureau</option>
+</select>
+</div>
+</div>
+<!-- Product Grid (rempli dynamiquement par admin_catalogue_list.js) -->
+<div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+<p class="col-span-4 text-center text-on-surface-variant py-12">Chargement des produits...</p>
+</div>
+<!-- Pagination Bar -->
+<div class="mt-12 flex items-center justify-between bg-surface-container-lowest p-4 rounded-xl border border-outline-variant shadow-sm">
+<p id="pagination-info" class="text-on-surface-variant font-label-sm text-label-sm">—</p>
+<div class="flex items-center gap-2">
+<button id="btn-prev" class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface-container transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button id="btn-next" class="w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface-container transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+
+<script src="/static/js/toast.js"></script>
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/cart.js"></script>
+<script src="/static/js/nav.js"></script>
+<script src="/static/js/page-links.js"></script>
+<script src="/static/js/admin_catalogue_list.js"></script>
+
+</body></html>

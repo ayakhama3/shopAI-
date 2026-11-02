@@ -1,0 +1,65 @@
+/* admin_dashboard.js — connecte le dashboard admin à /api/admin/stats/full */
+(function () {
+  'use strict';
+
+  function getToken() {
+    return window.ShopAIAuth?.getToken?.() ||
+           sessionStorage.getItem('shopai_token') ||
+           localStorage.getItem('shopai_token') || '';
+  }
+
+  async function apiGet(url) {
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  function setText(sel, val) {
+    document.querySelectorAll(sel).forEach(el => el.textContent = val);
+  }
+
+  function renderOrders(orders) {
+    const tbody = document.getElementById('orders-tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    orders.forEach(o => {
+      const statusColors = {
+        paid: 'bg-green-100 text-green-700',
+        created: 'bg-orange-100 text-orange-700',
+        cancelled: 'bg-red-100 text-red-700',
+        shipped: 'bg-blue-100 text-blue-700',
+      };
+      const color = statusColors[o.status] || 'bg-gray-100 text-gray-700';
+      tbody.innerHTML += `
+        <tr class="hover:bg-surface-container transition-colors">
+          <td class="p-4 font-bold">#${o.reference}</td>
+          <td class="p-4">${o.user}</td>
+          <td class="p-4">${o.date}</td>
+          <td class="p-4">
+            <span class="px-2 py-1 ${color} text-[11px] font-bold rounded-full uppercase">${o.status}</span>
+          </td>
+          <td class="p-4 text-right font-bold">${o.total.toFixed(2)} DH</td>
+        </tr>`;
+    });
+  }
+
+  async function load() {
+    try {
+      const data = await apiGet('/api/admin/stats/full');
+
+      setText('[data-stat-users]', data.nb_users?.toLocaleString() ?? '—');
+      setText('[data-stat-products]', data.nb_products?.toLocaleString() ?? '—');
+      setText('[data-stat-orders]', data.nb_orders?.toLocaleString() ?? '—');
+      setText('[data-stat-revenue]', (data.revenue_total ?? 0).toLocaleString('fr-FR', { minimumFractionDigits: 2 }) + ' DH');
+      setText('[data-stat-interactions]', data.nb_interactions?.toLocaleString() ?? '—');
+
+      renderOrders(data.recent_orders || []);
+    } catch (err) {
+      console.error('Dashboard admin : erreur chargement stats', err);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', load);
+})();

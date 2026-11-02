@@ -1,0 +1,921 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ShopAI - Messagerie</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<style>
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    .message-bubble-in { border-radius: 0px 16px 16px 16px; }
+    .message-bubble-out { border-radius: 16px 16px 0px 16px; }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+    
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-msg { animation: fadeInUp 0.35s ease-out; }
+    
+    @keyframes pulse-dot { 0%, 100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.1); } }
+    .typing-dot { animation: pulse-dot 1.4s infinite ease-in-out; }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    
+    .product-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .product-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px -8px rgba(0,0,0,0.15); }
+    
+    .quick-reply { transition: all 0.2s; }
+    .quick-reply:hover { transform: scale(1.02); background: #131b2e; color: white; }
+    
+    .status-badge { 
+        display: inline-flex; align-items: center; gap: 6px; 
+        padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 600;
+    }
+    .status-delivered { background: #dcfce7; color: #166534; }
+    .status-shipped { background: #dbeafe; color: #1e40af; }
+    .status-processing { background: #fef3c7; color: #92400e; }
+    .status-paid { background: #dbeafe; color: #1e40af; }
+    .status-created { background: #f3f4f6; color: #374151; }
+    .status-cancelled { background: #fee2e2; color: #991b1b; }
+    
+    .gradient-ai { background: linear-gradient(135deg, #131b2e 0%, #2d3748 100%); }
+    
+    .sidebar-item { transition: all 0.2s; }
+    .sidebar-item:hover { background: #f3f4f6; }
+    .sidebar-item.active { background: #fff7ed; border-left: 3px solid #fd8a42; }
+</style>
+<script>
+tailwind.config = {
+    theme: {
+        extend: {
+            colors: {
+                primary: '#131b2e', secondary: '#fd8a42', surface: '#f7f9fb',
+                outline: '#76777d', 'surface-high': '#eceef0'
+            },
+            fontFamily: { headline: ['Montserrat'], body: ['Inter'] }
+        }
+    }
+}
+</script>
+</head>
+<body class="bg-surface text-gray-900 font-body min-h-screen">
+
+<!-- Header -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-4 md:px-8 h-16 bg-white shadow-sm">
+    <div class="flex items-center gap-3">
+        <span class="material-symbols-outlined text-secondary text-2xl">auto_awesome</span>
+        <h1 class="font-headline text-xl font-bold text-primary">ShopAI</h1>
+    </div>
+    <div class="flex items-center gap-3">
+        <button class="material-symbols-outlined text-gray-500 hover:bg-gray-100 p-2 rounded-full transition">notifications</button>
+        <button class="material-symbols-outlined text-gray-500 hover:bg-gray-100 p-2 rounded-full transition relative">
+            shopping_cart
+            <span id="cartBadge" class="absolute -top-1 -right-1 w-5 h-5 bg-secondary text-white text-[10px] rounded-full flex items-center justify-center font-bold hidden">0</span>
+        </button>
+        <div class="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm" id="userAvatar">U</div>
+    </div>
+</header>
+
+<!-- Layout -->
+<main class="pt-16 h-screen flex overflow-hidden">
+    
+    <!-- Sidebar Conversations -->
+    <aside class="w-full md:w-80 lg:w-96 bg-white border-r border-gray-200 flex flex-col hidden md:flex">
+        <div class="p-5 border-b border-gray-100">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="font-headline text-xl font-bold">Messages</h2>
+                <button onclick="createNewConversation()" class="p-2 bg-primary text-white rounded-lg hover:opacity-90 transition" title="Nouvelle conversation">
+                    <span class="material-symbols-outlined text-lg">edit</span>
+                </button>
+            </div>
+            <div class="relative">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg">search</span>
+                <input type="text" id="searchConv" placeholder="Rechercher..." 
+                    class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary/20"
+                    oninput="filterConversations(this.value)"/>
+            </div>
+        </div>
+        
+        <!-- ShopAI Assistant -->
+        <div class="sidebar-item active p-4 flex items-center gap-3 cursor-pointer" onclick="loadConversation('shopai')">
+            <div class="w-12 h-12 rounded-full gradient-ai flex items-center justify-center text-white relative flex-shrink-0">
+                <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">auto_awesome</span>
+                <div class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full animate-pulse"></div>
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="flex justify-between items-center">
+                    <span class="font-bold text-sm text-primary">ShopAI Assistant</span>
+                    <span class="text-[10px] text-green-600 font-bold">En ligne</span>
+                </div>
+                <p class="text-xs text-gray-500 truncate" id="previewText">Pret a vous aider ! 🤖</p>
+            </div>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto" id="conversationList">
+            <div class="p-8 text-center text-gray-400 text-sm">
+                <span class="material-symbols-outlined text-4xl mb-2 block">chat_bubble_outline</span>
+                Chargement...
+            </div>
+        </div>
+        
+        <div class="p-4 border-t border-gray-100">
+            <button onclick="clearAllConversations()" class="w-full py-2 text-xs text-red-500 hover:bg-red-50 rounded-lg transition flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-sm">delete_sweep</span>
+                Effacer toutes les conversations
+            </button>
+        </div>
+    </aside>
+
+    <!-- Chat Area -->
+    <section class="flex-1 flex flex-col bg-surface relative">
+        <!-- Chat Header -->
+        <div class="h-16 px-6 border-b border-gray-200 flex justify-between items-center bg-white">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full gradient-ai flex items-center justify-center text-white">
+                    <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">auto_awesome</span>
+                </div>
+                <div>
+                    <h3 class="font-bold text-sm">ShopAI Assistant</h3>
+                    <p class="text-[11px] text-green-600 flex items-center gap-1.5">
+                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        IA Active — Reponse en temps reel
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center gap-1">
+                <button onclick="exportConversation()" class="material-symbols-outlined text-gray-500 p-2 hover:bg-gray-100 rounded-full transition" title="Exporter">download</button>
+                <button onclick="clearChat()" class="material-symbols-outlined text-gray-500 p-2 hover:bg-gray-100 rounded-full transition" title="Nouvelle conversation">delete_outline</button>
+                <button class="material-symbols-outlined text-gray-500 p-2 hover:bg-gray-100 rounded-full transition">more_vert</button>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-6 space-y-5 flex flex-col" id="messagesContainer">
+            <!-- Messages injectes dynamiquement -->
+        </div>
+
+        <!-- Typing Indicator -->
+        <div class="hidden px-6 pb-2" id="typingIndicator">
+            <div class="flex gap-3 items-end">
+                <div class="w-8 h-8 rounded-full gradient-ai flex items-center justify-center text-white text-xs">
+                    <span class="material-symbols-outlined text-sm">auto_awesome</span>
+                </div>
+                <div class="bg-white px-5 py-3 message-bubble-in shadow-sm border border-gray-100 flex gap-1.5 items-center">
+                    <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="px-4 py-2 flex gap-2 overflow-x-auto" id="quickActions">
+            <!-- Boutons rapides injectes ici -->
+        </div>
+
+        <!-- Input -->
+        <div class="p-4 bg-white border-t border-gray-200">
+            <div class="max-w-4xl mx-auto flex items-end gap-2">
+                <button class="material-symbols-outlined text-gray-400 p-2 hover:bg-gray-100 rounded-full transition flex-shrink-0">add_circle</button>
+                <div class="flex-1 relative">
+                    <textarea id="chatInput" rows="1" placeholder="Posez une question a ShopAI..." 
+                        class="w-full bg-gray-50 border-none rounded-2xl py-3.5 px-5 pr-14 focus:ring-2 focus:ring-primary/20 resize-none text-sm max-h-32"
+                        onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
+                    <button onclick="sendMessage()" id="sendBtn" class="absolute right-2 bottom-2 p-2 bg-primary text-white rounded-xl hover:opacity-90 active:scale-95 transition-all">
+                        <span class="material-symbols-outlined text-lg">send</span>
+                    </button>
+                </div>
+                <button class="material-symbols-outlined text-gray-400 p-2 hover:bg-gray-100 rounded-full transition flex-shrink-0">mic</button>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Mobile Nav -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-white h-16 flex items-center justify-around border-t border-gray-200 z-50">
+    <a href="/" class="flex flex-col items-center gap-0.5 text-gray-400"><span class="material-symbols-outlined">home</span><span class="text-[10px]">Accueil</span></a>
+    <a href="/catalogue" class="flex flex-col items-center gap-0.5 text-gray-400"><span class="material-symbols-outlined">search</span><span class="text-[10px]">Explorer</span></a>
+    <button class="flex flex-col items-center gap-0.5 text-secondary"><span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1">chat</span><span class="text-[10px] font-bold">Messages</span></button>
+    <a href="/parametres" class="flex flex-col items-center gap-0.5 text-gray-400"><span class="material-symbols-outlined">person</span><span class="text-[10px]">Profil</span></a>
+</nav>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  SHOPAI CHATBOT CLIENT — VERSION CORRIGÉE (anti-boucle 401)
+// ═══════════════════════════════════════════════════════════════
+
+const API_BASE = '';
+let currentConversationId = null;
+let currentUser = null;
+let isTyping = false;
+let allConversations = [];
+let isInitializing = false; // 🛡️ Protection anti-boucle
+
+// ─── AUTH & INIT ───────────────────────────────────────────────
+
+function getAuthToken() {
+    // Chercher dans sessionStorage puis localStorage
+    let token = sessionStorage.getItem('auth_token');
+    if (!token || token === 'null' || token === 'undefined') {
+        token = localStorage.getItem('auth_token');
+    }
+    // Nettoyer les guillemets si présents
+    if (token) {
+        token = token.replace(/^["']|["']$/g, '');
+    }
+    return (token && token !== 'null' && token !== 'undefined') ? token : null;
+}
+
+function getAuthHeaders() {
+    const token = getAuthToken();
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+    return headers;
+}
+
+function getCurrentUser() {
+    try {
+        return JSON.parse(sessionStorage.getItem('current_user') || localStorage.getItem('current_user') || '{}');
+    } catch { return {}; }
+}
+
+async function initApp() {
+    //  Protection : empêcher les appels simultanés
+    if (isInitializing) return;
+    isInitializing = true;
+    
+    try {
+        currentUser = getCurrentUser();
+        if (currentUser && currentUser.username) {
+            document.getElementById('userAvatar').textContent = currentUser.username.charAt(0).toUpperCase();
+        }
+        
+        // Toujours charger les conversations (même anonyme)
+        await loadConversations();
+        await loadQuickActions();
+        
+        // Si aucune conversation active, en créer une
+        if (!currentConversationId) {
+            await createNewConversation();
+        }
+        
+        loadCartCount();
+    } finally {
+        isInitializing = false;
+    }
+}
+
+// ─── CONVERSATIONS ─────────────────────────────────────────────
+
+async function loadConversations() {
+    try {
+        const headers = getAuthHeaders();
+        const res = await fetch(`${API_BASE}/api/chat/conversations`, {
+            headers: headers
+        });
+        
+        if (res.status === 401) {
+            // Utilisateur non connecté → liste vide, on crée une conversation locale
+            console.log('[ShopAI] Utilisateur non connecté, mode anonyme');
+            allConversations = [];
+            renderConversationList([]);
+            return;
+        }
+        
+        if (!res.ok) throw new Error('Erreur chargement');
+        
+        const data = await res.json();
+        allConversations = data.conversations || [];
+        renderConversationList(allConversations);
+        
+    } catch (e) {
+        console.error('Erreur chargement conversations:', e);
+        allConversations = [];
+        renderConversationList([]);
+    }
+}
+
+function renderConversationList(conversations) {
+    const list = document.getElementById('conversationList');
+    if (conversations.length === 0) {
+        list.innerHTML = `
+            <div class="p-8 text-center text-gray-400 text-sm">
+                <span class="material-symbols-outlined text-4xl mb-2 block">chat_bubble_outline</span>
+                Vos conversations apparaitront ici
+            </div>`;
+        return;
+    }
+    
+    list.innerHTML = conversations.map(conv => `
+        <div class="sidebar-item p-4 flex items-center gap-3 cursor-pointer border-b border-gray-50 ${conv.id === currentConversationId ? 'active' : ''}" 
+             onclick="loadConversation('${conv.id}')" data-conv-id="${conv.id}">
+            <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 flex-shrink-0">
+                <span class="material-symbols-outlined text-lg">chat</span>
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="flex justify-between items-center">
+                    <span class="font-bold text-sm truncate">${escapeHtml(conv.title)}</span>
+                    <span class="text-[10px] text-gray-400">${formatDate(conv.updated_at)}</span>
+                </div>
+                <p class="text-xs text-gray-500 truncate">${conv.message_count} messages</p>
+            </div>
+            <button onclick="event.stopPropagation(); deleteConversation('${conv.id}')" 
+                class="p-1 text-gray-300 hover:text-red-500 rounded transition opacity-0 group-hover:opacity-100">
+                <span class="material-symbols-outlined text-sm">close</span>
+            </button>
+        </div>
+    `).join('');
+}
+
+function filterConversations(query) {
+    const filtered = allConversations.filter(c => 
+        c.title.toLowerCase().includes(query.toLowerCase())
+    );
+    renderConversationList(filtered);
+}
+
+async function createNewConversation() {
+    try {
+        const headers = getAuthHeaders();
+        const res = await fetch(`${API_BASE}/api/chat/conversations`, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({ title: 'Nouvelle conversation' })
+        });
+        
+        if (res.status === 401) {
+            // Non connecté → conversation locale uniquement
+            console.log('[ShopAI] Mode anonyme, conversation locale');
+            currentConversationId = 'local_' + Date.now();
+            document.getElementById('messagesContainer').innerHTML = '';
+            showWelcomeMessage();
+            return;
+        }
+        
+        if (!res.ok) throw new Error('Erreur création');
+        
+        const data = await res.json();
+        currentConversationId = data.conversation.id;
+        
+        document.getElementById('messagesContainer').innerHTML = '';
+        if (data.welcome_message) {
+            addMessageToUI(data.welcome_message);
+        }
+        
+        await loadConversations();
+        
+    } catch (e) {
+        console.error(e);
+        // Fallback ultime
+        currentConversationId = 'local_' + Date.now();
+        document.getElementById('messagesContainer').innerHTML = '';
+        showWelcomeMessage();
+    }
+}
+
+async function loadConversation(convId) {
+    if (convId === 'shopai') {
+        if (!currentConversationId) await createNewConversation();
+        return;
+    }
+    
+    currentConversationId = convId;
+    
+    // Update UI active state
+    document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+    const activeEl = document.querySelector(`[data-conv-id="${convId}"]`);
+    if (activeEl) activeEl.classList.add('active');
+    
+    // Mode local
+    if (convId.startsWith('local_')) {
+        document.getElementById('messagesContainer').innerHTML = '';
+        showWelcomeMessage();
+        return;
+    }
+    
+    try {
+        const headers = getAuthHeaders();
+        const res = await fetch(`${API_BASE}/api/chat/conversations/${convId}/messages`, {
+            headers: headers
+        });
+        
+        if (res.status === 401) {
+            // Token expiré, passer en mode local
+            currentConversationId = 'local_' + Date.now();
+            document.getElementById('messagesContainer').innerHTML = '';
+            showWelcomeMessage();
+            return;
+        }
+        
+        if (!res.ok) throw new Error('Conversation introuvable');
+        
+        const data = await res.json();
+        document.getElementById('messagesContainer').innerHTML = '';
+        
+        (data.messages || []).forEach(msg => addMessageToUI(msg));
+        
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+async function deleteConversation(convId) {
+    if (!confirm('Supprimer cette conversation ?')) return;
+    
+    // Ne pas supprimer les conversations locales
+    if (convId.startsWith('local_')) {
+        if (currentConversationId === convId) {
+            currentConversationId = null;
+            await createNewConversation();
+        }
+        return;
+    }
+    
+    try {
+        const headers = getAuthHeaders();
+        const res = await fetch(`${API_BASE}/api/chat/conversations/${convId}`, {
+            method: 'DELETE',
+            headers: headers
+        });
+        
+        if (res.status === 401) {
+            console.log('[ShopAI] Non autorisé pour suppression');
+            return;
+        }
+        
+        await loadConversations();
+        if (currentConversationId === convId) {
+            await createNewConversation();
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+async function clearAllConversations() {
+    if (!confirm('Effacer TOUTES les conversations ? Cette action est irreversible.')) return;
+    
+    const token = getAuthToken();
+    if (!token) {
+        // Mode anonyme : juste reset local
+        currentConversationId = null;
+        await createNewConversation();
+        return;
+    }
+    
+    for (const conv of allConversations) {
+        try {
+            await fetch(`${API_BASE}/api/chat/conversations/${conv.id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+        } catch (e) {}
+    }
+    
+    await loadConversations();
+    await createNewConversation();
+}
+
+function clearChat() {
+    createNewConversation();
+}
+
+function exportConversation() {
+    const container = document.getElementById('messagesContainer');
+    const text = Array.from(container.querySelectorAll('.animate-msg')).map(el => el.innerText).join('\n\n');
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `conversation-shopai-${new Date().toISOString().slice(0,10)}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// ─── MESSAGES ──────────────────────────────────────────────────
+
+function addMessageToUI(msg) {
+    const container = document.getElementById('messagesContainer');
+    const isUser = msg.sender === 'user';
+    
+    let html = '';
+    
+    if (isUser) {
+        html = `
+            <div class="flex gap-3 max-w-[85%] md:max-w-[70%] self-end flex-row-reverse animate-msg">
+                <div class="w-8 h-8 rounded-full bg-primary text-white flex-shrink-0 flex items-center justify-center text-xs font-bold">
+                    ${currentUser && currentUser.username ? currentUser.username.charAt(0).toUpperCase() : 'U'}
+                </div>
+                <div class="flex flex-col gap-1 items-end">
+                    <div class="bg-primary text-white p-4 message-bubble-out shadow-md">
+                        <p class="text-sm leading-relaxed">${escapeHtml(msg.content)}</p>
+                    </div>
+                    <span class="text-[10px] text-gray-400">${formatTime(msg.created_at)} • Lu</span>
+                </div>
+            </div>`;
+    } else {
+        html = renderAIMessage(msg);
+    }
+    
+    container.insertAdjacentHTML('beforeend', html);
+    scrollToBottom();
+    
+    if (!isUser) {
+        document.getElementById('previewText').textContent = msg.content.substring(0, 50) + '...';
+    }
+}
+
+function renderAIMessage(msg) {
+    const time = formatTime(msg.created_at);
+    const meta = msg.metadata || {};
+    
+    // Cartes produits
+    if (msg.message_type === 'product_suggestions' && meta.products && meta.products.length > 0) {
+        const productsHtml = meta.products.map(p => `
+            <div class="product-card bg-white border border-gray-100 rounded-xl overflow-hidden cursor-pointer">
+                <div class="h-36 bg-gray-100 relative overflow-hidden">
+                    <img src="${p.image}" alt="${escapeHtml(p.name)}" class="w-full h-full object-cover" 
+                         onerror="this.src='https://via.placeholder.com/300x200?text=${encodeURIComponent(p.name)}'"/>
+                    <div class="absolute top-2 left-2 px-2.5 py-1 ${p.stock > 0 ? 'bg-green-500' : 'bg-red-500'} text-white text-[10px] font-bold rounded-lg">
+                        ${p.stock > 0 ? 'EN STOCK' : 'RUPTURE'}
+                    </div>
+                </div>
+                <div class="p-3">
+                    <h4 class="text-xs font-bold text-gray-900 truncate">${escapeHtml(p.name)}</h4>
+                    <p class="text-[10px] text-gray-500 mt-1 line-clamp-2">${escapeHtml(p.description || '')}</p>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="text-sm font-bold text-primary">${Number(p.price).toLocaleString()} MAD</span>
+                        <button onclick="addToCart(${p.id})" class="p-1.5 bg-secondary/10 text-secondary rounded-lg hover:bg-secondary hover:text-white transition">
+                            <span class="material-symbols-outlined text-lg">add_shopping_cart</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        
+        return `
+            <div class="flex gap-3 max-w-[90%] md:max-w-[80%] animate-msg">
+                <div class="w-8 h-8 rounded-full gradient-ai flex-shrink-0 flex items-center justify-center text-white">
+                    <span class="material-symbols-outlined text-sm">auto_awesome</span>
+                </div>
+                <div class="flex flex-col gap-3">
+                    <div class="bg-white p-4 message-bubble-in shadow-sm border border-gray-100">
+                        <p class="text-sm leading-relaxed mb-4">${escapeHtml(msg.content)}</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            ${productsHtml}
+                        </div>
+                    </div>
+                    <span class="text-[10px] text-gray-400 ml-1">${time}</span>
+                </div>
+            </div>`;
+    }
+    
+    // Statut commandes
+    if (msg.message_type === 'order_status' && meta.orders && meta.orders.length > 0) {
+        const ordersHtml = meta.orders.map(o => {
+            const statusClass = `status-${o.status}`;
+            const statusEmoji = {delivered:'✅', shipped:'🚚', processing:'📦', paid:'💳', created:'📝', cancelled:'❌'}[o.status] || '📋';
+            const statusLabel = {delivered:'Livree', shipped:'Expediee', processing:'En prep.', paid:'Payee', created:'Creee', cancelled:'Annulee'}[o.status] || o.status;
+            return `
+                <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <p class="text-sm font-bold text-gray-900">Commande ${o.reference}</p>
+                            <p class="text-xs text-gray-500">${o.date}</p>
+                        </div>
+                        <span class="status-badge ${statusClass}">${statusEmoji} ${statusLabel.toUpperCase()}</span>
+                    </div>
+                    <div class="space-y-1.5 text-xs text-gray-600">
+                        <p class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-gray-400">local_shipping</span> Suivi: <strong class="text-primary">${o.tracking_number || 'N/A'}</strong></p>
+                        <p class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-gray-400">location_on</span> ${o.last_location}</p>
+                        <p class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-gray-400">payments</span> Total: <strong>${Number(o.total).toLocaleString()} MAD</strong></p>
+                    </div>
+                    <button onclick="window.location.href='/suivi_1?order=${o.id}'" class="mt-3 w-full py-2 bg-primary text-white text-xs font-bold rounded-lg hover:opacity-90 transition">
+                        Voir le suivi complet
+                    </button>
+                </div>
+            `;
+        }).join('');
+        
+        return `
+            <div class="flex gap-3 max-w-[90%] md:max-w-[80%] animate-msg">
+                <div class="w-8 h-8 rounded-full gradient-ai flex-shrink-0 flex items-center justify-center text-white">
+                    <span class="material-symbols-outlined text-sm">auto_awesome</span>
+                </div>
+                <div class="flex flex-col gap-3">
+                    <div class="bg-white p-4 message-bubble-in shadow-sm border border-gray-100">
+                        <p class="text-sm leading-relaxed mb-4">${escapeHtml(msg.content)}</p>
+                        <div class="space-y-3">${ordersHtml}</div>
+                    </div>
+                    <span class="text-[10px] text-gray-400 ml-1">${time}</span>
+                </div>
+            </div>`;
+    }
+    
+    // Escalade agent humain
+    if (msg.message_type === 'escalate') {
+        return `
+            <div class="flex gap-3 max-w-[85%] md:max-w-[70%] animate-msg">
+                <div class="w-8 h-8 rounded-full gradient-ai flex-shrink-0 flex items-center justify-center text-white">
+                    <span class="material-symbols-outlined text-sm">support_agent</span>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <div class="bg-orange-50 p-4 message-bubble-in shadow-sm border border-orange-100">
+                        <p class="text-sm leading-relaxed text-orange-900">${escapeHtml(msg.content)}</p>
+                        <div class="mt-3 flex gap-2">
+                            <button onclick="quickReply('Oui, connectez-moi')" class="px-4 py-2 bg-secondary text-white rounded-lg text-xs font-bold hover:opacity-90 transition">Oui, connectez-moi</button>
+                            <button onclick="quickReply('Non merci')" class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-gray-600 hover:bg-gray-50 transition">Non merci</button>
+                        </div>
+                    </div>
+                    <span class="text-[10px] text-gray-400 ml-1">${time}</span>
+                </div>
+            </div>`;
+    }
+    
+    // Quick replies
+    if (meta.quick_replies && meta.quick_replies.length > 0) {
+        const repliesHtml = meta.quick_replies.map(r => 
+            `<button onclick="quickReply('${escapeHtml(r).replace(/'/g, "\\'")}')" class="quick-reply px-4 py-2 bg-white border border-gray-200 rounded-full text-xs font-medium text-gray-700">${escapeHtml(r)}</button>`
+        ).join('');
+        
+        return `
+            <div class="flex gap-3 max-w-[85%] md:max-w-[70%] animate-msg">
+                <div class="w-8 h-8 rounded-full gradient-ai flex-shrink-0 flex items-center justify-center text-white">
+                    <span class="material-symbols-outlined text-sm">auto_awesome</span>
+                </div>
+                <div class="flex flex-col gap-2">
+                    <div class="bg-white p-4 message-bubble-in shadow-sm border border-gray-100">
+                        <p class="text-sm leading-relaxed">${escapeHtml(msg.content)}</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">${repliesHtml}</div>
+                    <span class="text-[10px] text-gray-400 ml-1">${time}</span>
+                </div>
+            </div>`;
+    }
+    
+    // Message texte simple
+    return `
+        <div class="flex gap-3 max-w-[85%] md:max-w-[70%] animate-msg">
+            <div class="w-8 h-8 rounded-full gradient-ai flex-shrink-0 flex items-center justify-center text-white">
+                <span class="material-symbols-outlined text-sm">auto_awesome</span>
+            </div>
+            <div class="flex flex-col gap-1">
+                <div class="bg-white p-4 message-bubble-in shadow-sm border border-gray-100">
+                    <p class="text-sm leading-relaxed">${escapeHtml(msg.content)}</p>
+                </div>
+                <span class="text-[10px] text-gray-400 ml-1">${time}</span>
+            </div>
+        </div>`;
+}
+
+// ─── ENVOI MESSAGE ─────────────────────────────────────────────
+
+async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const content = input.value.trim();
+    if (!content || isTyping) return;
+    
+    input.value = '';
+    autoResize(input);
+    
+    // Afficher message utilisateur immédiatement
+    const tempUserMsg = {
+        sender: 'user',
+        content: content,
+        created_at: new Date().toISOString()
+    };
+    addMessageToUI(tempUserMsg);
+    
+    // Mode local (non connecté)
+    if (currentConversationId && currentConversationId.startsWith('local_')) {
+        showTyping(true);
+        setTimeout(() => {
+            showTyping(false);
+            addMessageToUI({
+                sender: 'ai',
+                content: "Pour profiter de toutes les fonctionnalités (suivi de commandes, recommandations personnalisées), veuillez vous connecter. <br><br><a href='/login' style='color:#fd8a42;text-decoration:underline;'>Se connecter</a> ou <a href='/inscription' style='color:#fd8a42;text-decoration:underline;'>Créer un compte</a>",
+                message_type: 'text',
+                metadata: { quick_replies: ['Se connecter', 'Créer un compte'] },
+                created_at: new Date().toISOString()
+            });
+        }, 1000);
+        return;
+    }
+    
+    showTyping(true);
+    
+    try {
+        const headers = getAuthHeaders();
+        const res = await fetch(`${API_BASE}/api/chat/conversations/${currentConversationId}/messages`, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({ content })
+        });
+        
+        showTyping(false);
+        
+        if (res.status === 401) {
+            addMessageToUI({
+                sender: 'ai',
+                content: "Veuillez vous connecter pour utiliser le chatbot. <a href='/login' style='color:#fd8a42;text-decoration:underline;'>Se connecter</a>",
+                message_type: 'text',
+                created_at: new Date().toISOString()
+            });
+            return;
+        }
+        
+        if (res.status === 500) {
+            throw new Error('Erreur serveur 500');
+        }
+        
+        if (!res.ok) throw new Error('Erreur serveur');
+        
+        const data = await res.json();
+        addMessageToUI(data.ai_response);
+        
+        if (data.metadata?.quick_replies) {
+            updateQuickActions(data.metadata.quick_replies);
+        }
+        
+    } catch (e) {
+        showTyping(false);
+        console.error(e);
+        addMessageToUI({
+            sender: 'ai',
+            content: "Désolé, je rencontre un problème technique. Veuillez réessayer. 🔄",
+            message_type: 'text',
+            created_at: new Date().toISOString()
+        });
+    }
+}
+
+function quickReply(text) {
+    document.getElementById('chatInput').value = text;
+    sendMessage();
+}
+
+function handleKeyDown(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
+}
+
+function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 128) + 'px';
+}
+
+// ─── QUICK ACTIONS ─────────────────────────────────────────────
+
+async function loadQuickActions() {
+    try {
+        const res = await fetch(`${API_BASE}/api/chat/quick-actions`);
+        const data = await res.json();
+        renderQuickActions(data.actions || []);
+    } catch (e) {
+        renderQuickActions([
+            {id:'track', label:' Suivre ma commande', intent:'order_tracking'},
+            {id:'search', label:' Chercher un produit', intent:'product_search'},
+            {id:'deals', label:' Offres du jour', intent:'price_query'},
+            {id:'help', label:' Support', intent:'support_issue'}
+        ]);
+    }
+}
+
+function renderQuickActions(actions) {
+    const container = document.getElementById('quickActions');
+    container.innerHTML = actions.map(a => `
+        <button onclick="quickReply('${a.label.replace(/'/g, "\\'")}')" 
+            class="quick-reply flex-shrink-0 px-4 py-2 bg-white border border-gray-200 rounded-full text-xs font-medium text-gray-700 whitespace-nowrap">
+            ${a.label}
+        </button>
+    `).join('');
+}
+
+function updateQuickActions(replies) {
+    const container = document.getElementById('quickActions');
+    container.innerHTML = replies.map(r => `
+        <button onclick="quickReply('${r.replace(/'/g, "\\'")}')" 
+            class="quick-reply flex-shrink-0 px-4 py-2 bg-white border border-gray-200 rounded-full text-xs font-medium text-gray-700 whitespace-nowrap">
+            ${r}
+        </button>
+    `).join('');
+}
+
+// ─── PANIER ────────────────────────────────────────────────────
+
+async function loadCartCount() {
+    try {
+        const token = getAuthToken();
+        if (!token) return;
+        
+        const res = await fetch(`${API_BASE}/api/cart`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!res.ok) return;
+        
+        const data = await res.json();
+        const badge = document.getElementById('cartBadge');
+        if (data.count > 0) {
+            badge.textContent = data.count;
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+    } catch (e) {}
+}
+
+async function addToCart(productId) {
+    const btn = event.currentTarget;
+    const originalHTML = btn.innerHTML;
+    
+    btn.innerHTML = '<span class="material-symbols-outlined text-lg animate-spin">refresh</span>';
+    
+    try {
+        const token = getAuthToken();
+        const res = await fetch(`${API_BASE}/api/cart`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ product_id: productId, quantity: 1 })
+        });
+        
+        if (res.ok) {
+            btn.innerHTML = '<span class="material-symbols-outlined text-lg">check_circle</span>';
+            btn.classList.add('bg-green-500', 'text-white');
+            loadCartCount();
+        } else {
+            throw new Error('Erreur ajout panier');
+        }
+    } catch (e) {
+        btn.innerHTML = '<span class="material-symbols-outlined text-lg">error</span>';
+        btn.classList.add('bg-red-500', 'text-white');
+    }
+    
+    setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.classList.remove('bg-green-500', 'bg-red-500', 'text-white');
+    }, 2000);
+}
+
+// ─── UTILITAIRES ───────────────────────────────────────────────
+
+function showTyping(show) {
+    isTyping = show;
+    document.getElementById('typingIndicator').classList.toggle('hidden', !show);
+    if (show) scrollToBottom();
+}
+
+function scrollToBottom() {
+    const container = document.getElementById('messagesContainer');
+    container.scrollTop = container.scrollHeight;
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML.replace(/\n/g, '<br>');
+}
+
+function formatTime(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return d.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+}
+
+function formatDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    const now = new Date();
+    const diff = now - d;
+    if (diff < 86400000) return formatTime(iso);
+    if (diff < 604800000) return ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'][d.getDay()];
+    return d.toLocaleDateString('fr-FR', {day:'numeric', month:'short'});
+}
+
+function showWelcomeMessage() {
+    const welcome = {
+        sender: 'ai',
+        content: "Salam  Je suis ShopAI, votre assistant shopping intelligent.\n\nJe peux vous aider a :\n•  Trouver des produits selon votre budget\n•  Suivre vos commandes en temps reel\n•  Repondre a toutes vos questions 24/7\n\nComment puis-je vous aider aujourd'hui ?",
+        message_type: 'text',
+        metadata: { quick_replies: ['Suivre ma commande', 'Recommandations', 'Probleme'] },
+        created_at: new Date().toISOString()
+    };
+    addMessageToUI(welcome);
+}
+
+// ─── INIT ──────────────────────────────────────────────────────
+
+document.addEventListener('DOMContentLoaded', initApp);
+</script>
+</body>
+</html>

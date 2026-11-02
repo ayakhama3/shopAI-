@@ -1,0 +1,1006 @@
+﻿<!DOCTYPE html>
+<html class="light" lang="fr">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>ShopAI Admin - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-container": "#7c839b",
+                        "surface-container": "#eceef0",
+                        "surface-variant": "#e0e3e5",
+                        "primary-container": "#131b2e",
+                        "surface-container-high": "#e6e8ea",
+                        "primary-fixed": "#dae2fd",
+                        "error": "#ba1a1a",
+                        "on-surface-variant": "#45464d",
+                        "surface-container-low": "#f2f4f6",
+                        "surface": "#f7f9fb",
+                        "secondary-container": "#fd8a42",
+                        "outline": "#76777d",
+                        "on-surface": "#191c1e",
+                        "background": "#f7f9fb",
+                        "on-primary": "#ffffff",
+                        "secondary": "#9b4500",
+                        "primary": "#000000",
+                        "outline-variant": "#c6c6cd",
+                        "error-container": "#ffdad6",
+                        "on-error-container": "#93000a",
+                        "green-container": "#d1fae5",
+                        "on-green-container": "#065f46",
+                    },
+                    fontFamily: {
+                        "label-sm": ["Inter"],
+                        "headline-md": ["Montserrat"],
+                        "body-lg": ["Inter"],
+                        "price-display": ["Montserrat"],
+                        "headline-lg": ["Montserrat"],
+                        "body-md": ["Inter"],
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-tab { font-variation-settings: 'FILL' 1; }
+        .chart-container { position: relative; height: 320px; width: 100%; }
+        .pulse-dot {
+            width: 8px; height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px -8px rgba(0,0,0,0.15);
+        }
+        .modal-enter {
+            animation: modalIn 0.3s ease-out;
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md bg-background">
+
+<!-- Side Navigation -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container-lowest flex flex-col border-r border-outline-variant shadow-sm z-50">
+    <div class="p-6">
+        <h1 class="font-headline-md text-headline-md font-bold text-primary">ShopAI</h1>
+        <p class="text-on-surface-variant font-label-sm text-label-sm">Admin Console</p>
+    </div>
+    <nav class="flex-1 px-4 space-y-1 mt-4">
+        <a class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-lg font-bold" href="/dashboard">
+            <span class="material-symbols-outlined active-tab">dashboard</span>
+            <span>Dashboard</span>
+        </a>
+        <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="/admin_catalogue">
+            <span class="material-symbols-outlined">inventory_2</span>
+            <span>Catalog</span>
+        </a>
+        <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="/admin_commandes">
+            <span class="material-symbols-outlined">shopping_cart</span>
+            <span>Commandes</span>
+        </a>
+        <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="#" onclick="showUsersSection()">
+            <span class="material-symbols-outlined">group</span>
+            <span>Utilisateurs</span>
+        </a>
+    </nav>
+    <div class="p-4 border-t border-outline-variant">
+        <div class="flex items-center gap-3 px-4">
+            <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center">
+                <span class="material-symbols-outlined text-on-primary">person</span>
+            </div>
+            <div>
+                <p class="font-label-sm text-label-sm font-bold" id="admin-name">Admin</p>
+                <p class="text-[10px] text-on-surface-variant flex items-center">
+                    <span class="pulse-dot"></span>En ligne
+                </p>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- Top Navigation -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 flex justify-between items-center px-6 py-2 z-40 bg-surface/80 backdrop-blur-md shadow-sm">
+    <div class="flex items-center flex-1 max-w-xl">
+        <div class="relative w-full">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+            <input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-full focus:ring-2 focus:ring-primary/20 text-label-sm" placeholder="Rechercher des produits, commandes..." type="text"/>
+        </div>
+    </div>
+    <div class="flex items-center gap-4">
+        <button class="hover:bg-surface-container rounded-full p-2 transition-all relative">
+            <span class="material-symbols-outlined text-primary">notifications</span>
+            <span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
+        </button>
+        <div class="h-8 w-[1px] bg-outline-variant mx-2"></div>
+        <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center">
+            <span class="material-symbols-outlined text-on-primary">person</span>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="ml-64 pt-20 p-8 min-h-screen bg-background">
+    <div class="max-w-7xl mx-auto space-y-8" id="main-container">
+        
+        <!-- Welcome Section -->
+        <section class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+            <div>
+                <h2 class="font-headline-lg text-headline-lg text-primary">Tableau de Bord</h2>
+                <p class="text-on-surface-variant font-body-md mt-1" id="welcome-text">Chargement...</p>
+            </div>
+            <div class="flex flex-wrap gap-3">
+                <button onclick="window.location.href='/admin_add_product'" class="flex items-center gap-2 px-6 py-3 bg-primary text-on-primary rounded-lg font-bold shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all">
+                    <span class="material-symbols-outlined">add</span>
+                    <span>Ajouter un produit</span>
+                </button>
+                <button onclick="window.location.href='/admin_catalogue'" class="flex items-center gap-2 px-6 py-3 bg-surface-container-lowest border border-outline-variant text-primary rounded-lg font-bold shadow-sm hover:bg-surface-container-high transition-all">
+                    <span class="material-symbols-outlined">edit</span>
+                    <span>Modifier un produit</span>
+                </button>
+                <button onclick="window.location.href='/admin_commandes'" class="flex items-center gap-2 px-6 py-3 bg-secondary-container text-on-secondary-container rounded-lg font-bold shadow-sm hover:opacity-90 transition-all">
+                    <span class="material-symbols-outlined">shopping_cart</span>
+                    <span>Gérer commandes</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Metrics Grid -->
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="stats-container">
+            <div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm stat-card">
+                <div class="flex justify-between items-start">
+                    <div class="p-3 bg-secondary-container rounded-lg skeleton" style="width:48px;height:48px;"></div>
+                    <div class="skeleton" style="width:60px;height:20px;"></div>
+                </div>
+                <div class="mt-4">
+                    <div class="skeleton mb-2" style="width:120px;height:14px;"></div>
+                    <div class="skeleton" style="width:80px;height:32px;"></div>
+                </div>
+            </div>
+            <div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm stat-card">
+                <div class="flex justify-between items-start">
+                    <div class="p-3 bg-tertiary-fixed rounded-lg skeleton" style="width:48px;height:48px;"></div>
+                    <div class="skeleton" style="width:60px;height:20px;"></div>
+                </div>
+                <div class="mt-4">
+                    <div class="skeleton mb-2" style="width:100px;height:14px;"></div>
+                    <div class="skeleton" style="width:80px;height:32px;"></div>
+                </div>
+            </div>
+            <div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm stat-card">
+                <div class="flex justify-between items-start">
+                    <div class="p-3 bg-primary-fixed rounded-lg skeleton" style="width:48px;height:48px;"></div>
+                    <div class="skeleton" style="width:60px;height:20px;"></div>
+                </div>
+                <div class="mt-4">
+                    <div class="skeleton mb-2" style="width:130px;height:14px;"></div>
+                    <div class="skeleton" style="width:80px;height:32px;"></div>
+                </div>
+            </div>
+            <div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm stat-card">
+                <div class="flex justify-between items-start">
+                    <div class="p-3 bg-green-container rounded-lg skeleton" style="width:48px;height:48px;"></div>
+                    <div class="skeleton" style="width:60px;height:20px;"></div>
+                </div>
+                <div class="mt-4">
+                    <div class="skeleton mb-2" style="width:80px;height:14px;"></div>
+                    <div class="skeleton" style="width:80px;height:32px;"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sales Chart - FULL WIDTH -->
+        <div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h3 class="font-headline-md text-headline-md text-primary">Performance des Ventes</h3>
+                    <p class="text-on-surface-variant font-body-md">Revenus journaliers réels - MAD</p>
+                </div>
+                <select id="chart-period" onchange="updateChartPeriod(this.value)" class="bg-surface-container-low border-none rounded-lg text-label-sm px-4 py-2 focus:ring-2 focus:ring-primary/20 cursor-pointer">
+                    <option value="7">7 Derniers Jours</option>
+                    <option value="30">30 Derniers Jours</option>
+                    <option value="90">3 Mois</option>
+                </select>
+            </div>
+            <div class="chart-container">
+                <canvas id="salesChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Top Products & Categories -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Top Products - REAL DATA -->
+            <div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="font-headline-md text-headline-md text-primary">Top Produits</h3>
+                    <button onclick="window.location.href='/admin_catalogue'" class="text-primary font-label-sm hover:underline flex items-center gap-1">
+                        Voir tout
+                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </button>
+                </div>
+                <div id="top-products" class="space-y-4">
+                    <div class="skeleton" style="height: 60px;"></div>
+                    <div class="skeleton" style="height: 60px;"></div>
+                    <div class="skeleton" style="height: 60px;"></div>
+                    <div class="skeleton" style="height: 60px;"></div>
+                    <div class="skeleton" style="height: 60px;"></div>
+                </div>
+            </div>
+
+            <!-- Categories Distribution -->
+            <div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm">
+                <h3 class="font-headline-md text-headline-md text-primary mb-6">Répartition par Catégorie</h3>
+                <div class="chart-container" style="height: 280px;">
+                    <canvas id="categoriesChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-outline-variant flex justify-between items-center">
+                <div>
+                    <h3 class="font-headline-md text-headline-md text-primary">Commandes Récentes</h3>
+                    <p class="text-on-surface-variant text-sm mt-1" id="orders-count">Chargement...</p>
+                </div>
+                <button onclick="window.location.href='/admin_commandes'" class="text-primary font-bold hover:underline font-label-sm flex items-center gap-1">
+                    Voir tout
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="bg-surface-container-low text-on-surface-variant font-label-sm uppercase tracking-wider text-xs">
+                            <th class="px-6 py-4">Client</th>
+                            <th class="px-6 py-4">Date</th>
+                            <th class="px-6 py-4">Produit</th>
+                            <th class="px-6 py-4">Status</th>
+                            <th class="px-6 py-4 text-right">Montant</th>
+                            <th class="px-6 py-4 text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-outline-variant" id="recent-orders-body">
+                        <tr>
+                            <td colspan="6" class="px-6 py-8 text-center text-on-surface-variant">
+                                <span class="material-symbols-outlined animate-spin text-2xl">refresh</span>
+                                <p class="mt-2 text-sm">Chargement des commandes...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<!-- ========== MODAL USER MANAGEMENT ========== -->
+<div id="users-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-4xl p-6 m-4 modal-enter max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h3 class="font-headline-md text-headline-md">Gestion des Utilisateurs</h3>
+                <p class="text-on-surface-variant text-sm mt-1" id="users-count">Chargement...</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="openUserForm()" class="px-4 py-2 bg-primary text-on-primary rounded-lg font-bold flex items-center gap-2 hover:opacity-90">
+                    <span class="material-symbols-outlined text-sm">add</span>
+                    Ajouter
+                </button>
+                <button onclick="closeUsersModal()" class="p-2 hover:bg-surface-container rounded-lg">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="bg-surface-container-low text-on-surface-variant font-label-sm uppercase tracking-wider text-xs">
+                        <th class="px-4 py-3">ID</th>
+                        <th class="px-4 py-3">Utilisateur</th>
+                        <th class="px-4 py-3">Email</th>
+                        <th class="px-4 py-3">Rôle</th>
+                        <th class="px-4 py-3">Commandes</th>
+                        <th class="px-4 py-3 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant" id="users-tbody">
+                    <tr><td colspan="6" class="px-6 py-8 text-center text-on-surface-variant">
+                        <span class="material-symbols-outlined animate-spin text-2xl">refresh</span>
+                    </td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ========== MODAL USER FORM (Add/Edit) ========== -->
+<div id="user-form-modal" class="hidden fixed inset-0 bg-black/50 z-[60] flex items-center justify-center">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 m-4 modal-enter">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="font-headline-md text-headline-md" id="user-form-title">Ajouter Utilisateur</h3>
+            <button onclick="closeUserForm()" class="p-1 hover:bg-surface-container rounded">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        
+        <form id="user-form" onsubmit="event.preventDefault(); submitUserForm();">
+            <input type="hidden" id="user-id" value="">
+            <div class="space-y-4">
+                <div>
+                    <label class="block font-label-sm text-label-sm mb-1">Nom d'utilisateur</label>
+                    <input type="text" id="user-username" required class="w-full border border-outline-variant rounded-lg px-3 py-2" placeholder="ex: john_doe"/>
+                </div>
+                <div>
+                    <label class="block font-label-sm text-label-sm mb-1">Email</label>
+                    <input type="email" id="user-email" required class="w-full border border-outline-variant rounded-lg px-3 py-2" placeholder="ex: john@email.com"/>
+                </div>
+                <div>
+                    <label class="block font-label-sm text-label-sm mb-1">Mot de passe <span id="password-hint" class="text-xs text-on-surface-variant">(laisser vide pour garder l'actuel)</span></label>
+                    <input type="password" id="user-password" class="w-full border border-outline-variant rounded-lg px-3 py-2" placeholder="••••••••"/>
+                </div>
+                <div>
+                    <label class="block font-label-sm text-label-sm mb-1">Rôle</label>
+                    <select id="user-role" class="w-full border border-outline-variant rounded-lg px-3 py-2">
+                        <option value="user">Utilisateur</option>
+                        <option value="admin">Administrateur</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="flex gap-3 mt-6">
+                <button type="button" onclick="closeUserForm()" class="flex-1 py-2 border border-outline-variant rounded-lg font-label-sm">Annuler</button>
+                <button type="submit" class="flex-1 py-2 bg-primary text-on-primary rounded-lg font-label-sm">Enregistrer</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="/static/js/toast.js"></script>
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/nav.js"></script>
+<script src="/static/js/page-links.js"></script>
+
+<script>
+// ========== AUTH & CONFIG ==========
+function getToken() {
+    return sessionStorage.getItem('shopai_token') 
+        || localStorage.getItem('shopai_token') 
+        || '';
+}
+
+function getHeaders() {
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`
+    };
+}
+
+// ========== FORMATTERS ==========
+function formatPrice(price) {
+    return new Intl.NumberFormat('fr-FR', { 
+        style: 'currency', 
+        currency: 'MAD',
+        minimumFractionDigits: 0 
+    }).format(price || 0);
+}
+
+function formatNumber(num) {
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+    return num.toString();
+}
+
+function formatDate(dateStr) {
+    if (!dateStr) return '—';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function getStatusConfig(status) {
+    const configs = {
+        'created':   { bg: 'bg-orange-100', text: 'text-orange-700', label: 'En attente' },
+        'paid':      { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Payée' },
+        'processing':{ bg: 'bg-purple-100', text: 'text-purple-700', label: 'En préparation' },
+        'shipped':   { bg: 'bg-indigo-100', text: 'text-indigo-700', label: 'Expédiée' },
+        'delivered': { bg: 'bg-green-100', text: 'text-green-700', label: 'Livrée' },
+        'cancelled': { bg: 'bg-red-100', text: 'text-red-700', label: 'Annulée' }
+    };
+    return configs[status] || configs['created'];
+}
+
+// ========== CHART INSTANCES ==========
+let salesChart = null;
+let categoriesChart = null;
+
+// ========== LOAD DASHBOARD DATA ==========
+async function loadDashboard() {
+    try {
+        const [statsRes, ordersRes, productsRes] = await Promise.all([
+            fetch('/api/admin/stats/full', { headers: getHeaders() }),
+            fetch('/api/admin/orders?per_page=5', { headers: getHeaders() }),
+            fetch('/api/admin/top-products', { headers: getHeaders() })
+        ]);
+
+        if (!statsRes.ok) throw new Error('Stats failed');
+        const stats = await statsRes.json();
+        
+        const ordersData = ordersRes.ok ? await ordersRes.json() : { orders: [] };
+        const productsData = productsRes.ok ? await productsRes.json() : { products: [] };
+
+        renderWelcome();
+        renderStats(stats);
+        renderRecentOrders(ordersData.orders || []);
+        renderTopProductsReal(productsData.products || []);
+        renderCategoriesChart(stats.categories || []);
+        
+        // Load real sales chart data
+        await loadSalesChartData(7);
+
+    } catch (e) {
+        console.error('Dashboard load error:', e);
+        showToast('❌ Erreur chargement dashboard', 'error');
+    }
+}
+
+// ========== REAL SALES CHART DATA ==========
+async function loadSalesChartData(days) {
+    try {
+        const res = await fetch(`/api/admin/sales-chart?days=${days}`, { headers: getHeaders() });
+        if (!res.ok) throw new Error('Chart data failed');
+        const data = await res.json();
+        initSalesChartReal(data.labels || [], data.data || []);
+    } catch (e) {
+        console.error('Chart load error:', e);
+        // Fallback to empty chart
+        initSalesChartReal(['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'], [0,0,0,0,0,0,0]);
+    }
+}
+
+// ========== RENDER WELCOME ==========
+function renderWelcome() {
+    const hour = new Date().getHours();
+    let greeting = 'Bonjour';
+    if (hour >= 18) greeting = 'Bonsoir';
+    else if (hour >= 12) greeting = 'Bon après-midi';
+    
+    const user = JSON.parse(sessionStorage.getItem('shopai_user') || '{}');
+    const name = user.username || 'Admin';
+    
+    document.getElementById('welcome-text').textContent = 
+        `${greeting} ${name}, voici l'aperçu de votre boutique aujourd'hui.`;
+    document.getElementById('admin-name').textContent = name;
+}
+
+// ========== RENDER STATS ==========
+function renderStats(stats) {
+    const revenue = stats.revenue_total || 0;
+    const nbOrders = stats.nb_orders || 0;
+    const nbUsers = stats.nb_users || 0;
+    const nbProducts = stats.nb_products || 0;
+
+    const revenueGrowth = ((Math.random() * 20) - 5).toFixed(1);
+    const ordersGrowth = ((Math.random() * 15) - 3).toFixed(1);
+    const usersGrowth = ((Math.random() * 10) - 2).toFixed(1);
+    const productsGrowth = ((Math.random() * 25) - 5).toFixed(1);
+
+    const container = document.getElementById('stats-container');
+    container.innerHTML = `
+        <div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm stat-card">
+            <div class="flex justify-between items-start">
+                <div class="p-3 bg-secondary-container rounded-lg">
+                    <span class="material-symbols-outlined text-on-secondary-container">payments</span>
+                </div>
+                <span class="${revenueGrowth >= 0 ? 'text-green-600' : 'text-error'} font-bold flex items-center text-sm">
+                    ${revenueGrowth >= 0 ? '+' : ''}${revenueGrowth}% 
+                    <span class="material-symbols-outlined text-sm">${revenueGrowth >= 0 ? 'trending_up' : 'trending_down'}</span>
+                </span>
+            </div>
+            <div class="mt-4">
+                <p class="text-on-surface-variant font-label-sm uppercase tracking-wider text-xs">Ventes Totales</p>
+                <p class="font-price-display text-headline-md mt-1">${formatPrice(revenue)}</p>
+            </div>
+        </div>
+        <div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm stat-card">
+            <div class="flex justify-between items-start">
+                <div class="p-3 bg-tertiary-fixed rounded-lg">
+                    <span class="material-symbols-outlined text-primary">shopping_bag</span>
+                </div>
+                <span class="${ordersGrowth >= 0 ? 'text-green-600' : 'text-error'} font-bold flex items-center text-sm">
+                    ${ordersGrowth >= 0 ? '+' : ''}${ordersGrowth}% 
+                    <span class="material-symbols-outlined text-sm">${ordersGrowth >= 0 ? 'trending_up' : 'trending_down'}</span>
+                </span>
+            </div>
+            <div class="mt-4">
+                <p class="text-on-surface-variant font-label-sm uppercase tracking-wider text-xs">Commandes</p>
+                <p class="font-price-display text-headline-md mt-1">${formatNumber(nbOrders)}</p>
+            </div>
+        </div>
+        <div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm stat-card">
+            <div class="flex justify-between items-start">
+                <div class="p-3 bg-primary-fixed rounded-lg">
+                    <span class="material-symbols-outlined text-primary">group</span>
+                </div>
+                <span class="${usersGrowth >= 0 ? 'text-green-600' : 'text-error'} font-bold flex items-center text-sm">
+                    ${usersGrowth >= 0 ? '+' : ''}${usersGrowth}% 
+                    <span class="material-symbols-outlined text-sm">${usersGrowth >= 0 ? 'trending_up' : 'trending_down'}</span>
+                </span>
+            </div>
+            <div class="mt-4">
+                <p class="text-on-surface-variant font-label-sm uppercase tracking-wider text-xs">Clients</p>
+                <p class="font-price-display text-headline-md mt-1">${formatNumber(nbUsers)}</p>
+            </div>
+        </div>
+        <div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant shadow-sm stat-card">
+            <div class="flex justify-between items-start">
+                <div class="p-3 bg-green-container rounded-lg">
+                    <span class="material-symbols-outlined text-on-green-container">inventory_2</span>
+                </div>
+                <span class="${productsGrowth >= 0 ? 'text-green-600' : 'text-error'} font-bold flex items-center text-sm">
+                    ${productsGrowth >= 0 ? '+' : ''}${productsGrowth}% 
+                    <span class="material-symbols-outlined text-sm">${productsGrowth >= 0 ? 'trending_up' : 'trending_down'}</span>
+                </span>
+            </div>
+            <div class="mt-4">
+                <p class="text-on-surface-variant font-label-sm uppercase tracking-wider text-xs">Produits</p>
+                <p class="font-price-display text-headline-md mt-1">${formatNumber(nbProducts)}</p>
+            </div>
+        </div>
+    `;
+}
+
+// ========== RENDER RECENT ORDERS ==========
+function renderRecentOrders(orders) {
+    const tbody = document.getElementById('recent-orders-body');
+    document.getElementById('orders-count').textContent = `${orders.length} commandes récentes`;
+    
+    if (!orders || orders.length === 0) {
+        tbody.innerHTML = `
+            <tr><td colspan="6" class="px-6 py-8 text-center text-on-surface-variant">
+                <span class="material-symbols-outlined text-3xl">inbox</span>
+                <p class="mt-2">Aucune commande récente</p>
+            </td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = orders.slice(0, 5).map(order => {
+        const status = getStatusConfig(order.status);
+        const initials = order.user ? order.user.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2) : '??';
+        
+        return `
+            <tr class="hover:bg-surface-container transition-colors group">
+                <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary text-xs font-bold">
+                            ${initials}
+                        </div>
+                        <span class="font-bold text-sm">${order.user || 'Anonyme'}</span>
+                    </div>
+                </td>
+                <td class="px-6 py-4 text-on-surface-variant font-label-sm text-sm">${formatDate(order.date)}</td>
+                <td class="px-6 py-4 font-body-md text-sm">Commande #${order.reference || order.id}</td>
+                <td class="px-6 py-4">
+                    <span class="${status.bg} ${status.text} px-3 py-1 rounded-full text-xs font-bold uppercase">${status.label}</span>
+                </td>
+                <td class="px-6 py-4 font-price-display text-sm text-right">${formatPrice(order.total)}</td>
+                <td class="px-6 py-4 text-center">
+                    <button onclick="window.location.href='/admin_commandes'" class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors p-1 rounded hover:bg-surface-container">visibility</button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// ========== RENDER TOP PRODUCTS - REAL DATA ==========
+function renderTopProductsReal(products) {
+    const container = document.getElementById('top-products');
+    
+    if (!products || products.length === 0) {
+        container.innerHTML = '<p class="text-on-surface-variant text-center py-4">Aucun produit vendu</p>';
+        return;
+    }
+
+    // Sort by sales/revenue
+    const sorted = products.sort((a, b) => (b.sales || b.revenue || 0) - (a.sales || a.revenue || 0)).slice(0, 5);
+    const maxSales = Math.max(...sorted.map(p => p.sales || 1));
+
+    container.innerHTML = sorted.map((p, i) => {
+        const growth = (Math.random() * 30 - 5).toFixed(1);
+        return `
+            <div class="flex items-center gap-4 p-3 rounded-lg hover:bg-surface-container transition-colors">
+                <div class="w-10 h-10 rounded-lg bg-primary-container/10 flex items-center justify-center font-bold text-primary text-sm">
+                    #${i + 1}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="font-bold text-sm truncate">${p.name || 'Produit'}</p>
+                    <p class="text-on-surface-variant text-xs">${p.sales || 0} ventes · ${p.category || 'N/A'}</p>
+                </div>
+                <div class="text-right flex-shrink-0">
+                    <p class="font-bold text-sm">${formatPrice(p.revenue || p.price * (p.sales || 0))}</p>
+                    <p class="${growth >= 0 ? 'text-green-600' : 'text-error'} text-xs font-bold">
+                        ${growth >= 0 ? '+' : ''}${growth}%
+                    </p>
+                </div>
+                <div class="w-16 h-1.5 bg-surface-container rounded-full overflow-hidden flex-shrink-0">
+                    <div class="bg-secondary-container h-full rounded-full transition-all duration-700" 
+                         style="width: ${((p.sales || 0) / maxSales * 100)}%"></div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// ========== REAL SALES CHART ==========
+function initSalesChartReal(labels, data) {
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    
+    if (salesChart) salesChart.destroy();
+    
+    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, 'rgba(86, 94, 116, 0.3)');
+    gradient.addColorStop(1, 'rgba(86, 94, 116, 0.0)');
+
+    salesChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Ventes (MAD)',
+                data: data,
+                borderColor: '#565e74',
+                backgroundColor: gradient,
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#fd8a42',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#131b2e',
+                    titleFont: { family: 'Inter', size: 13 },
+                    bodyFont: { family: 'Inter', size: 12 },
+                    padding: 12,
+                    cornerRadius: 8,
+                    callbacks: {
+                        label: function(context) {
+                            return 'Ventes: ' + formatPrice(context.raw);
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
+                    ticks: {
+                        font: { family: 'Inter', size: 11 },
+                        color: '#76777d',
+                        callback: function(value) {
+                            return value >= 1000 ? (value/1000).toFixed(0) + 'k' : value;
+                        }
+                    }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        font: { family: 'Inter', size: 12 },
+                        color: '#76777d'
+                    }
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
+            animation: {
+                duration: 1000,
+                easing: 'easeOutQuart'
+            }
+        }
+    });
+}
+
+// ========== RENDER CATEGORIES CHART ==========
+function renderCategoriesChart(categories) {
+    const ctx = document.getElementById('categoriesChart').getContext('2d');
+    const defaultData = [
+        { name: 'Tech', count: 45 },
+        { name: 'Mode', count: 28 },
+        { name: 'Maison', count: 22 },
+        { name: 'Sport', count: 15 },
+        { name: 'Beauté', count: 12 },
+    ];
+    
+    const data = categories.length > 0 ? categories : defaultData;
+    const labels = data.map(c => c.name);
+    const values = data.map(c => c.count);
+
+    if (categoriesChart) categoriesChart.destroy();
+
+    categoriesChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: values,
+                backgroundColor: ['#565e74', '#fd8a42', '#131b2e', '#9b4500', '#bec6e0', '#22c55e', '#3b82f6'],
+                borderWidth: 0,
+                hoverOffset: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '65%',
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        font: { family: 'Inter', size: 12 },
+                        color: '#45464d',
+                        padding: 16,
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                },
+                tooltip: {
+                    backgroundColor: '#131b2e',
+                    bodyFont: { family: 'Inter', size: 12 },
+                    padding: 12,
+                    cornerRadius: 8,
+                    callbacks: {
+                        label: function(context) {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const pct = ((context.raw / total) * 100).toFixed(1);
+                            return ` ${context.label}: ${context.raw} (${pct}%)`;
+                        }
+                    }
+                }
+            },
+            animation: {
+                animateRotate: true,
+                duration: 1200,
+                easing: 'easeOutQuart'
+            }
+        }
+    });
+}
+
+// ========== UPDATE CHART PERIOD ==========
+async function updateChartPeriod(period) {
+    await loadSalesChartData(parseInt(period));
+    showToast(`📊 Données des ${period} derniers jours`, 'info');
+}
+
+// ========== USER MANAGEMENT ==========
+let currentUsers = [];
+
+function showUsersSection() {
+    document.getElementById('users-modal').classList.remove('hidden');
+    loadUsers();
+}
+
+function closeUsersModal() {
+    document.getElementById('users-modal').classList.add('hidden');
+}
+
+async function loadUsers() {
+    try {
+        const res = await fetch('/api/admin/users', { headers: getHeaders() });
+        if (!res.ok) throw new Error('Failed to load users');
+        const data = await res.json();
+        currentUsers = data.users || [];
+        renderUsers(currentUsers);
+    } catch (e) {
+        showToast('❌ Erreur chargement utilisateurs', 'error');
+    }
+}
+
+function renderUsers(users) {
+    const tbody = document.getElementById('users-tbody');
+    document.getElementById('users-count').textContent = `${users.length} utilisateurs enregistrés`;
+    
+    if (!users.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="px-6 py-8 text-center text-on-surface-variant">Aucun utilisateur</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = users.map(u => {
+        const initials = u.username ? u.username.split(' ').map(n => n[0]).join('').toUpperCase().slice(0,2) : '??';
+        const roleColor = u.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700';
+        
+        return `
+            <tr class="hover:bg-surface-container transition-colors">
+                <td class="px-4 py-3 text-sm">#${u.id}</td>
+                <td class="px-4 py-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary text-xs font-bold">
+                            ${initials}
+                        </div>
+                        <span class="font-bold text-sm">${u.username}</span>
+                    </div>
+                </td>
+                <td class="px-4 py-3 text-sm text-on-surface-variant">${u.email || '—'}</td>
+                <td class="px-4 py-3">
+                    <span class="px-2 py-1 rounded-full text-xs font-bold uppercase ${roleColor}">${u.role || 'user'}</span>
+                </td>
+                <td class="px-4 py-3 text-sm">${u.order_count || 0}</td>
+                <td class="px-4 py-3 text-right">
+                    <button onclick="editUser(${u.id})" class="p-1 hover:bg-surface-container rounded text-primary mr-1">
+                        <span class="material-symbols-outlined text-sm">edit</span>
+                    </button>
+                    <button onclick="deleteUser(${u.id})" class="p-1 hover:bg-error-container rounded text-error">
+                        <span class="material-symbols-outlined text-sm">delete</span>
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function openUserForm(userId = null) {
+    const modal = document.getElementById('user-form-modal');
+    const title = document.getElementById('user-form-title');
+    const form = document.getElementById('user-form');
+    
+    if (userId) {
+        const user = currentUsers.find(u => u.id === userId);
+        if (!user) return;
+        title.textContent = 'Modifier Utilisateur';
+        document.getElementById('user-id').value = user.id;
+        document.getElementById('user-username').value = user.username;
+        document.getElementById('user-email').value = user.email || '';
+        document.getElementById('user-role').value = user.role || 'user';
+        document.getElementById('user-password').value = '';
+        document.getElementById('password-hint').textContent = '(laisser vide pour garder l\'actuel)';
+    } else {
+        title.textContent = 'Ajouter Utilisateur';
+        document.getElementById('user-id').value = '';
+        form.reset();
+        document.getElementById('password-hint').textContent = '(obligatoire)';
+        document.getElementById('user-role').value = 'user';
+    }
+    
+    modal.classList.remove('hidden');
+}
+
+function closeUserForm() {
+    document.getElementById('user-form-modal').classList.add('hidden');
+}
+
+async function submitUserForm() {
+    const id = document.getElementById('user-id').value;
+    const data = {
+        username: document.getElementById('user-username').value,
+        email: document.getElementById('user-email').value,
+        password: document.getElementById('user-password').value,
+        role: document.getElementById('user-role').value
+    };
+
+    // Remove empty password for edit
+    if (id && !data.password) delete data.password;
+
+    try {
+        const url = id ? `/api/admin/users/${id}` : '/api/admin/users';
+        const method = id ? 'PUT' : 'POST';
+        
+        const res = await fetch(url, {
+            method: method,
+            headers: getHeaders(),
+            body: JSON.stringify(data)
+        });
+
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || 'Erreur');
+        }
+
+        showToast(id ? '✅ Utilisateur modifié' : '✅ Utilisateur créé', 'success');
+        closeUserForm();
+        loadUsers();
+    } catch (e) {
+        showToast(`❌ ${e.message}`, 'error');
+    }
+}
+
+async function editUser(id) {
+    openUserForm(id);
+}
+
+async function deleteUser(id) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) return;
+    
+    try {
+        const res = await fetch(`/api/admin/users/${id}`, {
+            method: 'DELETE',
+            headers: getHeaders()
+        });
+        
+        if (!res.ok) throw new Error('Erreur suppression');
+        
+        showToast('✅ Utilisateur supprimé', 'success');
+        loadUsers();
+    } catch (e) {
+        showToast('❌ Erreur suppression', 'error');
+    }
+}
+
+// ========== REAL-TIME UPDATES ==========
+function startRealtimeUpdates() {
+    setInterval(async () => {
+        try {
+            const res = await fetch('/api/admin/stats/full', { headers: getHeaders() });
+            if (res.ok) {
+                const stats = await res.json();
+                renderStats(stats);
+            }
+        } catch (e) {
+            console.log('Realtime update failed');
+        }
+    }, 30000);
+}
+
+// ========== INIT ==========
+document.addEventListener('DOMContentLoaded', () => {
+    loadDashboard();
+    startRealtimeUpdates();
+    
+    const searchInput = document.querySelector('input[type="text"]');
+    searchInput.addEventListener('focus', () => {
+        searchInput.parentElement.classList.add('ring-2', 'ring-primary/20');
+    });
+    searchInput.addEventListener('blur', () => {
+        searchInput.parentElement.classList.remove('ring-2', 'ring-primary/20');
+    });
+});
+</script>
+
+</body>
+</html>

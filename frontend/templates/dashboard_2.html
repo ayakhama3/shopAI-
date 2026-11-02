@@ -1,0 +1,452 @@
+﻿<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ShopAI Admin Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .chart-gradient {
+            background: linear-gradient(180deg, rgba(19, 27, 46, 0.05) 0%, rgba(19, 27, 46, 0) 100%);
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 10px;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#f7f9fb",
+                        "primary-container": "#131b2e",
+                        "surface-tint": "#565e74",
+                        "on-tertiary-fixed": "#111c2d",
+                        "surface-variant": "#e0e3e5",
+                        "on-secondary-fixed-variant": "#763300",
+                        "on-surface-variant": "#45464d",
+                        "background": "#f7f9fb",
+                        "primary-fixed": "#dae2fd",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed-dim": "#bec6e0",
+                        "on-surface": "#191c1e",
+                        "on-secondary": "#ffffff",
+                        "inverse-on-surface": "#eff1f3",
+                        "secondary-fixed": "#ffdbca",
+                        "on-error": "#ffffff",
+                        "tertiary-container": "#111c2d",
+                        "surface-container-highest": "#e0e3e5",
+                        "surface": "#f7f9fb",
+                        "on-primary-fixed": "#131b2e",
+                        "tertiary-fixed": "#d8e3fb",
+                        "tertiary-fixed-dim": "#bcc7de",
+                        "surface-container-high": "#e6e8ea",
+                        "on-tertiary-fixed-variant": "#3c475a",
+                        "on-primary": "#ffffff",
+                        "secondary": "#9b4500",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "error-container": "#ffdad6",
+                        "on-secondary-container": "#682c00",
+                        "on-background": "#191c1e",
+                        "surface-container-low": "#f2f4f6",
+                        "outline-variant": "#c6c6cd",
+                        "surface-dim": "#d8dadc",
+                        "outline": "#76777d",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#7c839b",
+                        "secondary-fixed-dim": "#ffb68e",
+                        "primary": "#000000",
+                        "on-tertiary-container": "#79849a",
+                        "on-secondary-fixed": "#331200",
+                        "secondary-container": "#fd8a42",
+                        "inverse-primary": "#bec6e0",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#eceef0",
+                        "inverse-surface": "#2d3133",
+                        "tertiary": "#000000",
+                        "on-error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "1rem",
+                        "margin-desktop": "2.5rem",
+                        "stack-sm": "0.5rem",
+                        "stack-lg": "2rem",
+                        "margin-mobile": "1rem",
+                        "gutter": "1.5rem",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Montserrat"],
+                        "headline-lg-mobile": ["Montserrat"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "price-display": ["Montserrat"],
+                        "headline-lg": ["Montserrat"],
+                        "label-sm": ["Inter"],
+                        "headline-xl": ["Montserrat"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "price-display": ["20px", { "lineHeight": "24px", "fontWeight": "700" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-sm": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+                        "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-surface-bright font-body-md text-on-surface">
+<!-- SIDE NAVIGATION -->
+<nav class="fixed left-0 top-0 h-full z-40 flex flex-col p-stack-md bg-surface-container-low dark:bg-primary-container docked left-0 h-full w-64 shadow-lg hidden md:flex">
+<div class="mb-stack-lg px-4 pt-4">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">ShopAI</h1>
+<p class="text-on-surface-variant font-label-sm text-label-sm">E-commerce Maroc</p>
+</div>
+<div class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-lg font-bold transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-body-md text-body-md">Accueil</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-on-tertiary-fixed-variant hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="font-body-md text-body-md">Catalogue</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-on-tertiary-fixed-variant hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="package_2">package_2</span>
+<span class="font-body-md text-body-md">Commandes</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-on-tertiary-fixed-variant hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="chat">chat</span>
+<span class="font-body-md text-body-md">Messages</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-on-tertiary-fixed-variant hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+<span class="font-body-md text-body-md">Portefeuille</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-on-tertiary-fixed-variant hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="loyalty">loyalty</span>
+<span class="font-body-md text-body-md">FidÃ©litÃ©</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant dark:text-on-tertiary-fixed-variant hover:bg-surface-container-highest dark:hover:bg-on-tertiary-fixed-variant transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body-md text-body-md">ParamÃ¨tres</span>
+</a>
+</div>
+<div class="mt-auto p-4 bg-primary-container rounded-xl text-on-primary">
+<p class="font-label-sm text-label-sm font-bold">Admin Premium</p>
+<button class="mt-2 w-full py-2 bg-secondary text-on-primary font-bold rounded-lg active:scale-95 transition-transform text-label-sm">
+                Devenir Membre Gold
+            </button>
+</div>
+</nav>
+<!-- MAIN CONTENT CANVAS -->
+<main class="md:ml-64 min-h-screen">
+<!-- TOP APP BAR -->
+<header class="fixed top-0 right-0 left-0 md:left-64 z-30 bg-surface-container-lowest h-16 flex justify-between items-center px-margin-mobile md:px-margin-desktop shadow-sm">
+<div class="flex items-center gap-4">
+<span class="md:hidden material-symbols-outlined text-primary" data-icon="menu">menu</span>
+<h2 class="font-headline-md text-headline-md font-bold text-primary">Tableau de bord</h2>
+</div>
+<div class="flex items-center gap-stack-md">
+<div class="relative hidden sm:block">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline" data-icon="search">search</span>
+<input class="pl-10 pr-4 py-1.5 bg-surface-container-low border-none rounded-full text-body-md focus:ring-2 focus:ring-primary w-64" placeholder="Rechercher..." type="text"/>
+</div>
+<div class="flex items-center gap-3">
+<button class="material-symbols-outlined text-primary p-2 hover:bg-surface-container-high rounded-full transition-colors" data-icon="notifications">notifications</button>
+<button class="material-symbols-outlined text-primary p-2 hover:bg-surface-container-high rounded-full transition-colors" data-icon="shopping_cart">shopping_cart</button>
+<img alt="Photo de profil utilisateur" class="w-8 h-8 rounded-full border border-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBnPJGY3I96QddxLLOj-62lpg2Oq3ezg_2gXDU9LqP14j3EKUJu_VFz4pbk7fl3MR3gapsrsbyJ3JA-xDV77KGlbtvAWm-ZvVvLxO3WohEa3jdT8x6EeYzcjyEb4_8BRGwLcR3S1BMDOZp3qxgyBmPHAKgPOeYRsGrGjrtoRIGANFtKtNClheeHCEsk6zomJggVlo3EREgC3j0ENSB-nya26DYwv26spVaIRBT2Vt_y8vrt5EzYN_laRhVhHQ49dJcpJggLFQ2FDMc"/>
+</div>
+</div>
+</header>
+<!-- DASHBOARD GRID -->
+<div class="pt-24 pb-12 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto space-y-stack-lg">
+<!-- KPIs SECTION -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant flex flex-col justify-between hover:shadow-lg transition-shadow">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary bg-primary-fixed p-2 rounded-lg" data-icon="payments">payments</span>
+<span class="text-green-600 font-bold text-label-sm flex items-center gap-1">+12% <span class="material-symbols-outlined text-[16px]" data-icon="trending_up">trending_up</span></span>
+</div>
+<div class="mt-4">
+<p class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">Chiffre d'Affaires</p>
+<p class="font-headline-md text-headline-md text-primary mt-1">142,500 DH</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant flex flex-col justify-between hover:shadow-lg transition-shadow">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary bg-primary-fixed p-2 rounded-lg" data-icon="shopping_bag">shopping_bag</span>
+<span class="text-green-600 font-bold text-label-sm flex items-center gap-1">+5.2% <span class="material-symbols-outlined text-[16px]" data-icon="trending_up">trending_up</span></span>
+</div>
+<div class="mt-4">
+<p class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">Commandes</p>
+<p class="font-headline-md text-headline-md text-primary mt-1">1,284</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant flex flex-col justify-between hover:shadow-lg transition-shadow">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary bg-primary-fixed p-2 rounded-lg" data-icon="group">group</span>
+<span class="text-red-500 font-bold text-label-sm flex items-center gap-1">-2% <span class="material-symbols-outlined text-[16px]" data-icon="trending_down">trending_down</span></span>
+</div>
+<div class="mt-4">
+<p class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">Nouveaux Clients</p>
+<p class="font-headline-md text-headline-md text-primary mt-1">452</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant flex flex-col justify-between hover:shadow-lg transition-shadow">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary bg-primary-fixed p-2 rounded-lg" data-icon="analytics">analytics</span>
+<span class="text-green-600 font-bold text-label-sm flex items-center gap-1">+1.1% <span class="material-symbols-outlined text-[16px]" data-icon="trending_up">trending_up</span></span>
+</div>
+<div class="mt-4">
+<p class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">Taux de Conversion</p>
+<p class="font-headline-md text-headline-md text-primary mt-1">3.45%</p>
+</div>
+</div>
+</section>
+<!-- ANALYTICS & MAP SECTION -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<!-- Sales Chart Simulation -->
+<div class="lg:col-span-2 bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-md text-headline-md text-primary">Ventes (30 jours)</h3>
+<select class="bg-surface-container-low border-none rounded-lg text-label-sm font-bold focus:ring-primary">
+<option>Dernier mois</option>
+<option>Dernier trimestre</option>
+</select>
+</div>
+<div class="h-64 flex items-end gap-2 px-2 relative">
+<div class="absolute inset-0 flex flex-col justify-between pointer-events-none text-outline text-[10px]">
+<span>15k</span><span>10k</span><span>5k</span><span>0</span>
+</div>
+<!-- Simple bar visualization for the sales -->
+<div class="flex-1 bg-primary-container opacity-20 hover:opacity-100 transition-opacity rounded-t-sm h-[40%]"></div>
+<div class="flex-1 bg-primary-container opacity-30 hover:opacity-100 transition-opacity rounded-t-sm h-[55%]"></div>
+<div class="flex-1 bg-primary-container opacity-20 hover:opacity-100 transition-opacity rounded-t-sm h-[30%]"></div>
+<div class="flex-1 bg-primary-container opacity-40 hover:opacity-100 transition-opacity rounded-t-sm h-[70%]"></div>
+<div class="flex-1 bg-primary-container opacity-25 hover:opacity-100 transition-opacity rounded-t-sm h-[45%]"></div>
+<div class="flex-1 bg-primary-container opacity-60 hover:opacity-100 transition-opacity rounded-t-sm h-[85%]"></div>
+<div class="flex-1 bg-primary-container opacity-50 hover:opacity-100 transition-opacity rounded-t-sm h-[75%]"></div>
+<div class="flex-1 bg-primary-container opacity-30 hover:opacity-100 transition-opacity rounded-t-sm h-[50%]"></div>
+<div class="flex-1 bg-primary-container opacity-70 hover:opacity-100 transition-opacity rounded-t-sm h-[90%]"></div>
+<div class="flex-1 bg-primary-container opacity-40 hover:opacity-100 transition-opacity rounded-t-sm h-[60%]"></div>
+<div class="flex-1 bg-primary-container opacity-20 hover:opacity-100 transition-opacity rounded-t-sm h-[35%]"></div>
+<div class="flex-1 bg-secondary opacity-80 hover:opacity-100 transition-opacity rounded-t-sm h-[100%]"></div>
+<div class="flex-1 bg-primary-container opacity-30 hover:opacity-100 transition-opacity rounded-t-sm h-[55%]"></div>
+<div class="flex-1 bg-primary-container opacity-40 hover:opacity-100 transition-opacity rounded-t-sm h-[65%]"></div>
+<div class="flex-1 bg-primary-container opacity-20 hover:opacity-100 transition-opacity rounded-t-sm h-[40%]"></div>
+</div>
+<div class="mt-4 flex justify-between text-outline text-label-sm">
+<span>1 Mai</span><span>10 Mai</span><span>20 Mai</span><span>31 Mai</span>
+</div>
+</div>
+<!-- Morocco Heatmap placeholder -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant overflow-hidden relative group">
+<h3 class="font-headline-md text-headline-md text-primary mb-4">Zones de Chaleur</h3>
+<div class="relative w-full aspect-square rounded-lg overflow-hidden bg-slate-100">
+<img class="w-full h-full object-cover grayscale opacity-50" data-alt="A clean, minimalist abstract map of Morocco showing data density with glowing amber heat zones over major cities like Casablanca, Rabat, and Marrakech. The aesthetic is professional, architectural, and uses a monochromatic blue-gray base with vibrant data overlays. High-end retail dashboard style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcR_LcUEdDlpLuHomebPFXKKE-J0eWyAuSygREcBBSNuTu92V78Vd4YrX1gWedToJXP1Sol-RfXZA1mnvNyN4YuAQKdz9w7TtFm1S5I4GzroC7X7XAueaF6ZWLvAAJBW56ac7SL44tSrp2tE-x8B-w56XCGmufobZvF5y1dfgI8yjg8qo8vCygNE-j-A0Z7Cj4tUN_qA-vKP7U7EFRYb4Q4oGFzI2gQ5tS6L60yOsM2NsvKRtSgBlr_sz5aa4edQ77ZUWUljDkD38"/>
+<div class="absolute top-1/4 left-1/3 w-8 h-8 bg-secondary rounded-full blur-xl animate-pulse opacity-70"></div>
+<div class="absolute top-1/2 left-1/4 w-12 h-12 bg-secondary rounded-full blur-2xl animate-pulse opacity-50"></div>
+<div class="absolute bottom-1/4 left-1/2 w-6 h-6 bg-secondary rounded-full blur-md animate-pulse opacity-80"></div>
+<div class="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-sm p-3 rounded-lg border border-outline-variant text-label-sm">
+<p class="font-bold text-primary">Top RÃ©gion: Casablanca-Settat</p>
+<p class="text-on-surface-variant">42% des commandes totales</p>
+</div>
+</div>
+</div>
+</section>
+<!-- ORDERS TABLE & ALERTS -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<!-- Orders Table -->
+<div class="lg:col-span-2 bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+<div class="p-6 border-b border-outline-variant flex justify-between items-center">
+<h3 class="font-headline-md text-headline-md text-primary">DerniÃ¨res Commandes</h3>
+<button class="text-primary font-bold text-label-sm flex items-center gap-1 hover:underline">Voir tout <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span></button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-surface-container-low text-on-surface-variant font-label-sm">
+<tr>
+<th class="px-6 py-3 font-bold">Commande</th>
+<th class="px-6 py-3 font-bold">Client</th>
+<th class="px-6 py-3 font-bold">Montant</th>
+<th class="px-6 py-3 font-bold">Statut</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-4 font-bold text-primary">#ORD-2841</td>
+<td class="px-6 py-4">Amine Benali</td>
+<td class="px-6 py-4">1,200 DH</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-[12px] font-bold">ExpÃ©diÃ©</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-4 font-bold text-primary">#ORD-2840</td>
+<td class="px-6 py-4">Sara Lahlou</td>
+<td class="px-6 py-4">450 DH</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-[12px] font-bold">En cours</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-4 font-bold text-primary">#ORD-2839</td>
+<td class="px-6 py-4">Youssef Rami</td>
+<td class="px-6 py-4">2,890 DH</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-[12px] font-bold">PayÃ©</span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-6 py-4 font-bold text-primary">#ORD-2838</td>
+<td class="px-6 py-4">Zineb Tazi</td>
+<td class="px-6 py-4">890 DH</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-[12px] font-bold">AnnulÃ©</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- STOCK ALERTS & RECENT REVIEWS -->
+<div class="space-y-gutter">
+<!-- Stock Alerts -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant">
+<div class="flex items-center gap-2 mb-4 text-error">
+<span class="material-symbols-outlined" data-icon="warning">warning</span>
+<h3 class="font-headline-md text-[18px] font-bold">Alertes de Stock</h3>
+</div>
+<div class="space-y-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-surface-container-low rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Minimalist high-end tech accessory product shot." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiPY3_DhUqTsxmdG5iqJs1p5v3ysQZZY1TppGE_gEWdnnTU6J6Llk2DQ32OAIzfSSBtgK5dz8VZS86ntUgIfh3BR4Cj9KdC_BPWRr5r1fu9fDjkbHdsKRDnQm-ZC-2ZSI3041WHp60qF03GqSMskHWTUQshFw3SXiIx2i_fOckwyrA4wQT1WZpORVF5E4PX1O48facTacBGP_PNpFpcErnSyd0beSHjwWWsT2wX7MmOoOjZNWovX3BXrS79r6Xzvw8GywzgkHxrvs"/>
+</div>
+<div class="flex-1">
+<p class="font-bold text-primary text-label-sm">SmartWatch Pro X</p>
+<p class="text-error font-bold text-[12px]">2 unitÃ©s restantes</p>
+</div>
+<button class="p-2 text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="refresh">refresh</span></button>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-surface-container-low rounded-lg overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="High-quality wireless headphones product photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDl2EobjMzir5zU0sQsNRXCvanRyNJdH87BSQsxGsMvF1AjXqjXg6J0HUAn_8paPATkrYrqmoW_eWYVSz3O0Fdnhyo9JNVBYZGCFEz40VMEU1EeFOlGVygb4YyqMbdpBUZx3AbeBsml6R6c8RlYaNgdqHzWUQcpMfTlwfuJP8Yb-k7xloYj8Rl4cdhbDL-uJa0xsfinnKJaOg-Tn0So4A6RFNgcNcky454-XpRPsknHdVuiYBNgl5kgoILn3F_JV_dL1YRDGFqTtcM"/>
+</div>
+<div class="flex-1">
+<p class="font-bold text-primary text-label-sm">Audio-Core HD</p>
+<p class="text-error font-bold text-[12px]">5 unitÃ©s restantes</p>
+</div>
+<button class="p-2 text-outline hover:text-primary transition-colors"><span class="material-symbols-outlined" data-icon="refresh">refresh</span></button>
+</div>
+</div>
+</div>
+<!-- Recent Reviews -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant">
+<h3 class="font-headline-md text-[18px] font-bold text-primary mb-4">Avis RÃ©cents</h3>
+<div class="space-y-4">
+<div class="p-3 bg-surface-container-low rounded-lg">
+<div class="flex justify-between items-start mb-2">
+<span class="font-bold text-label-sm text-primary">Idriss M.</span>
+<div class="flex text-secondary scale-75 origin-right">
+<span class="material-symbols-outlined" data-icon="star" data-weight="fill">star</span>
+<span class="material-symbols-outlined" data-icon="star" data-weight="fill">star</span>
+<span class="material-symbols-outlined" data-icon="star" data-weight="fill">star</span>
+<span class="material-symbols-outlined" data-icon="star" data-weight="fill">star</span>
+<span class="material-symbols-outlined" data-icon="star">star</span>
+</div>
+</div>
+<p class="text-[13px] text-on-surface-variant line-clamp-2">"Livraison ultra rapide Ã  Casablanca, produit conforme et bien emballÃ©..."</p>
+</div>
+<div class="p-3 bg-surface-container-low rounded-lg">
+<div class="flex justify-between items-start mb-2">
+<span class="font-bold text-label-sm text-primary">Nora F.</span>
+<div class="flex text-secondary scale-75 origin-right">
+<span class="material-symbols-outlined" data-icon="star" data-weight="fill">star</span>
+<span class="material-symbols-outlined" data-icon="star" data-weight="fill">star</span>
+<span class="material-symbols-outlined" data-icon="star" data-weight="fill">star</span>
+<span class="material-symbols-outlined" data-icon="star" data-weight="fill">star</span>
+<span class="material-symbols-outlined" data-icon="star" data-weight="fill">star</span>
+</div>
+</div>
+<p class="text-[13px] text-on-surface-variant line-clamp-2">"Excellent service client, ils ont rÃ©pondu Ã  toutes mes questions par WhatsApp."</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- MOBILE NAVIGATION (BOTTOM) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 bg-surface-container-lowest h-16 flex justify-around items-center px-4 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] border-none">
+<a class="flex flex-col items-center gap-1 text-primary font-bold" href="#">
+<span class="material-symbols-outlined" data-icon="home" data-weight="fill">home</span>
+<span class="text-[10px]">Accueil</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="text-[10px]">Catalogue</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="package_2">package_2</span>
+<span class="text-[10px]">Commandes</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-[10px]">ParamÃ¨tres</span>
+</a>
+</nav>
+<script>
+        // Micro-interactions and simple dashboard logic
+        document.querySelectorAll('button, a').forEach(el => {
+            el.addEventListener('click', () => {
+                if(el.classList.contains('active:scale-95')) return;
+                el.classList.add('active:scale-95');
+                setTimeout(() => el.classList.remove('active:scale-95'), 150);
+            });
+        });
+
+        // Simulating some dynamic updates
+        setInterval(() => {
+            const conversion = document.querySelector('section div:last-child p.font-headline-md');
+            if (conversion) {
+                const currentVal = 3.45;
+                const variance = (Math.random() * 0.1 - 0.05).toFixed(2);
+                conversion.textContent = (parseFloat(currentVal) + parseFloat(variance)).toFixed(2) + '%';
+            }
+        }, 5000);
+    </script>
+
+<script src="/static/js/toast.js"></script>
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/cart.js"></script>
+<script src="/static/js/nav.js"></script>
+<script src="/static/js/page-links.js"></script>
+</body></html>
+
+

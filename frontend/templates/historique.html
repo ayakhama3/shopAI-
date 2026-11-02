@@ -1,0 +1,265 @@
+﻿<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Historique des Commandes - ShopAI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary": "#000000",
+                        "secondary-fixed": "#ffdbca",
+                        "error": "#ba1a1a",
+                        "surface-container": "#eceef0",
+                        "on-primary-fixed": "#131b2e",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "on-primary": "#ffffff",
+                        "surface": "#f7f9fb",
+                        "background": "#f7f9fb",
+                        "on-secondary-container": "#682c00",
+                        "tertiary-fixed": "#d8e3fb",
+                        "outline-variant": "#c6c6cd",
+                        "on-primary-container": "#7c839b",
+                        "surface-container-high": "#e6e8ea",
+                        "on-tertiary-fixed-variant": "#3c475a",
+                        "primary-fixed-dim": "#bec6e0",
+                        "on-tertiary-fixed": "#111c2d",
+                        "on-surface": "#191c1e",
+                        "on-error": "#ffffff",
+                        "outline": "#76777d",
+                        "inverse-primary": "#bec6e0",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-container": "#79849a",
+                        "surface-container-highest": "#e0e3e5",
+                        "surface-bright": "#f7f9fb",
+                        "surface-variant": "#e0e3e5",
+                        "primary": "#000000",
+                        "tertiary-container": "#111c2d",
+                        "error-container": "#ffdad6",
+                        "on-background": "#191c1e",
+                        "primary-container": "#131b2e",
+                        "tertiary-fixed-dim": "#bcc7de",
+                        "surface-dim": "#d8dadc",
+                        "secondary-container": "#fd8a42",
+                        "inverse-on-surface": "#eff1f3",
+                        "on-secondary-fixed-variant": "#763300",
+                        "on-error-container": "#93000a",
+                        "surface-container-low": "#f2f4f6",
+                        "secondary-fixed-dim": "#ffb68e",
+                        "primary-fixed": "#dae2fd",
+                        "on-surface-variant": "#45464d",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "secondary": "#9b4500",
+                        "inverse-surface": "#2d3133",
+                        "on-secondary-fixed": "#331200",
+                        "surface-tint": "#565e74"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "1rem",
+                        "stack-lg": "2rem",
+                        "margin-mobile": "1rem",
+                        "stack-sm": "0.5rem",
+                        "container-max": "1280px",
+                        "margin-desktop": "2.5rem",
+                        "gutter": "1.5rem"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Montserrat"],
+                        "price-display": ["Montserrat"],
+                        "headline-lg": ["Montserrat"],
+                        "body-md": ["Inter"],
+                        "headline-lg-mobile": ["Montserrat"],
+                        "headline-xl": ["Montserrat"],
+                        "label-sm": ["Inter"],
+                        "body-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "price-display": ["20px", {"lineHeight": "24px", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #f7f9fb;
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .order-card-shadow {
+            box-shadow: 0px 4px 20px rgba(15, 23, 42, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background">
+<!-- SideNavBar (Desktop Only Anchor) -->
+<aside class="hidden md:flex h-screen w-64 fixed left-0 top-0 bg-surface-container-lowest border-r border-outline-variant z-40 flex-col p-stack-md gap-stack-sm">
+<div class="mb-stack-lg px-2">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">ShopAI</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Premium Shopping</p>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all active:scale-98" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-sm">Home</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all active:scale-98" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-label-sm">Catalog</span>
+</a>
+
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all active:scale-98" href="#">
+<span class="material-symbols-outlined">favorite</span>
+<span class="font-label-sm">Favorites</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all active:scale-98" href="#">
+<span class="material-symbols-outlined">chat</span>
+<span class="font-label-sm">Messages</span>
+</a>
+
+</nav>
+<div class="mt-auto pt-stack-md border-t border-outline-variant">
+<div class="bg-primary text-on-primary p-4 rounded-xl shadow-md">
+<p class="font-label-sm font-bold mb-1">Upgrade to VIP</p>
+<p class="text-[12px] opacity-80 mb-3">Access exclusive deals and priority shipping.</p>
+<button class="w-full bg-secondary-container text-on-secondary-container py-2 rounded-lg font-bold text-[12px] hover:opacity-90 transition-opacity">Upgrade Now</button>
+</div>
+</div>
+</aside>
+<!-- TopNavBar -->
+<header class="w-full top-0 sticky bg-surface-container-lowest shadow-sm z-50 flex items-center justify-between px-6 md:px-margin-desktop md:ml-64 md:w-[calc(100%-16rem)] py-stack-sm h-16">
+<div class="flex items-center gap-4">
+<div class="md:hidden">
+<span class="material-symbols-outlined cursor-pointer">menu</span>
+</div>
+<div class="hidden md:flex bg-surface-container-low rounded-full px-4 py-2 items-center gap-2 w-80">
+<span class="material-symbols-outlined text-on-surface-variant">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-md w-full" placeholder="Rechercher une commande..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4 md:gap-6">
+<div class="flex gap-2">
+<span class="material-symbols-outlined p-2 cursor-pointer hover:bg-surface-container-low rounded-full transition-colors">notifications</span>
+<span class="material-symbols-outlined p-2 cursor-pointer hover:bg-surface-container-low rounded-full transition-colors">favorite</span>
+<span class="material-symbols-outlined p-2 cursor-pointer hover:bg-surface-container-low rounded-full transition-colors">shopping_cart</span>
+</div>
+<div class="h-8 w-8 rounded-full overflow-hidden bg-outline-variant cursor-pointer active:scale-95 transition-transform">
+
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="md:ml-64 p-margin-mobile md:p-margin-desktop bg-background min-h-[calc(100vh-4rem)]">
+<div class="max-w-container-max mx-auto">
+<!-- Breadcrumbs & Header -->
+<div class="mb-stack-lg">
+<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary mb-2">Historique des Commandes</h2>
+<p class="font-body-md text-on-surface-variant">Consultez et gerez vos achats passer et en cours.</p>
+</div>
+<!-- Filters Section -->
+<section class="bg-surface-container-lowest p-6 rounded-xl order-card-shadow mb-stack-lg border border-outline-variant/30">
+<div class="flex flex-col md:flex-row gap-gutter items-end">
+<div class="w-full md:w-1/4">
+<label class="block font-label-sm text-on-surface-variant mb-2">Periode</label>
+<select id="filter-period" class="w-full bg-surface-container-low border-outline-variant rounded-lg font-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary transition-all">
+<option value="">30 derniers jours</option>
+<option value="3m">3 derniers mois</option>
+<option value="2023">Annee 2023</option>
+<option value="all">Tout l'historique</option>
+</select>
+</div>
+<div class="w-full md:w-1/4">
+<label class="block font-label-sm text-on-surface-variant mb-2">Statut</label>
+<select id="filter-status" class="w-full bg-surface-container-low border-outline-variant rounded-lg font-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary transition-all">
+<option value="">Tous les statuts</option>
+<option value="delivered">Livre</option>
+<option value="shipped">En cours</option>
+<option value="cancelled">Annule</option>
+</select>
+</div>
+<div class="w-full md:w-auto ml-auto">
+<button id="apply-filters-btn" class="w-full md:w-auto bg-primary text-on-primary px-8 py-3 rounded-lg font-bold hover:opacity-90 active:scale-95 transition-all">
+                            Appliquer les filtres
+                        </button>
+</div>
+</div>
+</section>
+<!-- Orders List (rempli dynamiquement par historique.js) -->
+<div id="orders-list" class="space-y-6"></div>
+<div id="orders-loading" class="text-center py-10 text-on-surface-variant">
+                Chargement de vos commandes...
+            </div>
+<div id="orders-empty" class="hidden text-center py-10 text-on-surface-variant">
+                Aucune commande trouvee pour ces filtres.
+            </div>
+<!-- Pagination or Load More -->
+<div id="pagination-container" class="mt-stack-lg flex justify-center hidden">
+<button id="load-more-btn" class="bg-surface-container-low text-primary px-10 py-3 rounded-full font-bold hover:bg-surface-container-high transition-all flex items-center gap-2">
+                    Voir plus de commandes
+                    <span class="material-symbols-outlined">expand_more</span>
+</button>
+</div>
+</div>
+</main>
+<!-- Bottom Nav for Mobile -->
+<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-surface-container-lowest shadow-[0_-2px_10px_rgba(0,0,0,0.05)] z-50 flex justify-around items-center py-2 h-16">
+<a class="flex flex-col items-center gap-0.5 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px] font-label-sm">Accueil</span>
+</a>
+<a class="flex flex-col items-center gap-0.5 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="text-[10px] font-label-sm">Explorer</span>
+</a>
+<a class="flex flex-col items-center gap-0.5 text-primary" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">package_2</span>
+<span class="text-[10px] font-label-sm font-bold">Commandes</span>
+</a>
+<a class="flex flex-col items-center gap-0.5 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-label-sm">Profil</span>
+</a>
+</nav>
+<script>
+        // Sticky header transparency effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 20) {
+                header.classList.add('bg-opacity-95', 'backdrop-blur-md');
+            } else {
+                header.classList.remove('bg-opacity-95', 'backdrop-blur-md');
+            }
+        });
+    </script>
+
+<script src="/static/js/toast.js"></script>
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/cart.js"></script>
+<script src="/static/js/nav.js"></script>
+<script src="/static/js/page-links.js"></script>
+<script src="/static/js/historique.js"></script>
+</body></html>

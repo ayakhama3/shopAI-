@@ -1,0 +1,446 @@
+﻿<!DOCTYPE html>
+<html class="light" lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Votre Panier - ShopAI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "error": "#ba1a1a", "on-error-container": "#93000a", "tertiary-fixed": "#d8e3fb",
+          "surface-container-lowest": "#ffffff", "surface-bright": "#f7f9fb", "on-primary": "#ffffff",
+          "outline": "#76777d", "on-error": "#ffffff", "surface-container": "#eceef0",
+          "primary-fixed": "#dae2fd", "on-primary-fixed-variant": "#3f465c",
+          "on-secondary-fixed-variant": "#763300", "on-secondary-fixed": "#331200",
+          "tertiary-container": "#111c2d", "on-secondary-container": "#682c00", "surface": "#f7f9fb",
+          "on-primary-container": "#7c839b", "secondary-container": "#fd8a42",
+          "on-tertiary-container": "#79849a", "surface-container-high": "#e6e8ea",
+          "on-secondary": "#ffffff", "primary-fixed-dim": "#bec6e0", "tertiary": "#000000",
+          "on-tertiary-fixed-variant": "#3c475a", "surface-variant": "#e0e3e5",
+          "inverse-surface": "#2d3133", "on-primary-fixed": "#131b2e", "background": "#f7f9fb",
+          "inverse-primary": "#bec6e0", "surface-container-highest": "#e0e3e5",
+          "secondary": "#9b4500", "surface-dim": "#d8dadc", "inverse-on-surface": "#eff1f3",
+          "on-tertiary": "#ffffff", "on-tertiary-fixed": "#111c2d", "tertiary-fixed-dim": "#bcc7de",
+          "on-surface": "#191c1e", "primary": "#000000", "error-container": "#ffdad6",
+          "surface-container-low": "#f2f4f6", "on-surface-variant": "#45464d",
+          "secondary-fixed-dim": "#ffb68e", "primary-container": "#131b2e",
+          "secondary-fixed": "#ffdbca", "outline-variant": "#c6c6cd",
+          "surface-tint": "#565e74", "on-background": "#191c1e"
+        },
+        borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+        spacing: {
+          "container-max": "1280px", "gutter": "1.5rem", "margin-mobile": "1rem",
+          "stack-lg": "2rem", "margin-desktop": "2.5rem", "stack-md": "1rem", "stack-sm": "0.5rem"
+        },
+        fontFamily: {
+          "headline-xl": ["Montserrat"], "body-lg": ["Inter"], "headline-md": ["Montserrat"],
+          "headline-lg": ["Montserrat"], "headline-lg-mobile": ["Montserrat"],
+          "body-md": ["Inter"], "label-sm": ["Inter"], "price-display": ["Montserrat"]
+        },
+        fontSize: {
+          "headline-xl": ["40px", { lineHeight:"48px", letterSpacing:"-0.02em", fontWeight:"700" }],
+          "body-lg": ["18px", { lineHeight:"28px", fontWeight:"400" }],
+          "headline-md": ["24px", { lineHeight:"32px", fontWeight:"600" }],
+          "headline-lg": ["32px", { lineHeight:"40px", letterSpacing:"-0.01em", fontWeight:"600" }],
+          "body-md": ["16px", { lineHeight:"24px", fontWeight:"400" }],
+          "label-sm": ["14px", { lineHeight:"20px", letterSpacing:"0.01em", fontWeight:"500" }],
+          "price-display": ["20px", { lineHeight:"24px", fontWeight:"700" }]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+  }
+  .bg-mesh {
+    background-color: #f7f9fb;
+    background-image: radial-gradient(at 0% 0%, rgba(218,226,253,0.3) 0, transparent 50%),
+                      radial-gradient(at 50% 0%, rgba(253,138,66,0.05) 0, transparent 50%);
+  }
+  .cart-card-shadow { box-shadow: 0px 4px 20px rgba(15,23,42,0.05); }
+</style>
+</head>
+<body class="bg-mesh font-body-md text-on-surface">
+
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-inverse-surface border-b border-outline-variant shadow-sm sticky top-0 z-50">
+  <div class="flex justify-between items-center w-full px-margin-desktop py-4 max-w-container-max mx-auto">
+    <div class="flex items-center gap-8">
+      <a class="text-headline-md font-headline-md font-bold text-primary" href="/">ShopAI</a>
+      <div class="hidden md:flex gap-6">
+        <a class="text-on-surface-variant hover:text-secondary transition-colors font-label-sm text-label-sm" href="/catalogue">Catalogue</a>
+        <a class="text-on-surface-variant hover:text-secondary transition-colors font-label-sm text-label-sm" href="/deals">Deals</a>
+      </div>
+    </div>
+    <div class="flex items-center gap-4">
+      <button onclick="window.location.href='/messagerie'" class="p-2 text-on-surface-variant hover:text-secondary transition-colors">
+        <span class="material-symbols-outlined">notifications</span>
+      </button>
+      <button onclick="window.location.href='/favoris'" class="p-2 text-on-surface-variant hover:text-secondary transition-colors">
+        <span class="material-symbols-outlined">favorite</span>
+      </button>
+      <button class="p-2 text-primary border-b-2 border-primary relative">
+        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">shopping_cart</span>
+        <span class="cart-badge absolute -top-1 -right-1 bg-secondary text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full" style="display:none">0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-container-max mx-auto px-margin-desktop py-12">
+  <h1 class="font-headline-lg text-headline-lg mb-8">Votre Panier</h1>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+
+    <!-- ── Colonne gauche : items dynamiques ── -->
+    <div class="lg:col-span-8 space-y-8">
+      <div id="cart-items-container">
+        <!-- Skeleton de chargement (affiché pendant le sync) -->
+        <div class="bg-surface-container-lowest rounded-xl cart-card-shadow border border-outline-variant p-6 animate-pulse">
+          <div class="h-6 bg-surface-container rounded w-40 mb-6"></div>
+          <div class="flex gap-6">
+            <div class="w-32 h-32 rounded-lg bg-surface-container flex-shrink-0"></div>
+            <div class="flex-grow space-y-3">
+              <div class="h-5 bg-surface-container rounded w-3/4"></div>
+              <div class="h-4 bg-surface-container rounded w-1/2"></div>
+              <div class="h-4 bg-surface-container rounded w-1/3"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Colonne droite : résumé ── -->
+    <aside class="lg:col-span-4 sticky top-28" id="cart-summary">
+      <div class="bg-primary text-on-primary rounded-xl p-8 cart-card-shadow">
+        <h2 class="font-headline-md text-headline-md mb-8">Récapitulatif</h2>
+        <div class="space-y-4 mb-8">
+          <div class="flex justify-between text-body-md opacity-80">
+            <span>Sous-total (<span data-cart-item-count>0 article</span>)</span>
+            <span data-cart-subtotal>0 DH</span>
+          </div>
+          <div class="flex justify-between text-body-md opacity-80">
+            <span>Livraison</span>
+            <span class="text-secondary-fixed">Gratuite</span>
+          </div>
+          <div class="flex justify-between text-body-md items-center">
+            <div class="flex items-center gap-1">
+              <span class="material-symbols-outlined text-[18px]">stars</span>
+              <span>Points fidélité</span>
+            </div>
+            <span id="loyalty-pts">+ 0 pts</span>
+          </div>
+        </div>
+
+        <div class="mb-8">
+          <label class="text-label-sm font-label-sm mb-2 block opacity-70">Code Promo</label>
+          <div class="flex gap-2">
+            <input id="promo-input" class="bg-white/10 border-white/20 text-white rounded-lg px-4 py-2 flex-grow focus:ring-secondary focus:border-secondary" placeholder="Entrez votre code" type="text"/>
+            <button onclick="_applyPromo()" class="bg-secondary text-on-secondary px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition-all">Appliquer</button>
+          </div>
+        </div>
+
+        <div class="border-t border-white/20 pt-6 mb-8">
+          <div class="flex justify-between items-end">
+            <span class="font-headline-md text-headline-md">Total</span>
+            <span class="font-headline-xl text-headline-xl" data-cart-total>0 DH</span>
+          </div>
+          <p class="text-[12px] opacity-60 text-right mt-1">TVA incluse</p>
+        </div>
+
+        <button onclick="window.location.href='/paiement_1'"
+          class="w-full bg-white text-primary font-headline-md py-4 rounded-lg hover:bg-secondary-fixed hover:text-on-secondary-fixed transition-all flex items-center justify-center gap-3">
+          Passer la commande
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </button>
+
+        <div class="mt-6 flex items-center justify-center gap-2 text-label-sm opacity-60">
+          <span class="material-symbols-outlined text-[16px]">lock</span>
+          Paiement 100% sécurisé
+        </div>
+      </div>
+
+      <div class="mt-6 bg-surface-container rounded-xl p-6 border border-outline-variant flex items-start gap-4">
+        <span class="material-symbols-outlined text-secondary">auto_awesome</span>
+        <div>
+          <p class="font-semibold text-body-md">ShopAI Suggestion</p>
+          <p class="text-label-sm text-on-surface-variant">En complétant cette commande, vous débloquerez le badge "Client Premium" et bénéficierez de -10% sur votre prochain achat tech.</p>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ── Section IA : recommandations ── -->
+  <section class="mt-20">
+    <div class="flex items-center gap-3 mb-8">
+      <div class="bg-secondary-container p-2 rounded-lg">
+        <span class="material-symbols-outlined text-on-secondary-container" style="font-variation-settings:'FILL' 1;">psychology</span>
+      </div>
+      <div>
+        <h2 class="font-headline-lg text-headline-lg">Sélectionné pour vous</h2>
+        <p class="text-on-surface-variant">Découvrez des pépites basées sur votre style unique</p>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="cart-recommendations-grid">
+      <!-- injecté dynamiquement -->
+    </div>
+  </section>
+</main>
+
+<!-- Footer -->
+<footer class="bg-surface-container-high border-t border-outline-variant mt-stack-lg">
+  <div class="w-full py-12 px-margin-desktop max-w-container-max mx-auto flex flex-col items-center gap-6">
+    <div class="text-primary font-bold text-xl">ShopAI</div>
+    <nav class="flex gap-8">
+      <a class="text-on-surface-variant hover:text-primary underline transition-all text-label-sm" href="/parametres">Legal</a>
+      <a class="text-on-surface-variant hover:text-primary underline transition-all text-label-sm" href="/parametres">Privacy Policy</a>
+      <a class="text-on-surface-variant hover:text-primary underline transition-all text-label-sm" href="/parametres">Terms of Service</a>
+      <a class="text-on-surface-variant hover:text-primary underline transition-all text-label-sm" href="/messagerie">Contact Us</a>
+    </nav>
+    <p class="text-body-md opacity-60">© 2024 ShopAI Platform. All rights reserved.</p>
+  </div>
+</footer>
+
+<script>
+  function _applyPromo() {
+    var code = document.getElementById('promo-input').value.trim().toUpperCase();
+    if (code === 'SHOPAI100') {
+      if (typeof showToast === 'function') showToast('Code promo appliqué : -100 DH', 'success');
+    } else if (code) {
+      if (typeof showToast === 'function') showToast('Code promo invalide', 'error');
+    }
+  }
+</script>
+
+<script src="/static/js/toast.js"></script>
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/cart.js"></script>
+
+<!-- ============================================================
+     AFFICHAGE DU PANIER - panier_ia.html
+     ============================================================ -->
+<script>
+(function() {
+  'use strict';
+
+  function initCartDisplay() {
+    if (!window.cartAPI) {
+      setTimeout(initCartDisplay, 100);
+      return;
+    }
+
+    // Sync avec le serveur puis afficher
+    window.cartAPI.syncWithServer().then(() => {
+      renderCart(window.cartData);
+    });
+
+    // Écouter les mises à jour futures
+    window.addEventListener('cart-updated', function() {
+      renderCart(window.cartData);
+    });
+  }
+
+  function renderCart(data) {
+    const container = document.getElementById('cart-items-container');
+    if (!container) return;
+
+    // Vider le skeleton
+    container.innerHTML = '';
+
+    if (!data || !data.items || data.items.length === 0) {
+      container.innerHTML = `
+        <div class="bg-surface-container-lowest rounded-xl cart-card-shadow border border-outline-variant p-12 text-center">
+          <span class="material-symbols-outlined text-6xl text-outline mb-4">shopping_cart</span>
+          <h3 class="font-headline-md text-headline-md mb-2">Votre panier est vide</h3>
+          <p class="text-on-surface-variant mb-6">Découvrez nos produits et ajoutez-les à votre panier</p>
+          <a href="/catalogue" class="bg-primary text-on-primary px-6 py-3 rounded-lg font-semibold hover:opacity-90 transition-all inline-flex items-center gap-2">
+            Explorer le catalogue
+            <span class="material-symbols-outlined">arrow_forward</span>
+          </a>
+        </div>
+      `;
+      updateSummary(0, 0);
+      return;
+    }
+
+    // Générer les items
+    data.items.forEach(item => {
+      const itemEl = document.createElement('div');
+      itemEl.className = 'bg-surface-container-lowest rounded-xl cart-card-shadow border border-outline-variant p-6 mb-4';
+      itemEl.innerHTML = `
+        <div class="flex gap-6">
+          <div class="w-32 h-32 rounded-lg bg-surface-container flex-shrink-0 overflow-hidden">
+            <img src="${item.image || 'https://placehold.co/300x300?text=Produit'}" 
+                 alt="${item.name}" 
+                 class="w-full h-full object-cover"
+                 onerror="this.src='https://placehold.co/300x300?text=Produit'">
+          </div>
+          <div class="flex-grow">
+            <div class="flex justify-between items-start mb-2">
+              <div>
+                <h3 class="font-semibold text-body-md">${item.name}</h3>
+                <p class="text-label-sm text-on-surface-variant">${item.category || 'Catégorie'}</p>
+              </div>
+              <button onclick="removeItem(${item.product_id})" 
+                      class="text-error hover:bg-error-container p-2 rounded-lg transition-colors">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </div>
+            
+            <div class="flex justify-between items-end mt-4">
+              <div class="flex items-center gap-3 bg-surface-container rounded-lg p-1">
+                <button onclick="updateQty(${item.product_id}, ${item.quantity - 1})"
+                        class="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container-high transition-colors">
+                  <span class="material-symbols-outlined text-sm">remove</span>
+                </button>
+                <span class="font-semibold w-8 text-center">${item.quantity}</span>
+                <button onclick="updateQty(${item.product_id}, ${item.quantity + 1})"
+                        class="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container-high transition-colors">
+                  <span class="material-symbols-outlined text-sm">add</span>
+                </button>
+              </div>
+              
+              <div class="text-right">
+                <p class="text-label-sm text-on-surface-variant">${item.price} DH / unité</p>
+                <p class="font-price-display text-price-display text-secondary">${(item.price * item.quantity).toFixed(2)} DH</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      container.appendChild(itemEl);
+    });
+
+    updateSummary(data.count, data.total);
+  }
+
+ function updateQty(productId, qty) {
+    if (qty < 1) {
+      window.removeItem(productId);
+      return;
+    }
+    window.cartAPI.updateQuantity(productId, qty);
+  }
+
+  // ← exposer globalement pour les onclick HTML
+  window.removeItem = function(productId) {
+    if (confirm('Retirer ce produit du panier ?')) {
+      window.cartAPI.removeFromCart(productId);
+    }
+  };
+
+  window.updateQty = function(productId, qty) {
+    if (qty < 1) {
+      window.removeItem(productId);
+      return;
+    }
+    window.cartAPI.updateQuantity(productId, qty);
+  };
+
+  function updateSummary(count, total) {
+    // Badge
+    const badge = document.querySelector('.cart-badge');
+    if (badge) {
+      badge.textContent = count;
+      badge.style.display = count > 0 ? 'flex' : 'none';
+    }
+
+    // Sous-total
+    const countEl = document.querySelector('[data-cart-item-count]');
+    if (countEl) {
+      countEl.textContent = count + ' article' + (count > 1 ? 's' : '');
+    }
+
+    const subtotalEl = document.querySelector('[data-cart-subtotal]');
+    if (subtotalEl) {
+      subtotalEl.textContent = (total || 0).toFixed(2) + ' DH';
+    }
+
+    // Total
+    const totalEl = document.querySelector('[data-cart-total]');
+    if (totalEl) {
+      totalEl.textContent = (total || 0).toFixed(2) + ' DH';
+    }
+
+    // Points fidélité
+    const ptsEl = document.getElementById('loyalty-pts');
+    if (ptsEl) {
+      ptsEl.textContent = '+ ' + Math.floor(total || 0) + ' pts';
+    }
+  }
+
+  // Démarrer
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCartDisplay);
+  } else {
+    initCartDisplay();
+  }
+})();
+</script>
+
+<!-- Recommandations IA -->
+<script>
+(function() {
+  function getToken() {
+    return window.ShopAIAuth && ShopAIAuth.getToken
+      ? ShopAIAuth.getToken()
+      : (sessionStorage.getItem('shopai_token') || localStorage.getItem('shopai_token'));
+  }
+
+  function renderCard(p) {
+    const nom = p.nom || p.name || 'Produit';
+    const prix = p.prix != null ? p.prix : p.price;
+    const image = p.image || 'https://placehold.co/300x300?text=Produit';
+    const score = p.score ? Math.round(p.score) : 90;
+    return `
+      <div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden group hover:shadow-lg transition-all duration-300">
+        <div class="relative h-72 overflow-hidden">
+          <img alt="${nom}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+               src="${image}" onerror="this.src='https://placehold.co/300x300?text=ShopAI'"/>
+          <div class="absolute top-4 left-4 bg-secondary text-on-secondary text-label-sm px-3 py-1 rounded-full flex items-center gap-1 shadow-lg font-bold italic">
+            <span class="material-symbols-outlined text-[14px]">auto_awesome</span> ${score}% Match
+          </div>
+        </div>
+        <div class="p-6">
+          <h3 class="font-semibold text-body-md mb-2 truncate">${nom}</h3>
+          <div class="flex justify-between items-end">
+            <p class="font-price-display text-price-display text-secondary">${Number(prix).toLocaleString('fr-MA')} DH</p>
+            <button onclick='addToCart({id:${p.id},name:"${nom.replace(/"/g, '')}",price:${prix},quantity:1,image:"${image}"})'
+              class="bg-surface-container-high p-3 rounded-full hover:bg-primary hover:text-on-primary transition-colors">
+              <span class="material-symbols-outlined">add_shopping_cart</span>
+            </button>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  const token = getToken();
+  const grid = document.getElementById('cart-recommendations-grid');
+  if (!token || !grid) return;
+
+  fetch('http://127.0.0.1:5000/api/recommendations/me', {
+    headers: { 'Authorization': 'Bearer ' + token }
+  })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      const produits = (data.produits || []).slice(0, 6);
+      if (produits.length) {
+        grid.innerHTML = produits.map(renderCard).join('');
+      }
+    })
+    .catch(function() {});
+})();
+</script>
+<script src="/static/js/nav.js"></script>
+<script src="/static/js/page-links.js"></script>
+</body>
+</html>

@@ -1,0 +1,402 @@
+﻿<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Votre Panier - ShopAI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error": "#ba1a1a",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed": "#d8e3fb",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-bright": "#f7f9fb",
+                        "on-primary": "#ffffff",
+                        "outline": "#76777d",
+                        "on-error": "#ffffff",
+                        "surface-container": "#eceef0",
+                        "primary-fixed": "#dae2fd",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "on-secondary-fixed-variant": "#763300",
+                        "on-secondary-fixed": "#331200",
+                        "tertiary-container": "#111c2d",
+                        "on-secondary-container": "#682c00",
+                        "surface": "#f7f9fb",
+                        "on-primary-container": "#7c839b",
+                        "secondary-container": "#fd8a42",
+                        "on-tertiary-container": "#79849a",
+                        "surface-container-high": "#e6e8ea",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed-dim": "#bec6e0",
+                        "tertiary": "#000000",
+                        "on-tertiary-fixed-variant": "#3c475a",
+                        "surface-variant": "#e0e3e5",
+                        "inverse-surface": "#2d3133",
+                        "on-primary-fixed": "#131b2e",
+                        "background": "#f7f9fb",
+                        "inverse-primary": "#bec6e0",
+                        "surface-container-highest": "#e0e3e5",
+                        "secondary": "#9b4500",
+                        "surface-dim": "#d8dadc",
+                        "inverse-on-surface": "#eff1f3",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#111c2d",
+                        "tertiary-fixed-dim": "#bcc7de",
+                        "on-surface": "#191c1e",
+                        "primary": "#000000",
+                        "error-container": "#ffdad6",
+                        "surface-container-low": "#f2f4f6",
+                        "on-surface-variant": "#45464d",
+                        "secondary-fixed-dim": "#ffb68e",
+                        "primary-container": "#131b2e",
+                        "secondary-fixed": "#ffdbca",
+                        "outline-variant": "#c6c6cd",
+                        "surface-tint": "#565e74",
+                        "on-background": "#191c1e"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1280px",
+                        "gutter": "1.5rem",
+                        "margin-mobile": "1rem",
+                        "stack-lg": "2rem",
+                        "margin-desktop": "2.5rem",
+                        "stack-md": "1rem",
+                        "stack-sm": "0.5rem"
+                    },
+                    "fontFamily": {
+                        "headline-xl": ["Montserrat"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Montserrat"],
+                        "headline-lg": ["Montserrat"],
+                        "headline-lg-mobile": ["Montserrat"],
+                        "body-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "price-display": ["Montserrat"]
+                    },
+                    "fontSize": {
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                        "price-display": ["20px", {"lineHeight": "24px", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .bg-mesh {
+            background-color: #f7f9fb;
+            background-image: radial-gradient(at 0% 0%, rgba(218, 226, 253, 0.3) 0, transparent 50%), radial-gradient(at 50% 0%, rgba(253, 138, 66, 0.05) 0, transparent 50%);
+        }
+        .cart-card-shadow {
+            box-shadow: 0px 4px 20px rgba(15, 23, 42, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-mesh font-body-md text-on-surface">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-inverse-surface border-b border-outline-variant dark:border-outline shadow-sm dark:shadow-none docked full-width top-0 sticky z-50">
+<div class="flex justify-between items-center w-full px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="flex items-center gap-8">
+<a class="text-headline-md font-headline-md font-bold text-primary dark:text-inverse-primary" href="#">ShopAI</a>
+<div class="hidden md:flex gap-6">
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-secondary transition-colors font-label-sm text-label-sm" href="#">Catalog</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-secondary transition-colors font-label-sm text-label-sm" href="#">Deals</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:text-secondary transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-secondary transition-colors">
+<span class="material-symbols-outlined" data-icon="favorite">favorite</span>
+</button>
+<button class="p-2 text-primary border-b-2 border-primary transition-all">
+<span class="material-symbols-outlined" data-icon="shopping_cart" style="font-variation-settings: 'FILL' 1;">shopping_cart</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img alt="User Profile Avatar" data-alt="A professional close-up portrait of a modern user for a high-end profile avatar. The individual has a friendly expression, set against a clean, softly blurred minimalist office background. The lighting is bright and even, reflecting a corporate yet accessible light-mode aesthetic with natural skin tones and sharp focus on the facial features." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-tu1hQOdP0JJ_3-9LrxigH2gloGT4eALXUP0lLPSseilWDVf4D6vReMSVy061PcXqKno-zHt7MBnIlFU7Jb0pfKH4Ib3RwHISN4nB-AqO3USN37asRr0wQR22_vF471xn-aXXMk9Xxc-tgrArzCBE2ooeDzYKv8hw0UJje2mX1HPus3MhNzlmYsJJG56jwMIf2g6mwah6hifwLoGq8Ak3bUZWWP1074FfR44ql0foWCuDszerCos9EYiv1GANJi6xPCxQlrrMnMQ"/>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-container-max mx-auto px-margin-desktop py-12">
+<h1 class="font-headline-lg text-headline-lg mb-8">Votre Panier</h1>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+<!-- Left: Cart Items by Vendor -->
+<div class="lg:col-span-8 space-y-8">
+<!-- Vendor Group 1 -->
+<section class="bg-surface-container-lowest rounded-xl cart-card-shadow border border-outline-variant p-6">
+<div class="flex items-center gap-3 mb-6 border-b border-outline-variant pb-4">
+<span class="material-symbols-outlined text-secondary" data-icon="storefront">storefront</span>
+<h2 class="font-headline-md text-headline-md">TechNova Store</h2>
+<span class="ml-auto text-label-sm font-label-sm bg-secondary-fixed text-on-secondary-fixed px-3 py-1 rounded-full">ExpÃ©diÃ© par ShopAI</span>
+</div>
+<div class="space-y-6">
+<!-- Item 1 -->
+<div class="flex gap-6 group">
+<div class="w-32 h-32 rounded-lg overflow-hidden flex-shrink-0 bg-surface-container">
+<img alt="Tech Product" data-alt="A high-end, sleek pair of professional over-ear headphones displayed in a minimalist studio setting. The lighting is crisp and cool, highlighting the metallic finishes and premium leather textures. The composition is clean, centered against a soft gray background, emphasizing modern industrial design and luxury technology aesthetics." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKFjNP4uPlBG9PWzL_ZWOUZaJWY2nh4H0nw-TmrfVV8mfVhfrumBG77rPmJIMCPhk3uQ1BHq6QzEg0g4CEl6IKAjvD6I7Fh0EvEk7D1NIwozRppkMlTBVbwYwjqqm0GYlh8xVU9rjTI4Y_10OxJ8MAFlALCZ0zm_pUMNZAdHs5TebPxnlH55-JcOS99Yryc3yxTegnvszsvEwGoqlzZRHeZCFrSlQtREcqBJ30yJgrOLUNAEvH8dcDtCQCrn3dYjv5Sw-2-M9VO_Y"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between">
+<h3 class="font-body-lg text-body-lg font-semibold">Casque Audio Studio Pro X</h3>
+<p class="font-price-display text-price-display">2 450 DH</p>
+</div>
+<p class="text-on-surface-variant text-label-sm mt-1">Noir SidÃ©ral | Taille Unique</p>
+<div class="mt-4 flex items-center gap-6">
+<div class="flex items-center border border-outline rounded-lg px-2">
+<button class="p-1 hover:text-secondary"><span class="material-symbols-outlined text-[18px]" data-icon="remove">remove</span></button>
+<span class="px-4 font-bold">1</span>
+<button class="p-1 hover:text-secondary"><span class="material-symbols-outlined text-[18px]" data-icon="add">add</span></button>
+</div>
+<button class="text-on-surface-variant hover:text-error transition-colors flex items-center gap-1 text-label-sm">
+<span class="material-symbols-outlined text-[20px]" data-icon="delete">delete</span> Supprimer
+                                    </button>
+</div>
+</div>
+</div>
+<hr class="border-outline-variant"/>
+<!-- Item 2 -->
+<div class="flex gap-6 group">
+<div class="w-32 h-32 rounded-lg overflow-hidden flex-shrink-0 bg-surface-container">
+<img alt="Smartwatch" data-alt="A premium minimalist smartwatch with a white band and a high-resolution circular display showing a clean digital interface. The watch is presented on a pristine white surface with soft, diffused ambient shadows. The overall aesthetic is futuristic, clean, and professional, reflecting high-quality Moroccan e-commerce standards." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBeJ2Gm53TNoTBiCsI9b3LP2LByrUFEGxs5F6tIEKopEHghoHxbZgx7pMALCPhg4aW96hszjC9395wo8wNLhBnFw5sGlithTtCOoccQk4DRaXm11cnNuzQdl--dVB50I8YDPTyRwlXIZrmlZ8JJ_H5uihEeqIQ-N5cxP-jLGbrp1JNNU-JZexDdZTOtaEqFEu1dhd7z8xCZrUM8okaZUST1a0j6SL1C3M3PTrUpXQQWroSwyuLUNYCvb0B0_EF2KYv1GuAHEC7xShg"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between">
+<h3 class="font-body-lg text-body-lg font-semibold">Smartwatch V3 Gold Edition</h3>
+<p class="font-price-display text-price-display">3 100 DH</p>
+</div>
+<p class="text-on-surface-variant text-label-sm mt-1">Or 18k | Bracelet Blanc</p>
+<div class="mt-4 flex items-center gap-6">
+<div class="flex items-center border border-outline rounded-lg px-2">
+<button class="p-1 hover:text-secondary"><span class="material-symbols-outlined text-[18px]" data-icon="remove">remove</span></button>
+<span class="px-4 font-bold">1</span>
+<button class="p-1 hover:text-secondary"><span class="material-symbols-outlined text-[18px]" data-icon="add">add</span></button>
+</div>
+<button class="text-on-surface-variant hover:text-error transition-colors flex items-center gap-1 text-label-sm">
+<span class="material-symbols-outlined text-[20px]" data-icon="delete">delete</span> Supprimer
+                                    </button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Vendor Group 2 -->
+<section class="bg-surface-container-lowest rounded-xl cart-card-shadow border border-outline-variant p-6">
+<div class="flex items-center gap-3 mb-6 border-b border-outline-variant pb-4">
+<span class="material-symbols-outlined text-secondary" data-icon="local_mall">local_mall</span>
+<h2 class="font-headline-md text-headline-md">Casa Design</h2>
+</div>
+<div class="flex gap-6">
+<div class="w-32 h-32 rounded-lg overflow-hidden flex-shrink-0 bg-surface-container">
+<img alt="Home Decor" data-alt="A sophisticated minimalist ceramic vase with an organic, asymmetrical shape, placed in a bright sunlit corner of a modern Moroccan apartment. The lighting creates elegant shadows on a textured off-white wall. The style is serene and high-end, focusing on artisanal quality and minimalist interior design principles." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDIhzDbftEagHpVDVolVYujTiBrXpXRXmfu2plJHGWPvGsIdDHTUjRZ10b4UiP0pzaPScDXr74c_E6phwvudQbWS6NN6Pph4bWEEkd1hK4fsLOyRdctWOkMobCpd8ehGsFjraZjKwGSz2QgjO6j0rRqpBXGJC0ypVnzDNeekeU-GarGX8BQeFJhZi0aQxXxizmjqrBBAMJBrotdQjyjpCh6BVLXd0bk1wKdlCaIvyPKgwO1MZ3IdPIlDKoGqnEBl4qccNm1I0fjxA"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between">
+<h3 class="font-body-lg text-body-lg font-semibold">Vase Minimaliste en CÃ©ramique</h3>
+<p class="font-price-display text-price-display">450 DH</p>
+</div>
+<p class="text-on-surface-variant text-label-sm mt-1">Blanc Mat | Artisanal</p>
+<div class="mt-4 flex items-center gap-6">
+<div class="flex items-center border border-outline rounded-lg px-2">
+<button class="p-1 hover:text-secondary"><span class="material-symbols-outlined text-[18px]" data-icon="remove">remove</span></button>
+<span class="px-4 font-bold">2</span>
+<button class="p-1 hover:text-secondary"><span class="material-symbols-outlined text-[18px]" data-icon="add">add</span></button>
+</div>
+<button class="text-on-surface-variant hover:text-error transition-colors flex items-center gap-1 text-label-sm">
+<span class="material-symbols-outlined text-[20px]" data-icon="delete">delete</span> Supprimer
+                                </button>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right: Order Summary -->
+<aside class="lg:col-span-4 sticky top-28">
+<div class="bg-primary text-on-primary rounded-xl p-8 cart-card-shadow">
+<h2 class="font-headline-md text-headline-md mb-8">RÃ©capitulatif</h2>
+<div class="space-y-4 mb-8">
+<div class="flex justify-between text-body-md opacity-80">
+<span>Sous-total (4 articles)</span>
+<span>6 450 DH</span>
+</div>
+<div class="flex justify-between text-body-md opacity-80">
+<span>Livraison</span>
+<span class="text-secondary-fixed">Gratuite</span>
+</div>
+<div class="flex justify-between text-body-md items-center">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]" data-icon="stars">stars</span>
+<span>Points fidÃ©litÃ©</span>
+</div>
+<span>+ 645 pts</span>
+</div>
+</div>
+<div class="mb-8">
+<label class="text-label-sm font-label-sm mb-2 block opacity-70">Code Promo</label>
+<div class="flex gap-2">
+<input class="bg-white/10 border-white/20 text-white rounded-lg px-4 py-2 flex-grow focus:ring-secondary focus:border-secondary" placeholder="Entrez votre code" type="text"/>
+<button class="bg-secondary text-on-secondary px-4 py-2 rounded-lg font-semibold hover:opacity-90 transition-all">Appliquer</button>
+</div>
+</div>
+<div class="border-t border-white/20 pt-6 mb-8">
+<div class="flex justify-between items-end">
+<span class="font-headline-md text-headline-md">Total</span>
+<span class="font-headline-xl text-headline-xl">6 450 DH</span>
+</div>
+<p class="text-[12px] opacity-60 text-right mt-1">TVA incluse</p>
+</div>
+<button class="w-full bg-white text-primary font-headline-md py-4 rounded-lg hover:bg-secondary-fixed hover:text-on-secondary-fixed transition-all flex items-center justify-center gap-3">
+                        Passer la commande
+                        <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+<div class="mt-6 flex items-center justify-center gap-2 text-label-sm opacity-60">
+<span class="material-symbols-outlined text-[16px]" data-icon="lock">lock</span>
+                        Paiement 100% sÃ©curisÃ©
+                    </div>
+</div>
+<div class="mt-6 bg-surface-container rounded-xl p-6 border border-outline-variant flex items-start gap-4">
+<span class="material-symbols-outlined text-secondary" data-icon="auto_awesome">auto_awesome</span>
+<div>
+<p class="font-semibold text-body-md">ShopAI Suggestion</p>
+<p class="text-label-sm text-on-surface-variant">En complÃ©tant cette commande, vous dÃ©bloquerez le badge "Client Premium" et bÃ©nÃ©ficierez de -10% sur votre prochain achat tech.</p>
+</div>
+</div>
+</aside>
+</div>
+<!-- IA Section: You Might Also Like -->
+<section class="mt-20">
+<div class="flex items-center gap-3 mb-8">
+<div class="bg-secondary-container p-2 rounded-lg">
+<span class="material-symbols-outlined text-on-secondary-container" data-icon="psychology" style="font-variation-settings: 'FILL' 1;">psychology</span>
+</div>
+<div>
+<h2 class="font-headline-lg text-headline-lg">ShopAI : SÃ©lectionnÃ© pour vous</h2>
+<p class="text-on-surface-variant">BasÃ© sur votre panier actuel et vos prÃ©fÃ©rences</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<!-- AI Product Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden group hover:shadow-lg transition-all duration-300">
+<div class="relative h-64 overflow-hidden">
+<img alt="AI Tablet" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A high-end tablet with a vibrant display showing colorful creative artwork. The device is placed on a minimalist desk next to a sleek stylus. The lighting is professional and soft, emphasizing the thin profile and premium build materials. The mood is creative, modern, and highly technological." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCec5zPCFA_rqFsjXPeNt4mTX9x0R0p3R5XsBTKrqdC0Ck8qUNs_1zPUvjE9xzxIrD-bUarynThV0v2RiIimQIeKwaW3JXghLPZWXuSRIE6n4HFtRp5IjhYUpGtQaFxkKs2vXOBCIXArPpNu9q4ZH6g-Qw1FmbKIA4nb7YKNSTCWFO4Np6nMNG4mk-FmLKmYVRYG6N92PCzds5pzrEAGPKbR43y9Ce1IUoZgyznIk370ZCsQdRErLCiFb0CQUYI3E58CXkytjj9-S8"/>
+<div class="absolute top-4 left-4 bg-primary/90 text-on-primary text-label-sm px-3 py-1 rounded-full flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="bolt">bolt</span> IA Pick
+                        </div>
+</div>
+<div class="p-4">
+<h3 class="font-semibold text-body-md mb-2 truncate">Tablette CrÃ©ative AI Pro 12"</h3>
+<div class="flex justify-between items-end">
+<p class="font-price-display text-price-display text-secondary">8 900 DH</p>
+<button class="bg-surface-container-high p-2 rounded-full hover:bg-primary hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="add_shopping_cart">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- AI Product Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden group hover:shadow-lg transition-all duration-300">
+<div class="relative h-64 overflow-hidden">
+<img alt="AI Watch" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A close-up shot of a sophisticated men's leather watch with a detailed analog face. The watch is presented on a velvet cushion within a luxury box. The lighting is warm and dramatic, highlighting the stitching of the leather and the polish of the metal. The aesthetic is timeless, elegant, and masculine." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvbpJny1s72oHITVZvfXXZhfRdim--cXmhZWpcrTXkrw8LV78ff-4OvLgvA7EZm1CfLOAS_3I1_rqtFEwh7QTLIR1HcOlz35IDjLTmangDpNNMnOIrMUOW7mUQCte_MW0EsBz8NeA2BX-FdzzupAQdQ9PH3UIUzxc8st96nA0UDw0Kl1qnOLElqIF_KRkLCmHDmIc7dOBURdpp9wlJ9Qi1xxd8xXJyaMp3DsiLIlsgAwqOZR9LA7i4B-ARzHVWe3pHL5oLP6eznkI"/>
+</div>
+<div class="p-4">
+<h3 class="font-semibold text-body-md mb-2 truncate">Montre Classique Automatique</h3>
+<div class="flex justify-between items-end">
+<p class="font-price-display text-price-display text-secondary">1 200 DH</p>
+<button class="bg-surface-container-high p-2 rounded-full hover:bg-primary hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="add_shopping_cart">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- AI Product Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden group hover:shadow-lg transition-all duration-300">
+<div class="relative h-64 overflow-hidden">
+<img alt="AI Sneakers" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A pair of ultra-modern, high-performance athletic sneakers with futuristic textures and glowing accents. They are suspended in mid-air against a dark, tech-inspired background with neon blue light trails. The design is aggressive and aerodynamic, suggesting speed and advanced footwear technology." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHfn9yk83LN9ZdV0k2a9Cd7_QJ9PnL4rFnxRkJz3PcbsneDjMC9G3owgpSiZ2g7xZQGIpkKGRC2lPLd0u82yLapaFIEm8wt0lIXHr8tFgMhbFg_IOYWi8OQJPSkGuDn0pVzySQCt8-PzSe-JODwKULXYHagnjxiJTiykarJw_G2sB6g2wA4P6fQDPLZXhuqoTL9FGNHrrK-U3YuQbHMAlt8Fvj7lm4_061foSNmx6SDiegYbb09LcUbActQ7Gud-Z0Qc9_L1rLaVg"/>
+</div>
+<div class="p-4">
+<h3 class="font-semibold text-body-md mb-2 truncate">Sneakers Future-Fit AI</h3>
+<div class="flex justify-between items-end">
+<p class="font-price-display text-price-display text-secondary">1 550 DH</p>
+<button class="bg-surface-container-high p-2 rounded-full hover:bg-primary hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="add_shopping_cart">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+<!-- AI Product Card 4 -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden group hover:shadow-lg transition-all duration-300">
+<div class="relative h-64 overflow-hidden">
+<img alt="AI Gadget" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A sleek, minimalist portable Bluetooth speaker with a fabric finish and a modern touch interface. The device is being used on a sunlit balcony overlooking a modern city skyline. The lighting is golden-hour, creating a warm, lifestyle-oriented feeling of leisure and high-quality audio experience." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQimbgCNdvW8D6hZ--AZHA4p_c7Cdkpw2AaR5oSTkTsLoC8C4LuNJJ0bNbyu94P2Mv8xuKv4ccxOUWZBDSMsPt72Ke1ZNDVk_iwFnHP8GWs9kAQy_ndyD7nXG2H2Kq7EGOjzb2kIUWeny9UsqNle1VsvsORSlj4mGSQ7yotttCqm8A2yKGvvXGB7zW_JWNnYFiaTvbQN-vWkkHEToqQiZhQlVGzMyQrBaCC2vwrA26MHPQJIx7Osvy-HfJjMKSALpcql6Jl_g5zFA"/>
+</div>
+<div class="p-4">
+<h3 class="font-semibold text-body-md mb-2 truncate">Enceinte Ultra-Portative S2</h3>
+<div class="flex justify-between items-end">
+<p class="font-price-display text-price-display text-secondary">680 DH</p>
+<button class="bg-surface-container-high p-2 rounded-full hover:bg-primary hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="add_shopping_cart">add_shopping_cart</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-high dark:bg-surface-container-highest border-t border-outline-variant full-width bottom-0 mt-stack-lg">
+<div class="w-full py-12 px-margin-desktop max-w-container-max mx-auto flex flex-col items-center gap-6">
+<div class="text-headline-sm font-headline-sm font-bold text-primary dark:text-inverse-primary">ShopAI</div>
+<nav class="flex gap-8">
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary underline transition-all text-label-sm font-label-sm" href="#">Legal</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary underline transition-all text-label-sm font-label-sm" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary underline transition-all text-label-sm font-label-sm" href="#">Terms of Service</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary underline transition-all text-label-sm font-label-sm" href="#">Contact Us</a>
+</nav>
+<p class="text-body-md font-body-md text-on-surface dark:text-inverse-on-surface opacity-60">Â© 2024 ShopAI Platform. All rights reserved.</p>
+</div>
+</footer>
+<script>
+        // Micro-interactions for quantity buttons
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.classList.add('scale-95', 'opacity-80');
+                setTimeout(() => {
+                    this.classList.remove('scale-95', 'opacity-80');
+                }, 100);
+            });
+        });
+
+        // Simple cart math simulation logic could go here if needed
+    </script>
+
+<script src="/static/js/toast.js"></script>
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/cart.js"></script>
+<script src="/static/js/nav.js"></script>
+<script src="/static/js/page-links.js"></script>
+</body></html>
+
+

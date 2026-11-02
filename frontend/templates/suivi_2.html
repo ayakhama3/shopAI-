@@ -1,0 +1,496 @@
+﻿<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Suivi de Commande | ShopAI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed": "#ffdbca",
+                        "on-surface": "#191c1e",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#bec6e0",
+                        "on-secondary": "#ffffff",
+                        "surface-dim": "#d8dadc",
+                        "inverse-on-surface": "#eff1f3",
+                        "surface-container-high": "#e6e8ea",
+                        "primary": "#000000",
+                        "on-secondary-fixed-variant": "#763300",
+                        "tertiary-container": "#111c2d",
+                        "surface": "#f7f9fb",
+                        "secondary-fixed-dim": "#ffb68e",
+                        "tertiary-fixed-dim": "#bcc7de",
+                        "surface-variant": "#e0e3e5",
+                        "on-tertiary-fixed-variant": "#3c475a",
+                        "on-primary-fixed": "#131b2e",
+                        "on-surface-variant": "#45464d",
+                        "on-error": "#ffffff",
+                        "surface-tint": "#565e74",
+                        "surface-container-low": "#f2f4f6",
+                        "secondary": "#9b4500",
+                        "on-secondary-container": "#682c00",
+                        "background": "#f7f9fb",
+                        "tertiary-fixed": "#d8e3fb",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#000000",
+                        "surface-bright": "#f7f9fb",
+                        "primary-container": "#131b2e",
+                        "inverse-surface": "#2d3133",
+                        "outline": "#76777d",
+                        "secondary-container": "#fd8a42",
+                        "error": "#ba1a1a",
+                        "on-tertiary-container": "#79849a",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#eceef0",
+                        "on-primary-container": "#7c839b",
+                        "outline-variant": "#c6c6cd",
+                        "primary-fixed-dim": "#bec6e0",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "on-background": "#191c1e",
+                        "on-secondary-fixed": "#331200",
+                        "surface-container-highest": "#e0e3e5",
+                        "primary-fixed": "#dae2fd",
+                        "on-tertiary-fixed": "#111c2d",
+                        "on-tertiary": "#ffffff",
+                        "on-error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1280px",
+                        "gutter": "1.5rem",
+                        "margin-mobile": "1rem",
+                        "stack-md": "1rem",
+                        "margin-desktop": "2.5rem",
+                        "stack-sm": "0.5rem",
+                        "stack-lg": "2rem"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-lg-mobile": ["Montserrat"],
+                        "price-display": ["Montserrat"],
+                        "headline-xl": ["Montserrat"],
+                        "headline-lg": ["Montserrat"],
+                        "headline-md": ["Montserrat"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "label-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "price-display": ["20px", {"lineHeight": "24px", "fontWeight": "700"}],
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: .7; transform: scale(1.15); }
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        @keyframes entranceFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes lineGrow {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        @keyframes lineGrowVertical {
+            from { height: 0; }
+            to { height: 100%; }
+        }
+        @keyframes breath {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.8; }
+        }
+
+        .timeline-pulsate {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .shimmer-progress {
+            background: linear-gradient(90deg, #e6e8ea 0%, #ffffff 50%, #e6e8ea 100%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite linear;
+        }
+        .timeline-item {
+            opacity: 0;
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+        .timeline-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+            animation: entranceFadeIn 0.5s ease-out forwards;
+        }
+        .timeline-line-animated {
+            transform-origin: left;
+            animation: lineGrow 1s ease-out forwards;
+        }
+        @media (max-width: 767px) {
+            .timeline-line-animated {
+                transform-origin: top;
+                animation: lineGrowVertical 1s ease-out forwards;
+            }
+        }
+        .map-marker-pulse {
+            animation: breath 2.5s ease-in-out infinite;
+        }
+        .hover-lift {
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .hover-lift:hover {
+            transform: translateY(-4px);
+        }
+    </style>
+</head>
+<body class="bg-background font-body-md text-on-surface min-h-screen">
+<header class="bg-surface dark:bg-inverse-surface border-b border-outline-variant dark:border-outline shadow-sm dark:shadow-none docked full-width top-0 sticky z-50">
+<nav class="flex justify-between items-center w-full px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-headline-md font-headline-md font-bold text-primary dark:text-inverse-primary">ShopAI</span>
+<div class="hidden md:flex gap-6">
+<a class="text-primary dark:text-inverse-primary font-bold border-b-2 border-primary text-label-sm font-label-sm py-1 transition-all" href="#">Commandes</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed transition-colors text-label-sm font-label-sm py-1" href="#">Catalogue</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed transition-colors text-label-sm font-label-sm py-1" href="#">Promotions</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">search</span>
+</button>
+<div class="flex gap-2">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">favorite</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors relative">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-secondary rounded-full"></span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant overflow-hidden">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHEUWR2-Ew0U9RX0tQd5pVEX7VLkaqDCCFIVwcRknSJUthrFlA5CIiY9Cc411YFM9kSBNSDIqcLko-_3dYUn_W8of0-mSkeHzAaM3SQfXQX2-Z5D6OTipw3febfGqNg5Q0k6SFaWjmZKqDol75vJ_doUlLtuzFLm8Hk-JZtzH5qaXPF_aU9beK-yh6o6XVSyIeDke8S_b3QU0ZHIaqkeiwPN0Wjbo9LoJSq8caStAjZgmO2FWbv-S2NWqyyUL7-M1F4fo0ywfhDhE"/>
+</div>
+</div>
+</nav>
+</header>
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg">
+<nav class="flex items-center gap-2 mb-6 text-on-surface-variant text-label-sm font-label-sm">
+<a class="hover:text-primary transition-colors" href="#">Tableau de bord</a>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">Mes Commandes</a>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-primary font-bold">#ORD-9402</span>
+</nav>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-stack-lg items-end">
+<div>
+<h1 class="font-headline-lg text-headline-lg mb-2">Suivi de Commande <span class="text-on-surface-variant font-normal">#ORD-9402</span></h1>
+<p class="text-on-surface-variant font-body-md text-body-md">PassÃ©e le 14 Octobre 2023 â€¢ <span class="font-bold text-on-surface">1 240 DH</span></p>
+</div>
+<div class="flex flex-wrap gap-3 md:justify-end">
+<button class="flex items-center gap-2 px-6 py-2 border border-outline-variant rounded-lg font-label-sm text-label-sm hover:bg-surface-container hover-lift transition-all">
+<span class="material-symbols-outlined text-body-md">picture_as_pdf</span>
+                Facture PDF
+            </button>
+<button class="flex items-center gap-2 px-6 py-2 bg-primary text-on-primary rounded-lg font-label-sm text-label-sm hover:opacity-90 hover-lift transition-all">
+<span class="material-symbols-outlined text-body-md">help</span>
+                Signaler un problÃ¨me
+            </button>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<div class="lg:col-span-8 space-y-gutter">
+<!-- Interactive Timeline Card -->
+<div class="bg-surface-container-lowest p-6 md:p-8 rounded-xl shadow-sm border border-outline-variant">
+<h2 class="font-headline-md text-headline-md mb-8">Statut de la livraison</h2>
+<div class="relative" id="timeline-container">
+<!-- Progress Line -->
+<div class="absolute left-4 md:left-0 md:top-4 w-0.5 md:w-full h-full md:h-0.5 bg-surface-container-highest">
+<div class="absolute top-0 left-0 bg-primary h-full md:h-full timeline-line-animated" id="progress-line" style="width: 60%;"></div>
+</div>
+<div class="flex flex-col md:flex-row justify-between relative gap-y-10">
+<!-- Step 1: Completed -->
+<div class="timeline-item flex md:flex-col items-center md:items-start gap-4 md:gap-2 md:w-1/6 relative z-10" style="transition-delay: 0.1s">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-md">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</div>
+<div class="text-left">
+<p class="font-bold text-label-sm">Commande passÃ©e</p>
+<p class="text-on-surface-variant text-[12px]">14 Oct, 09:30</p>
+</div>
+</div>
+<!-- Step 2: Completed -->
+<div class="timeline-item flex md:flex-col items-center md:items-start gap-4 md:gap-2 md:w-1/6 relative z-10" style="transition-delay: 0.3s">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-md">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</div>
+<div class="text-left">
+<p class="font-bold text-label-sm">Paiement confirmÃ©</p>
+<p class="text-on-surface-variant text-[12px]">14 Oct, 09:45</p>
+</div>
+</div>
+<!-- Step 3: Completed -->
+<div class="timeline-item flex md:flex-col items-center md:items-start gap-4 md:gap-2 md:w-1/6 relative z-10" style="transition-delay: 0.5s">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-md">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</div>
+<div class="text-left">
+<p class="font-bold text-label-sm">En prÃ©paration</p>
+<p class="text-on-surface-variant text-[12px]">15 Oct, 11:20</p>
+</div>
+</div>
+<!-- Step 4: Active -->
+<div class="timeline-item flex md:flex-col items-center md:items-start gap-4 md:gap-2 md:w-1/6 relative z-10" style="transition-delay: 0.7s">
+<div class="w-8 h-8 rounded-full bg-secondary text-on-secondary flex items-center justify-center timeline-pulsate shadow-lg z-20">
+<span class="material-symbols-outlined text-[18px]">local_shipping</span>
+</div>
+<div class="text-left">
+<p class="font-bold text-label-sm text-secondary">ExpÃ©diÃ©e</p>
+<p class="text-on-surface-variant text-[12px]">16 Oct, 14:05</p>
+</div>
+</div>
+<!-- Step 5: Upcoming -->
+<div class="timeline-item flex md:flex-col items-center md:items-start gap-4 md:gap-2 md:w-1/6 relative z-10 opacity-40" style="transition-delay: 0.9s">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">delivery_dining</span>
+</div>
+<div class="text-left">
+<p class="font-bold text-label-sm">En cours</p>
+<p class="text-on-surface-variant text-[12px]">PrÃ©vu 17 Oct</p>
+</div>
+</div>
+<!-- Step 6: Upcoming -->
+<div class="timeline-item flex md:flex-col items-center md:items-start gap-4 md:gap-2 md:w-1/6 relative z-10 opacity-40" style="transition-delay: 1.1s">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">inventory_2</span>
+</div>
+<div class="text-left">
+<p class="font-bold text-label-sm">LivrÃ©e</p>
+<p class="text-on-surface-variant text-[12px]">-</p>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-12 p-4 bg-surface rounded-lg border border-outline-variant flex flex-col md:flex-row items-center justify-between gap-4 shimmer-progress">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-secondary-fixed rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-container">package_2</span>
+</div>
+<div>
+<p class="text-label-sm font-bold">NumÃ©ro de suivi : <span class="text-secondary">SAI-9402881X</span></p>
+<p class="text-[12px] text-on-surface-variant">Transporteur: Moroccan Express Logistics</p>
+</div>
+</div>
+<button class="w-full md:w-auto px-6 py-2 bg-secondary text-on-secondary rounded-lg font-label-sm text-label-sm hover:opacity-90 hover-lift transition-all">
+                        Suivre avec le transporteur
+                    </button>
+</div>
+</div>
+<!-- Product Summary -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant">
+<h2 class="font-headline-md text-headline-md mb-6">Articles commandÃ©s</h2>
+<div class="space-y-4">
+<div class="flex items-center justify-between p-4 bg-surface-bright border border-outline-variant rounded-lg group hover:border-primary hover-lift transition-all cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 rounded-lg overflow-hidden border border-outline-variant flex-shrink-0 bg-white">
+<img alt="Nike Air Max" class="w-full h-full object-contain p-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDo9Gj0GFmdeOxMxTQhwoX3uhxNbWXn9C0-otQW0O-IZphd4OoM73jzTfZOJDhtIseOctBjnLRi4FJmM9pWMJZ-MMz6LbVoFsCjGoE7CIqzMcnlD0XtaW5jWgNNXQNv0doE2SIJDXtcwR7KfQBNJlJG52nf385es-wtSCXHiNHwGodLQfUPbW9aI9skH1uJO2MAaMpSx5uhx-_dnuqEEfBadUqGQd447ewp6TvPVim7fByXCyW3xMsLsZhmm_pjbywuJbx7DnJBZg8"/>
+</div>
+<div>
+<p class="font-bold text-body-md group-hover:text-primary transition-colors">Nike Air Max 270 - Premium</p>
+<p class="text-on-surface-variant text-label-sm">Taille: 42 â€¢ QuantitÃ©: 1</p>
+</div>
+</div>
+<p class="font-headline-md text-price-display">890 DH</p>
+</div>
+<div class="flex items-center justify-between p-4 bg-surface-bright border border-outline-variant rounded-lg group hover:border-primary hover-lift transition-all cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 rounded-lg overflow-hidden border border-outline-variant flex-shrink-0 bg-white">
+<img alt="White Watch" class="w-full h-full object-contain p-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBoivhjqQgqzyui0IAGwB1W6jiKboNWmTnFbP8pYI8U7SGOXJZo3vE9coH9a8qOU74tSg54mRLCXsjaBdlxUfPvD2UH2HY1lhOf_R9VBWQ_FI_fH5n1JV9XZOGDq23OazU8EFywTiXUnc7j80QL2rDMyZe1jRCrxBBVw5-IfWkbNR-YzT1ZVgBUrhOr3uS0JhLay2SplMqPPBSJbPfQJNNWl4KznFGBTX6rg7gUVsnQNd6QPc2qMvwe9yb9JL8uGNWL8t9IIpBcNI"/>
+</div>
+<div>
+<p class="font-bold text-body-md group-hover:text-primary transition-colors">Montre Smart Minimaliste</p>
+<p class="text-on-surface-variant text-label-sm">Couleur: Blanc â€¢ QuantitÃ©: 1</p>
+</div>
+</div>
+<p class="font-headline-md text-price-display">350 DH</p>
+</div>
+</div>
+<div class="mt-6 pt-6 border-t border-outline-variant">
+<div class="flex justify-between items-center mb-2 text-on-surface-variant font-label-sm">
+<span>Sous-total</span>
+<span>1 240 DH</span>
+</div>
+<div class="flex justify-between items-center mb-2 text-on-surface-variant font-label-sm">
+<span>Livraison (Express)</span>
+<span class="text-secondary font-bold">OFFERT</span>
+</div>
+<div class="flex justify-between items-center mt-4">
+<span class="font-headline-md text-headline-md">Total</span>
+<span class="font-headline-md text-headline-md text-primary">1 240 DH</span>
+</div>
+</div>
+</div>
+</div>
+<aside class="lg:col-span-4 space-y-gutter">
+<!-- Delivery Info Card -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline-md text-headline-md">DÃ©tails de livraison</h3>
+<span class="material-symbols-outlined text-on-surface-variant">location_on</span>
+</div>
+<div class="space-y-4">
+<div>
+<p class="text-[12px] uppercase tracking-wider text-on-surface-variant font-bold mb-1">Adresse de livraison</p>
+<p class="font-body-md text-body-md">Mohammed El Fassi<br/>12 Rue des HÃ´pitaux, Maarif<br/>20000 Casablanca, Maroc</p>
+</div>
+<div>
+<p class="text-[12px] uppercase tracking-wider text-on-surface-variant font-bold mb-1">MÃ©thode d'expÃ©dition</p>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-body-md">bolt</span>
+<p class="font-body-md text-body-md">Livraison Express (24-48h)</p>
+</div>
+</div>
+<div class="p-4 bg-surface-container-low rounded-lg relative overflow-hidden group">
+<p class="text-[12px] uppercase tracking-wider text-on-surface-variant font-bold mb-2">Carte du trajet</p>
+<div class="w-full h-32 rounded-md overflow-hidden grayscale contrast-125 border border-outline-variant relative">
+<img alt="Map of Casablanca" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAx7ZcALVcYPuUY8gSpbOoaXojtnizD64BTaw8YENi7F1XOXk1_oMxrNN5UV8FweaYtgIU9YEb65HVX2nQkZJNP8JpzVvY9UBxRcJtxAxZc6F9cYdCho9T-dD7YLLgd0y1Dr0ShUVVDF9qaEUmQr79BpI9iBdz9sVXa1WT3oCSx4fLQJRQcyHzx_gMeEK2-b57mDaenRlyjAIOZCoooQBP61cHWOXpeBhm_mH1Nd288R0CMt-Zk59mZJ2fi7IEL-vuM_ztN1X-QKRE"/>
+<!-- Map Marker Pulse -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+<div class="w-4 h-4 bg-secondary rounded-full map-marker-pulse shadow-[0_0_15px_rgba(155,69,0,0.6)]"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Seller Info -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant">
+<h3 class="font-headline-md text-headline-md mb-6">Vendeur</h3>
+<div class="flex items-center gap-4 mb-8">
+<div class="w-12 h-12 rounded-full bg-primary-fixed-dim flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">store</span>
+</div>
+<div>
+<p class="font-bold text-body-md">ShopAI Official Store</p>
+<div class="flex items-center gap-1 text-secondary text-label-sm">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span>4.9 (12.4k avis)</span>
+</div>
+</div>
+</div>
+<div class="space-y-3">
+<button class="w-full flex items-center justify-center gap-2 px-6 py-3 border border-primary text-primary rounded-lg font-bold text-label-sm hover:bg-surface-container hover-lift transition-all">
+<span class="material-symbols-outlined">chat</span>
+                        Contacter le vendeur
+                    </button>
+<button class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-surface-container-high text-on-surface-variant rounded-lg font-bold text-label-sm hover:bg-surface-variant hover-lift transition-all">
+                        Voir la boutique
+                    </button>
+</div>
+</div>
+<!-- Assistance Card -->
+<div class="bg-primary p-6 rounded-xl text-on-primary shadow-lg hover-lift transition-all">
+<h3 class="font-headline-md text-headline-md mb-2">Besoin d'aide ?</h3>
+<p class="text-on-primary/80 text-label-sm mb-6">Notre service client est disponible 24/7 pour vous accompagner.</p>
+<button class="w-full py-3 bg-on-primary text-primary rounded-lg font-bold text-label-sm hover:bg-opacity-90 transition-all shadow-md">
+                    Ouvrir le chat ShopAI
+                </button>
+</div>
+</aside>
+</div>
+</main>
+<footer class="bg-surface-container-high dark:bg-surface-container-highest border-t border-outline-variant full-width mt-stack-lg">
+<div class="w-full py-12 px-margin-desktop max-w-container-max mx-auto flex flex-col items-center gap-6">
+<span class="text-headline-sm font-headline-sm font-bold text-primary dark:text-inverse-primary">ShopAI</span>
+<div class="flex flex-wrap justify-center gap-x-8 gap-y-4">
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary underline transition-all text-label-sm font-label-sm" href="#">Legal</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary underline transition-all text-label-sm font-label-sm" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary underline transition-all text-label-sm font-label-sm" href="#">Terms of Service</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary underline transition-all text-label-sm font-label-sm" href="#">Contact Us</a>
+</div>
+<p class="text-on-surface-variant dark:text-surface-variant text-body-md font-body-md text-center">Â© 2024 ShopAI Platform. All rights reserved.</p>
+</div>
+</footer>
+<div class="md:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-outline-variant flex justify-around py-3 z-50">
+<button class="flex flex-col items-center text-on-surface-variant">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px]">Accueil</span>
+</button>
+<button class="flex flex-col items-center text-on-surface-variant">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="text-[10px]">Catalog</span>
+</button>
+<button class="flex flex-col items-center text-primary font-bold">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">package_2</span>
+<span class="text-[10px]">Commandes</span>
+</button>
+<button class="flex flex-col items-center text-on-surface-variant">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px]">Compte</span>
+</button>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const timelineItems = document.querySelectorAll('.timeline-item');
+        const progressLine = document.getElementById('progress-line');
+        
+        // Trigger sequential entrance
+        setTimeout(() => {
+            timelineItems.forEach((item, index) => {
+                setTimeout(() => {
+                    item.classList.add('visible');
+                }, index * 150);
+            });
+            
+            // Animation for progress line
+            if (progressLine) {
+                progressLine.style.animation = 'none';
+                progressLine.offsetHeight; // trigger reflow
+                progressLine.style.animation = null;
+                progressLine.classList.add('timeline-line-animated');
+            }
+        }, 300);
+
+        // Interaction for order items
+        const itemCards = document.querySelectorAll('.hover-lift');
+        itemCards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.classList.add('shadow-md');
+            });
+            card.addEventListener('mouseleave', () => {
+                card.classList.remove('shadow-md');
+            });
+        });
+    });
+</script>
+
+<script src="/static/js/toast.js"></script>
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/cart.js"></script>
+<script src="/static/js/nav.js"></script>
+<script src="/static/js/page-links.js"></script>
+</body></html>
+
+

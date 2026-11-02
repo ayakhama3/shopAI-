@@ -1,0 +1,162 @@
+﻿<!DOCTYPE html>
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mes Favoris - ShopAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary": "#000000", "secondary-fixed": "#ffdbca", "error": "#ba1a1a",
+                    "surface-container": "#eceef0", "on-primary-fixed": "#131b2e",
+                    "on-primary-fixed-variant": "#3f465c", "on-primary": "#ffffff", "surface": "#f7f9fb",
+                    "background": "#f7f9fb", "on-secondary-container": "#682c00", "tertiary-fixed": "#d8e3fb",
+                    "outline-variant": "#c6c6cd", "on-primary-container": "#7c839b",
+                    "surface-container-high": "#e6e8ea", "on-tertiary-fixed-variant": "#3c475a",
+                    "primary-fixed-dim": "#bec6e0", "on-tertiary-fixed": "#111c2d", "on-surface": "#191c1e",
+                    "on-error": "#ffffff", "outline": "#76777d", "inverse-primary": "#bec6e0",
+                    "on-secondary": "#ffffff", "on-tertiary-container": "#79849a",
+                    "surface-container-highest": "#e0e3e5", "surface-bright": "#f7f9fb",
+                    "surface-variant": "#e0e3e5", "primary": "#000000", "tertiary-container": "#111c2d",
+                    "error-container": "#ffdad6", "on-background": "#191c1e", "primary-container": "#131b2e",
+                    "tertiary-fixed-dim": "#bcc7de", "surface-dim": "#d8dadc", "secondary-container": "#fd8a42",
+                    "inverse-on-surface": "#eff1f3", "on-secondary-fixed-variant": "#763300",
+                    "on-error-container": "#93000a", "surface-container-low": "#f2f4f6",
+                    "secondary-fixed-dim": "#ffb68e", "primary-fixed": "#dae2fd", "on-surface-variant": "#45464d",
+                    "surface-container-lowest": "#ffffff", "on-tertiary": "#ffffff", "secondary": "#9b4500",
+                    "inverse-surface": "#2d3133", "on-secondary-fixed": "#331200", "surface-tint": "#565e74"
+            },
+            "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+            "spacing": {
+                    "stack-md": "1rem", "stack-lg": "2rem", "margin-mobile": "1rem", "stack-sm": "0.5rem",
+                    "container-max": "1280px", "margin-desktop": "2.5rem", "gutter": "1.5rem"
+            },
+            "fontFamily": {
+                    "headline-md": ["Montserrat"], "price-display": ["Montserrat"], "headline-lg": ["Montserrat"],
+                    "body-md": ["Inter"], "headline-lg-mobile": ["Montserrat"], "headline-xl": ["Montserrat"],
+                    "label-sm": ["Inter"], "body-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "price-display": ["20px", {"lineHeight": "24px", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { background-color: #f7f9fb; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .active-nav-border { position: relative; }
+        .active-nav-border::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #000000;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface">
+<!-- SideNavBar (Desktop Only) -->
+<aside class="hidden md:flex h-screen w-64 fixed left-0 top-0 bg-surface-container-lowest dark:bg-surface-dim border-r border-outline-variant dark:border-outline shadow-sm flex-col p-stack-md gap-stack-sm z-50">
+<div class="mb-stack-lg px-2">
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">ShopAI</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Premium Shopping</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all active:scale-98" href="/">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-sm">Home</span>
+</a>
+<a class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all active:scale-98" href="/catalogue">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-label-sm">Catalog</span>
+</a>
+<a class="flex items-center gap-3 p-3 bg-secondary-container text-on-secondary-container rounded-lg font-bold transition-all active:scale-98" href="/favoris">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<span class="font-label-sm">Favorites</span>
+</a>
+<a class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all active:scale-98" href="/commandes">
+<span class="material-symbols-outlined">package_2</span>
+<span class="font-label-sm">Orders</span>
+</a>
+<a class="flex items-center gap-3 p-3 text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-all active:scale-98" href="/messagerie">
+<span class="material-symbols-outlined">chat</span>
+<span class="font-label-sm">Messages</span>
+</a>
+
+</nav>
+<button class="mt-auto bg-primary text-on-primary py-3 rounded-lg font-label-sm hover:opacity-90 transition-opacity active:scale-95">
+            Upgrade to VIP
+        </button>
+</aside>
+<!-- TopNavBar -->
+<header class="w-full top-0 sticky z-40 bg-surface-container-lowest dark:bg-surface-dim shadow-sm flex items-center justify-between px-margin-mobile md:px-margin-desktop md:pl-[18.5rem] py-stack-sm">
+<div class="flex items-center gap-4">
+<span class="md:hidden material-symbols-outlined text-primary cursor-pointer">menu</span>
+<div class="relative hidden md:block">
+<input id="favorites-search" class="bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 w-64 focus:ring-2 focus:ring-primary text-label-sm" placeholder="Rechercher dans mes favoris..." type="text"/>
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+</div>
+</div>
+<div class="flex items-center gap-4 md:gap-6">
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-primary cursor-pointer hover:bg-surface-container-low p-2 rounded-full transition-colors active:scale-95">notifications</span>
+<a href="/panier" class="material-symbols-outlined text-primary cursor-pointer hover:bg-surface-container-low p-2 rounded-full transition-colors active:scale-95">shopping_cart</a>
+</div>
+<img alt="Profile" class="w-8 h-8 rounded-full object-cover border border-outline-variant cursor-pointer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2kqhoKPtetn6WeoLlpLEQjQlGCzs7t8WqGdp1MeoH7Xf4KaXULRtpYUfwUlBSAEIEtetaM1RqBd_cHorYHzhgs8d0d8nZWjwDXZ5D81XaGk8bMa3hbgUBVZCFHdLrR4OMrROp7oQowlGBbYDVmhIuC0aNeCWucVaC8QvnXuFxSSwmVeOuiolm6_a8l_3-19fKBq1zLFtYIgunTKAXvl_s3cWJFiuSPdX31PehApl_HG_5-wfNgTYU_8L-dOBbTu9TmQqpdYv7m9U"/>
+</div>
+</header>
+<!-- Main Content -->
+<main class="md:ml-64 p-margin-mobile md:p-margin-desktop">
+<!-- Header Section -->
+<div class="mb-stack-lg">
+<h2 id="favorites-count" class="font-headline-lg text-headline-lg-mobile md:text-headline-lg mb-stack-sm">Mes Favoris (0)</h2>
+<!-- Collection Tabs -->
+<div class="flex gap-stack-md border-b border-outline-variant">
+<button class="pb-2 font-label-sm text-primary active-nav-border border-b-2 border-primary">Tous</button>
+<button class="pb-2 font-label-sm text-on-surface-variant hover:text-primary transition-colors">Mode</button>
+<button class="pb-2 font-label-sm text-on-surface-variant hover:text-primary transition-colors">Beauté</button>
+<button class="pb-2 font-label-sm text-on-surface-variant hover:text-primary transition-colors">Maison</button>
+</div>
+</div>
+
+<!-- Empty state (affiché si aucun favori) -->
+<div id="favorites-empty" class="hidden flex flex-col items-center justify-center text-center py-20 gap-4">
+<span class="material-symbols-outlined text-6xl text-on-surface-variant">favorite_border</span>
+<p class="font-body-lg text-on-surface-variant">Vous n'avez encore aucun favori.</p>
+<a href="/catalogue" class="bg-primary text-white py-3 px-6 rounded-lg font-label-sm hover:opacity-90 transition-opacity">
+            Parcourir le catalogue
+        </a>
+</div>
+
+<!-- Favorites Grid (rempli dynamiquement par favoris.js) -->
+<div id="favorites-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-gutter"></div>
+
+</main>
+
+<script src="/static/js/toast.js"></script>
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/cart.js"></script>
+<script src="/static/js/nav.js"></script>
+<script src="/static/js/page-links.js"></script>
+<script src="/static/js/favoris.js"></script>
+</body></html>

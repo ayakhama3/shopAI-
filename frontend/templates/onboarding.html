@@ -1,0 +1,327 @@
+﻿<!DOCTYPE html>
+<html class="light" lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>ShopAI - Vos préférences</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #f7f9fb; }
+    h1,h2,h3 { font-family: 'Montserrat', sans-serif; }
+    .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; }
+
+    .category-card {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 1.5rem;
+      background: #f2f4f6; border: 2px solid #c6c6cd;
+      border-radius: 0.75rem; cursor: pointer;
+      transition: all 0.25s ease; user-select: none;
+    }
+    .category-card:hover { border-color: #000; transform: translateY(-2px); }
+    .category-card.active {
+      border-color: #000; background: #fff;
+      box-shadow: 0 8px 20px rgba(0,0,0,.08);
+      transform: translateY(-2px);
+    }
+    .category-card.active .icon-container {
+      background-color: #fd8a42; color: #fff;
+    }
+    .icon-container {
+      width: 3.5rem; height: 3.5rem; border-radius: 9999px;
+      background: #e0e3e5; display: flex; align-items: center;
+      justify-content: center; margin-bottom: 0.75rem;
+      transition: all 0.25s ease;
+    }
+
+    /* Toast intégré */
+    #toast-container {
+      position: fixed; top: 1.5rem; right: 1.5rem;
+      z-index: 9999; display: flex; flex-direction: column; gap: .5rem;
+    }
+    .toast-item {
+      padding: .75rem 1.25rem; border-radius: .5rem;
+      font-size: .875rem; font-weight: 500; color: #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,.15);
+      animation: slideIn .3s ease; max-width: 320px;
+    }
+    .toast-success { background: #16a34a; }
+    .toast-error   { background: #dc2626; }
+    .toast-info    { background: #2563eb; }
+    @keyframes slideIn {
+      from { opacity:0; transform:translateX(2rem); }
+      to   { opacity:1; transform:translateX(0); }
+    }
+  </style>
+
+  <!-- Toast défini inline — pas de dépendance externe -->
+  <script>
+    function toast(message, type) {
+      type = type || 'info';
+      var container = document.getElementById('toast-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        document.body.appendChild(container);
+      }
+      var el = document.createElement('div');
+      el.className = 'toast-item toast-' + type;
+      el.textContent = message;
+      container.appendChild(el);
+      setTimeout(function() { el.remove(); }, 4000);
+    }
+  </script>
+</head>
+
+<body class="min-h-screen flex flex-col">
+<div id="toast-container"></div>
+
+<!-- Header -->
+<nav class="w-full px-6 py-5 flex justify-between items-center border-b border-gray-200 bg-white sticky top-0 z-40">
+  <span class="text-xl font-bold text-black" style="font-family:'Montserrat',sans-serif;">ShopAI</span>
+  <button id="skip-btn" class="text-sm text-gray-500 hover:text-black transition-colors px-4 py-2">
+    Passer cette étape
+  </button>
+</nav>
+
+<!-- Barre de progression -->
+<div class="w-full max-w-xl mx-auto px-6 mt-8 mb-10">
+  <div class="flex justify-between mb-3">
+    <span class="text-xs font-bold text-black">Étape 1 sur 4</span>
+    <span class="text-xs text-gray-500">Préférences</span>
+  </div>
+  <div class="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
+    <div class="h-full bg-black w-1/4 rounded-full transition-all duration-700"></div>
+  </div>
+</div>
+
+<!-- Contenu principal -->
+<main class="flex-1 flex flex-col items-center px-6 pb-32 max-w-screen-xl mx-auto w-full">
+
+  <header class="text-center mb-10">
+    <h1 class="text-2xl md:text-3xl font-bold text-black mb-3">
+      Quelles catégories vous intéressent ?
+    </h1>
+    <p class="text-sm text-gray-500 max-w-lg mx-auto">
+      Personnalisez votre expérience. Notre IA sélectionnera les meilleures offres basées sur vos choix.
+    </p>
+  </header>
+
+  <!-- Grille des catégories -->
+  <!-- data-category = valeur envoyée exactement au backend -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-4xl" id="categories-grid">
+
+    <button class="category-card" data-category="Électronique" onclick="toggleCategory(this)">
+      <div class="icon-container">
+        <span class="material-symbols-outlined text-2xl">devices</span>
+      </div>
+      <span class="text-sm font-bold text-black">Électronique</span>
+    </button>
+
+    <button class="category-card" data-category="Mode" onclick="toggleCategory(this)">
+      <div class="icon-container">
+        <span class="material-symbols-outlined text-2xl">apparel</span>
+      </div>
+      <span class="text-sm font-bold text-black">Mode</span>
+    </button>
+
+    <button class="category-card" data-category="Beauté" onclick="toggleCategory(this)">
+      <div class="icon-container">
+        <span class="material-symbols-outlined text-2xl">health_and_safety</span>
+      </div>
+      <span class="text-sm font-bold text-black">Beauté</span>
+    </button>
+
+    <button class="category-card" data-category="Sport" onclick="toggleCategory(this)">
+      <div class="icon-container">
+        <span class="material-symbols-outlined text-2xl">fitness_center</span>
+      </div>
+      <span class="text-sm font-bold text-black">Sport</span>
+    </button>
+
+    <button class="category-card" data-category="Maison" onclick="toggleCategory(this)">
+      <div class="icon-container">
+        <span class="material-symbols-outlined text-2xl">chair</span>
+      </div>
+      <span class="text-sm font-bold text-black">Maison</span>
+    </button>
+
+    <button class="category-card" data-category="Audio" onclick="toggleCategory(this)">
+      <div class="icon-container">
+        <span class="material-symbols-outlined text-2xl">headphones</span>
+      </div>
+      <span class="text-sm font-bold text-black">Audio</span>
+    </button>
+
+    <button class="category-card" data-category="Bureau" onclick="toggleCategory(this)">
+      <div class="icon-container">
+        <span class="material-symbols-outlined text-2xl">auto_stories</span>
+      </div>
+      <span class="text-sm font-bold text-black">Bureau</span>
+    </button>
+
+    <button class="category-card" data-category="Accessoires" onclick="toggleCategory(this)">
+      <div class="icon-container">
+        <span class="material-symbols-outlined text-2xl">watch</span>
+      </div>
+      <span class="text-sm font-bold text-black">Accessoires</span>
+    </button>
+
+  </div>
+</main>
+
+<!-- Barre d'action fixe en bas -->
+<footer class="fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-md py-4 px-6 z-40 border-t border-gray-200">
+  <div class="max-w-4xl mx-auto flex justify-between items-center gap-4">
+    <p class="text-sm text-gray-500" id="selection-count">0 catégorie sélectionnée</p>
+    <button
+      id="next-btn"
+      disabled
+      class="bg-black text-white font-bold text-sm px-10 py-3 rounded-lg
+             opacity-40 cursor-not-allowed transition-all"
+    >
+      Continuer →
+    </button>
+  </div>
+</footer>
+
+<script>
+  // ── État ────────────────────────────────────────────────────────────────────
+  var nextBtn    = document.getElementById('next-btn');
+  var countLabel = document.getElementById('selection-count');
+
+  // ── Toggle sélection d'une catégorie ────────────────────────────────────────
+  function toggleCategory(card) {
+    card.classList.toggle('active');
+    updateUI();
+
+    // Micro-animation
+    card.style.transform = 'scale(0.95)';
+    setTimeout(function() {
+      card.style.transform = card.classList.contains('active') ? 'translateY(-2px)' : '';
+    }, 120);
+  }
+
+  function updateUI() {
+    var active = document.querySelectorAll('.category-card.active');
+    var n = active.length;
+
+    countLabel.textContent = n === 0
+      ? '0 catégorie sélectionnée'
+      : n + ' catégorie' + (n > 1 ? 's' : '') + ' sélectionnée' + (n > 1 ? 's' : '');
+
+    if (n > 0) {
+      nextBtn.disabled = false;
+      nextBtn.classList.remove('opacity-40', 'cursor-not-allowed');
+      nextBtn.classList.add('hover:opacity-90', 'active:scale-95');
+      countLabel.classList.add('font-bold', 'text-black');
+    } else {
+      nextBtn.disabled = true;
+      nextBtn.classList.add('opacity-40', 'cursor-not-allowed');
+      nextBtn.classList.remove('hover:opacity-90', 'active:scale-95');
+      countLabel.classList.remove('font-bold', 'text-black');
+    }
+  }
+
+  // ── Récupère les catégories sélectionnées via data-category ────────────────
+  // ✅ On lit data-category (pas textContent qui contient le texte de l'icône)
+  function getSelectedCategories() {
+    return Array.from(document.querySelectorAll('.category-card.active'))
+      .map(function(card) { return card.getAttribute('data-category'); })
+      .filter(Boolean);
+  }
+
+  // ── Token JWT ───────────────────────────────────────────────────────────────
+  function getAuthToken() {
+    return sessionStorage.getItem('shopai_token') || localStorage.getItem('shopai_token');
+  }
+
+  // ── Mise à jour de la session locale ───────────────────────────────────────
+  function updateStoredUser(preferences) {
+    ['shopai_session'].forEach(function(key) {
+      var raw = sessionStorage.getItem(key) || localStorage.getItem(key);
+      if (!raw) return;
+      try {
+        var user = JSON.parse(raw);
+        user.preferences = preferences;
+        user.onboardingCompleted = true;
+        if (sessionStorage.getItem(key)) sessionStorage.setItem(key, JSON.stringify(user));
+        else localStorage.setItem(key, JSON.stringify(user));
+      } catch(e) {}
+    });
+  }
+
+  // ── Soumission au backend ───────────────────────────────────────────────────
+  async function submitOnboarding() {
+    var categories = getSelectedCategories();
+    if (!categories.length) return;
+
+    var token = getAuthToken();
+    if (!token) {
+      toast('Vous devez être connecté pour continuer.', 'error');
+      setTimeout(function() { window.location.href = '/login'; }, 1500);
+      return;
+    }
+
+    nextBtn.disabled = true;
+    nextBtn.textContent = 'Préparation...';
+
+    try {
+      var response = await fetch('/api/onboarding', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token,
+        },
+        body: JSON.stringify({ categories: categories }),
+      });
+
+      var body = await response.json().catch(function() { return {}; });
+
+      if (!response.ok) {
+        throw new Error(body.error || 'Impossible de sauvegarder vos préférences.');
+      }
+
+      updateStoredUser(body.preferences || categories);
+      toast('Préférences enregistrées ! Redirection...', 'success');
+
+      setTimeout(function() {
+        window.location.href = '/';
+      }, 800);
+
+    } catch (error) {
+      console.error('[ShopAI] onboarding error:', error);
+      toast(error.message || 'Erreur lors de la sauvegarde.', 'error');
+      nextBtn.disabled = false;
+      nextBtn.textContent = 'Continuer →';
+    }
+  }
+
+  // ── Événements ──────────────────────────────────────────────────────────────
+  nextBtn.addEventListener('click', submitOnboarding);
+
+  document.getElementById('skip-btn').addEventListener('click', function() {
+    window.location.href = '/';
+  });
+
+  // Animation d'entrée des cartes
+  document.addEventListener('DOMContentLoaded', function() {
+    var cards = document.querySelectorAll('.category-card');
+    cards.forEach(function(card, i) {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(12px)';
+      setTimeout(function() {
+        card.style.transition = 'opacity .4s ease, transform .4s ease, border-color .25s, background .25s, box-shadow .25s';
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+      }, 200 + i * 60);
+    });
+  });
+</script>
+
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/nav.js"></script>
+
+</body>
+</html>

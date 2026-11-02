@@ -1,0 +1,449 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ShopAI - Détails du Produit</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "error": "#ba1a1a", "on-error-container": "#93000a", "tertiary-fixed": "#d8e3fb",
+          "surface-container-lowest": "#ffffff", "surface-bright": "#f7f9fb", "on-primary": "#ffffff",
+          "outline": "#76777d", "on-error": "#ffffff", "surface-container": "#eceef0",
+          "primary-fixed": "#dae2fd", "on-primary-fixed-variant": "#3f465c",
+          "on-secondary-fixed-variant": "#763300", "on-secondary-fixed": "#331200",
+          "tertiary-container": "#111c2d", "on-secondary-container": "#682c00", "surface": "#f7f9fb",
+          "on-primary-container": "#7c839b", "secondary-container": "#fd8a42",
+          "on-tertiary-container": "#79849a", "surface-container-high": "#e6e8ea",
+          "on-secondary": "#ffffff", "primary-fixed-dim": "#bec6e0", "tertiary": "#000000",
+          "on-tertiary-fixed-variant": "#3c475a", "surface-variant": "#e0e3e5",
+          "inverse-surface": "#2d3133", "on-primary-fixed": "#131b2e", "background": "#f7f9fb",
+          "inverse-primary": "#bec6e0", "surface-container-highest": "#e0e3e5",
+          "secondary": "#9b4500", "surface-dim": "#d8dadc", "inverse-on-surface": "#eff1f3",
+          "on-tertiary": "#ffffff", "on-tertiary-fixed": "#111c2d", "tertiary-fixed-dim": "#bcc7de",
+          "on-surface": "#191c1e", "primary": "#000000", "error-container": "#ffdad6",
+          "surface-container-low": "#f2f4f6", "on-surface-variant": "#45464d",
+          "secondary-fixed-dim": "#ffb68e", "primary-container": "#131b2e",
+          "secondary-fixed": "#ffdbca", "outline-variant": "#c6c6cd",
+          "surface-tint": "#565e74", "on-background": "#191c1e"
+        },
+        borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+        spacing: {
+          "container-max": "1280px", "gutter": "1.5rem", "margin-mobile": "1rem",
+          "stack-lg": "2rem", "margin-desktop": "2.5rem", "stack-md": "1rem", "stack-sm": "0.5rem"
+        },
+        fontFamily: {
+          "headline-xl": ["Montserrat"], "body-lg": ["Inter"], "headline-md": ["Montserrat"],
+          "headline-lg": ["Montserrat"], "body-md": ["Inter"], "label-sm": ["Inter"],
+          "price-display": ["Montserrat"]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .tab-active { border-bottom: 2px solid #000000; color: #000000; font-weight: 600; }
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+  }
+</style>
+</head>
+<body class="bg-background text-on-surface font-body-md">
+
+<!-- TopNavBar -->
+<header class="bg-surface sticky top-0 z-50 shadow-sm border-b border-outline-variant">
+  <div class="flex justify-between items-center w-full px-margin-desktop py-4 max-w-container-max mx-auto">
+    <div class="flex items-center gap-8">
+      <a href="/" class="text-headline-md font-headline-md font-bold text-primary">ShopAI</a>
+      <div class="hidden md:flex items-center bg-surface-container-low rounded-full px-4 py-2 w-96 border border-outline-variant">
+        <span class="material-symbols-outlined text-on-surface-variant">search</span>
+        <input class="bg-transparent border-none focus:ring-0 text-label-sm w-full ml-2" placeholder="Rechercher des produits..." type="text"/>
+      </div>
+    </div>
+    <nav class="flex items-center gap-6">
+      <button onclick="window.location.href='/favoris'" class="hover:text-secondary transition-colors">
+        <span class="material-symbols-outlined">favorite</span>
+      </button>
+      <button onclick="window.location.href='/messagerie'" class="hover:text-secondary transition-colors">
+        <span class="material-symbols-outlined">notifications</span>
+      </button>
+      <div class="relative">
+        <button onclick="window.location.href='/panier_ia'" class="hover:text-secondary transition-colors flex items-center">
+          <span class="material-symbols-outlined">shopping_cart</span>
+          <span class="cart-badge absolute -top-2 -right-2 bg-secondary text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full" style="display:none">0</span>
+        </button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main class="max-w-container-max mx-auto px-4 md:px-margin-desktop py-stack-lg" id="product-dynamic-container">
+
+  <!-- Breadcrumbs -->
+  <nav class="flex items-center gap-2 text-label-sm text-on-surface-variant mb-stack-md">
+    <a href="/" class="hover:text-primary transition-colors">Accueil</a>
+    <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+    <a href="/catalogue" class="hover:text-primary transition-colors">Catalogue</a>
+    <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+    <span class="text-primary font-semibold" data-product-name>Produit ShopAI</span>
+  </nav>
+
+  <!-- Product Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+
+    <!-- Galerie -->
+    <div class="lg:col-span-7 flex flex-col md:flex-row gap-4">
+      <div class="hidden md:flex flex-col gap-4 order-1" id="thumb-list">
+        <!-- Les miniatures sont injectées dynamiquement si disponibles -->
+      </div>
+      <div class="flex-1 order-2">
+        <div class="aspect-square bg-surface-container-low rounded-xl overflow-hidden shadow-sm border border-outline-variant">
+          <img id="main-product-img"
+               data-product-image
+               class="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+               src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIyeZbzbxZwVf6wzwtR8jUEXjvOH10tdteiXnnoQL4sNom6AF5LENjzMxYLYWoY7RfE0ZhBzK3fjoGz-lBV1mZc7-4w6frqT65jQbNQo18eRarUx3hAl1GjLPIsOSETNjKRN-h57duRw02PnlaD_ISPYhwqDtyhqYeojHsZpN7zcmNoRc416Ciu_iw93ExmX9A38NQdEsMA8F37NbTHbeXSe5Xz6GTgZFFe25GErb-X1z00i9EdkL3PBTs2kS9vHB8dwPKZq4i6qU"
+               alt="Produit"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- Infos produit -->
+    <div class="lg:col-span-5 flex flex-col gap-6">
+      <div>
+        <span class="inline-block bg-primary-fixed text-on-primary-fixed text-[10px] px-2 py-1 rounded-full font-bold tracking-widest uppercase mb-2">ShopAI</span>
+        <h1 class="font-headline-lg text-headline-lg text-primary mb-1" data-product-name>Casque Audio ShopAI Pro-Z1</h1>
+        <div class="flex items-center gap-4">
+          <div class="flex items-center" id="product-stars">
+            <span class="material-symbols-outlined text-secondary" style="font-variation-settings:'FILL' 1;">star</span>
+            <span class="material-symbols-outlined text-secondary" style="font-variation-settings:'FILL' 1;">star</span>
+            <span class="material-symbols-outlined text-secondary" style="font-variation-settings:'FILL' 1;">star</span>
+            <span class="material-symbols-outlined text-secondary" style="font-variation-settings:'FILL' 1;">star</span>
+            <span class="material-symbols-outlined text-secondary">star_half</span>
+            <span class="text-label-sm text-on-surface-variant ml-2">(124 Avis)</span>
+          </div>
+          <span class="text-label-sm text-green-600 font-bold flex items-center gap-1">
+            <span class="material-symbols-outlined text-[18px]">check_circle</span> En Stock
+          </span>
+        </div>
+      </div>
+
+      <!-- Prix -->
+      <div class="bg-surface-container-low p-6 rounded-xl border border-outline-variant">
+        <div class="flex items-end gap-2 mb-1">
+          <span class="text-headline-lg font-price-display text-primary" data-product-price>2 499 DH</span>
+          <span class="text-body-md text-on-surface-variant line-through mb-1" id="product-old-price"></span>
+          <span class="bg-secondary text-on-secondary px-2 py-0.5 rounded text-label-sm font-bold ml-2" id="product-discount" style="display:none"></span>
+        </div>
+        <p class="text-label-sm text-on-surface-variant">TVA incluse. Livraison gratuite au Maroc.</p>
+      </div>
+
+      <!-- Description -->
+      <p class="text-body-md text-on-surface-variant leading-relaxed" data-product-desc>
+        Découvrez ce produit sélectionné par ShopAI pour vous offrir la meilleure expérience.
+      </p>
+
+      <!-- Actions -->
+      <div class="flex flex-col gap-3">
+        <div class="flex gap-3">
+          <div class="flex items-center border border-outline-variant rounded-lg px-4 bg-surface">
+            <button onclick="_changeQty(-1)" class="p-2 hover:text-secondary"><span class="material-symbols-outlined text-[18px]">remove</span></button>
+            <span id="qty-display" class="w-8 text-center font-bold">1</span>
+            <button onclick="_changeQty(1)" class="p-2 hover:text-secondary"><span class="material-symbols-outlined text-[18px]">add</span></button>
+          </div>
+          <button data-add-to-cart
+            class="flex-1 bg-primary text-on-primary py-4 rounded-lg font-bold hover:opacity-90 transition-all flex items-center justify-center gap-2">
+            <span class="material-symbols-outlined">shopping_cart</span> Ajouter au panier
+          </button>
+        </div>
+        <button onclick="_buyNow()"
+          class="w-full bg-secondary text-on-secondary py-4 rounded-lg font-bold hover:opacity-90 transition-all">
+          Acheter maintenant
+        </button>
+      </div>
+
+      <!-- Trust badges -->
+      <div class="grid grid-cols-2 gap-4 border-t border-outline-variant pt-6">
+        <div class="flex items-start gap-3">
+          <span class="material-symbols-outlined text-secondary">local_shipping</span>
+          <div>
+            <p class="text-label-sm font-bold">Livraison Rapide</p>
+            <p class="text-[12px] text-on-surface-variant">Livré sous 48h</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="material-symbols-outlined text-secondary">verified_user</span>
+          <div>
+            <p class="text-label-sm font-bold">Garantie 2 ans</p>
+            <p class="text-[12px] text-on-surface-variant">Remplacement à neuf garanti</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="material-symbols-outlined text-secondary">store</span>
+          <div>
+            <p class="text-label-sm font-bold">Vendeur Premium</p>
+            <p class="text-[12px] text-on-surface-variant">ShopAI Official Store (4.9/5)</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="material-symbols-outlined text-secondary">payments</span>
+          <div>
+            <p class="text-label-sm font-bold">Paiement Sécurisé</p>
+            <p class="text-[12px] text-on-surface-variant">Cash on Delivery ou Carte</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onglets description -->
+  <section class="mt-stack-lg">
+    <div class="border-b border-outline-variant mb-6 overflow-x-auto no-scrollbar">
+      <div class="flex gap-10 whitespace-nowrap">
+        <button class="pb-4 tab-active" onclick="_switchTab(this,'desc')">Description</button>
+        <button class="pb-4 text-on-surface-variant hover:text-primary transition-all" onclick="_switchTab(this,'specs')">Spécifications</button>
+        <button class="pb-4 text-on-surface-variant hover:text-primary transition-all" onclick="_switchTab(this,'avis')">Avis Clients (124)</button>
+      </div>
+    </div>
+    <div id="tab-desc" class="grid grid-cols-1 md:grid-cols-3 gap-12">
+      <div class="md:col-span-2 space-y-4">
+        <h3 class="text-headline-md font-headline-md text-primary">L'expérience augmentée par l'IA</h3>
+        <p class="text-body-md text-on-surface-variant leading-relaxed" data-product-desc>
+          Ce produit ShopAI intègre les meilleures technologies pour vous offrir une expérience premium.
+        </p>
+      </div>
+      <div class="space-y-4">
+        <div class="bg-white p-6 rounded-xl border border-outline-variant shadow-sm">
+          <h4 class="font-bold text-headline-sm mb-4">Points Forts</h4>
+          <ul class="space-y-3" id="product-features">
+            <li class="flex items-center gap-3 text-label-sm">
+              <span class="material-symbols-outlined text-green-600">check</span> Qualité premium
+            </li>
+            <li class="flex items-center gap-3 text-label-sm">
+              <span class="material-symbols-outlined text-green-600">check</span> Livraison rapide
+            </li>
+            <li class="flex items-center gap-3 text-label-sm">
+              <span class="material-symbols-outlined text-green-600">check</span> Garantie 2 ans
+            </li>
+          </ul>
+        </div>
+        <div class="bg-secondary-fixed p-6 rounded-xl">
+          <p class="text-label-sm font-bold text-on-secondary-fixed mb-2">Offre de bienvenue</p>
+          <p class="text-body-md text-on-secondary-fixed-variant">-100 DH avec le code <span class="font-black">SHOPAI100</span></p>
+        </div>
+      </div>
+    </div>
+    <div id="tab-specs" style="display:none" class="text-on-surface-variant text-body-md">
+      <p>Spécifications disponibles selon le produit sélectionné.</p>
+    </div>
+    <div id="tab-avis" style="display:none" class="text-on-surface-variant text-body-md">
+      <p>Les avis clients seront chargés depuis l'API.</p>
+    </div>
+  </section>
+
+  <!-- Produits similaires -->
+  <section class="mt-stack-lg mb-10">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-headline-md font-headline-md text-primary">Produits similaires recommandés par l'IA</h2>
+      <a href="/catalogue" class="text-primary font-bold text-label-sm hover:underline">Voir tout</a>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6" id="similar-products">
+      <!-- Produits similaires chargés dynamiquement ou statiques par défaut -->
+      <div class="group cursor-pointer" onclick="window.location.href='/catalogue'">
+        <div class="aspect-[4/5] bg-surface-container-lowest rounded-xl overflow-hidden mb-3 border border-outline-variant relative">
+          <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+               src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-2usAgkPI-HyXOd1fM94H3risO6WJIMNdGSlMLot4E9BCvCkkz3Hm79viHsvs_ZL_lz-0IMy4yfDt1EvM8pUKYw5ZZrhgJakj6eKOAuV_hDNE8R6O2dQ5ewNdNOSBVLLCG1KgF45BnpBhYiOOc2WMnjENLWDr8vl_KMpwOsmaRBDMu0h-NWOCI3uaXwtgTpoXJYLWE1DswSim0AoXNgqrp5SPo72UQdLvy1avI78KuP27FPeZqHlq9-KEdth481Syl9NOB8Bu3Gw"
+               alt="Produit similaire"/>
+        </div>
+        <p class="text-label-sm text-on-surface-variant">Sony</p>
+        <h4 class="font-bold text-body-md truncate">Casque WH-1000XM5</h4>
+        <p class="font-price-display text-primary mt-1">3 499 DH</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Footer -->
+<footer class="bg-surface-container-high border-t border-outline-variant">
+  <div class="w-full py-12 px-margin-desktop max-w-container-max mx-auto flex flex-col items-center gap-6">
+    <span class="text-primary font-bold text-xl">ShopAI</span>
+    <div class="flex flex-wrap justify-center gap-8">
+      <a class="text-on-surface-variant hover:text-primary transition-all text-label-sm" href="/parametres">Legal</a>
+      <a class="text-on-surface-variant hover:text-primary transition-all text-label-sm" href="/parametres">Privacy Policy</a>
+      <a class="text-on-surface-variant hover:text-primary transition-all text-label-sm" href="/parametres">Terms of Service</a>
+      <a class="text-on-surface-variant hover:text-primary transition-all text-label-sm" href="/messagerie">Contact Us</a>
+    </div>
+    <p class="text-label-sm text-on-surface-variant opacity-70">© 2024 ShopAI Platform. All rights reserved.</p>
+  </div>
+</footer>
+
+<script>
+  // ── Gestion quantité locale ──────────────────────────────────────────────────
+  var _qty = 1;
+
+  function _changeQty(delta) {
+    _qty = Math.max(1, _qty + delta);
+    document.getElementById('qty-display').textContent = _qty;
+  }
+
+  // ── Onglets ──────────────────────────────────────────────────────────────────
+  function _switchTab(btn, name) {
+    document.querySelectorAll('[id^="tab-"]').forEach(function(el) { el.style.display = 'none'; });
+    document.querySelectorAll('.border-b button').forEach(function(b) {
+      b.className = 'pb-4 text-on-surface-variant hover:text-primary transition-all';
+    });
+    document.getElementById('tab-' + name).style.display = '';
+    btn.className = 'pb-4 tab-active';
+  }
+
+  // ── Acheter maintenant ───────────────────────────────────────────────────────
+  function _buyNow() {
+    // Ajouter au panier puis aller au paiement
+    var btn = document.querySelector('[data-add-to-cart]');
+    if (btn) btn.click();
+    setTimeout(function() { window.location.href = '/paiement_1'; }, 700);
+  }
+
+  // ── Chargement dynamique du produit depuis sessionStorage ────────────────────
+  document.addEventListener('DOMContentLoaded', function() {
+    var raw = sessionStorage.getItem('shopai_selected_product');
+    var product = null;
+    try { product = raw ? JSON.parse(raw) : null; } catch(e) {}
+
+    if (product) {
+      // Nom
+      document.querySelectorAll('[data-product-name]').forEach(function(el) {
+        el.textContent = product.name || 'Produit ShopAI';
+  // ── Chargement des produits similaires ───────────────────────────────────
+function _renderSimilarProducts(produits) {
+  const container = document.getElementById('similar-products');
+  if (!produits.length) return; // garde la carte statique en fallback
+  container.innerHTML = produits.map(function(p) {
+    const nom = p.nom || p.name || 'Produit';
+    const prix = p.prix != null ? p.prix : p.price;
+    const image = p.image || 'https://placehold.co/300x300?text=Produit';
+    const id = p.id;
+    return `
+      <div class="group cursor-pointer" onclick="_goToProduct(${id}, '${nom.replace(/'/g, "\\'")}', ${prix}, '${image}')">
+        <div class="aspect-[4/5] bg-surface-container-lowest rounded-xl overflow-hidden mb-3 border border-outline-variant relative">
+          <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+               src="${image}" alt="${nom}" onerror="this.src='https://placehold.co/300x300?text=ShopAI'"/>
+        </div>
+        <h4 class="font-bold text-body-md truncate">${nom}</h4>
+        <p class="font-price-display text-primary mt-1">${Number(prix).toLocaleString('fr-MA')} DH</p>
+      </div>`;
+  }).join('');
+}
+
+function _goToProduct(id, name, price, image) {
+  sessionStorage.setItem('shopai_selected_product', JSON.stringify({ id, name, price, image }));
+  window.location.href = '/produit?id=' + id;
+}
+
+if (product && product.id) {
+  fetch('http://127.0.0.1:5000/api/products/' + product.id + '/similar')
+    .then(function(r) { return r.json(); })
+    .then(function(data) { _renderSimilarProducts(data.produits || []); })
+    .catch(function() {});
+}
+      });
+
+      // Prix
+      document.querySelectorAll('[data-product-price]').forEach(function(el) {
+        el.textContent = Number(product.price || 0).toLocaleString('fr-MA') + ' DH';
+      });
+
+      // Image
+      if (product.image) {
+        document.getElementById('main-product-img').src = product.image;
+        document.getElementById('main-product-img').alt = product.name || 'Produit';
+      }
+
+      // Description
+      if (product.description) {
+        document.querySelectorAll('[data-product-desc]').forEach(function(el) {
+          el.textContent = product.description;
+        });
+      }
+
+      // Prix barré + remise
+      if (product.oldPrice) {
+        var oldEl = document.getElementById('product-old-price');
+        var discEl = document.getElementById('product-discount');
+        oldEl.textContent = Number(product.oldPrice).toLocaleString('fr-MA') + ' DH';
+        var pct = Math.round((1 - product.price / product.oldPrice) * 100);
+        discEl.textContent = '-' + pct + '%';
+        discEl.style.display = '';
+      }
+
+      // Titre de la page
+      document.title = (product.name || 'Produit') + ' - ShopAI';
+    }
+
+
+    // ── Bouton Ajouter au panier ─────────────────────────────────────────────
+    document.querySelector('[data-add-to-cart]').addEventListener('click', function(e) {
+      e.preventDefault();
+      var item = product
+        ? { id: product.id, name: product.name, price: product.price, quantity: _qty, image: product.image, vendor: product.vendor }
+        : { id: 'prod-' + Date.now(), name: 'Produit ShopAI', price: 0, quantity: _qty };
+
+      if (typeof addToCart === 'function') {
+        addToCart(item);
+      } else {
+        var cart = JSON.parse(sessionStorage.getItem('shopai_cart') || '[]');
+        cart.push(item);
+        sessionStorage.setItem('shopai_cart', JSON.stringify(cart));
+      }
+
+      // Feedback visuel
+      var btn = this;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="material-symbols-outlined">check</span> Ajouté ✓';
+      btn.classList.add('opacity-80');
+
+      if (typeof showToast === 'function') showToast('Produit ajouté au panier', 'success');
+
+      setTimeout(function() {
+        btn.disabled = false;
+        btn.classList.remove('opacity-80');
+        btn.innerHTML = '<span class="material-symbols-outlined">shopping_cart</span> Ajouter au panier';
+        window.location.href = '/panier_ia';
+      }, 800);
+    });
+  });
+
+  // ── Micro-interactions boutons ────────────────────────────────────────────────
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('button').forEach(function(btn) {
+      btn.addEventListener('mousedown', function() {
+        this.style.transform = 'scale(0.95)';
+        this.style.opacity = '0.85';
+      });
+      btn.addEventListener('mouseup', function() {
+        this.style.transform = 'scale(1)';
+        this.style.opacity = '1';
+      });
+      btn.addEventListener('mouseleave', function() {
+        this.style.transform = 'scale(1)';
+        this.style.opacity = '1';
+      });
+    });
+  });
+</script>
+
+<script src="/static/js/toast.js"></script>
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/cart.js"></script>
+<script src="/static/js/nav.js"></script>
+<script src="/static/js/page-links.js"></script>
+</body>
+</html>

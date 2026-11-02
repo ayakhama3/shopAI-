@@ -1,0 +1,269 @@
+﻿<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VÃ©rification OTP - ShopAI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Theme Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "error": "#ba1a1a",
+                    "on-error-container": "#93000a",
+                    "tertiary-fixed": "#d8e3fb",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-bright": "#f7f9fb",
+                    "on-primary": "#ffffff",
+                    "outline": "#76777d",
+                    "on-error": "#ffffff",
+                    "surface-container": "#eceef0",
+                    "primary-fixed": "#dae2fd",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "on-secondary-fixed-variant": "#763300",
+                    "on-secondary-fixed": "#331200",
+                    "tertiary-container": "#111c2d",
+                    "on-secondary-container": "#682c00",
+                    "surface": "#f7f9fb",
+                    "on-primary-container": "#7c839b",
+                    "secondary-container": "#fd8a42",
+                    "on-tertiary-container": "#79849a",
+                    "surface-container-high": "#e6e8ea",
+                    "on-secondary": "#ffffff",
+                    "primary-fixed-dim": "#bec6e0",
+                    "tertiary": "#000000",
+                    "on-tertiary-fixed-variant": "#3c475a",
+                    "surface-variant": "#e0e3e5",
+                    "inverse-surface": "#2d3133",
+                    "on-primary-fixed": "#131b2e",
+                    "background": "#f7f9fb",
+                    "inverse-primary": "#bec6e0",
+                    "surface-container-highest": "#e0e3e5",
+                    "secondary": "#9b4500",
+                    "surface-dim": "#d8dadc",
+                    "inverse-on-surface": "#eff1f3",
+                    "on-tertiary": "#ffffff",
+                    "on-tertiary-fixed": "#111c2d",
+                    "tertiary-fixed-dim": "#bcc7de",
+                    "on-surface": "#191c1e",
+                    "primary": "#000000",
+                    "error-container": "#ffdad6",
+                    "surface-container-low": "#f2f4f6",
+                    "on-surface-variant": "#45464d",
+                    "secondary-fixed-dim": "#ffb68e",
+                    "primary-container": "#131b2e",
+                    "secondary-fixed": "#ffdbca",
+                    "outline-variant": "#c6c6cd",
+                    "surface-tint": "#565e74",
+                    "on-background": "#191c1e"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "container-max": "1280px",
+                    "gutter": "1.5rem",
+                    "margin-mobile": "1rem",
+                    "stack-lg": "2rem",
+                    "margin-desktop": "2.5rem",
+                    "stack-md": "1rem",
+                    "stack-sm": "0.5rem"
+            },
+            "fontFamily": {
+                    "headline-xl": ["Montserrat"],
+                    "body-lg": ["Inter"],
+                    "headline-md": ["Montserrat"],
+                    "headline-lg": ["Montserrat"],
+                    "headline-lg-mobile": ["Montserrat"],
+                    "body-md": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "price-display": ["Montserrat"]
+            },
+            "fontSize": {
+                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "label-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                    "price-display": ["20px", {"lineHeight": "24px", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .otp-input:focus {
+            box-shadow: 0 0 0 2px #000000;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md">
+<!-- Header / Top Bar (Simplified for transactional flow) -->
+<header class="w-full bg-surface py-6 px-margin-mobile md:px-margin-desktop border-b border-outline-variant flex justify-between items-center sticky top-0 z-50">
+<div class="flex items-center gap-2">
+<span class="text-primary font-headline-md font-bold text-headline-md">ShopAI</span>
+</div>
+<a class="text-on-surface-variant font-label-sm text-label-sm hover:text-primary transition-colors flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-[20px]">close</span>
+            Quitter
+        </a>
+</header>
+<main class="flex-grow flex items-center justify-center px-margin-mobile py-stack-lg">
+<div class="w-full max-w-[480px] space-y-stack-lg">
+<!-- Branding/Progress -->
+<div class="text-center space-y-stack-sm">
+<div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-fixed mb-4">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">vibration</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg md:text-headline-lg text-on-surface">VÃ©rifiez votre identitÃ©</h1>
+<p class="text-on-surface-variant font-body-md text-body-md">Ã‰tape 2 sur 3 : SÃ©curisation du compte</p>
+</div>
+<!-- Verification Card -->
+<div class="bg-surface-container-lowest rounded-xl p-8 shadow-sm border border-outline-variant space-y-8">
+<!-- Status Message -->
+<div class="flex gap-4 p-4 rounded-lg bg-surface-container border border-outline-variant items-start">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">sms</span>
+<div class="space-y-1">
+<p class="font-label-sm text-label-sm font-semibold text-on-surface">Code envoyÃ© avec succÃ¨s</p>
+<p class="text-on-surface-variant text-label-sm">Nous avons envoyÃ© un code Ã  6 chiffres par SMS au <span class="font-bold text-on-surface">+212 6** *** *90</span> et par email.</p>
+</div>
+</div>
+<!-- OTP Input Area -->
+<form class="space-y-8" id="otp-form">
+<div class="flex justify-between gap-2 md:gap-4" id="otp-container">
+<input autocomplete="one-time-code" class="otp-input w-12 h-14 md:w-16 md:h-20 text-center text-headline-md font-headline-md border border-outline-variant rounded-lg bg-surface-container-low focus:border-primary focus:outline-none transition-all" inputmode="numeric" maxlength="1" pattern="\d*" type="text"/>
+<input class="otp-input w-12 h-14 md:w-16 md:h-20 text-center text-headline-md font-headline-md border border-outline-variant rounded-lg bg-surface-container-low focus:border-primary focus:outline-none transition-all" inputmode="numeric" maxlength="1" pattern="\d*" type="text"/>
+<input class="otp-input w-12 h-14 md:w-16 md:h-20 text-center text-headline-md font-headline-md border border-outline-variant rounded-lg bg-surface-container-low focus:border-primary focus:outline-none transition-all" inputmode="numeric" maxlength="1" pattern="\d*" type="text"/>
+<input class="otp-input w-12 h-14 md:w-16 md:h-20 text-center text-headline-md font-headline-md border border-outline-variant rounded-lg bg-surface-container-low focus:border-primary focus:outline-none transition-all" inputmode="numeric" maxlength="1" pattern="\d*" type="text"/>
+<input class="otp-input w-12 h-14 md:w-16 md:h-20 text-center text-headline-md font-headline-md border border-outline-variant rounded-lg bg-surface-container-low focus:border-primary focus:outline-none transition-all" inputmode="numeric" maxlength="1" pattern="\d*" type="text"/>
+<input class="otp-input w-12 h-14 md:w-16 md:h-20 text-center text-headline-md font-headline-md border border-outline-variant rounded-lg bg-surface-container-low focus:border-primary focus:outline-none transition-all" inputmode="numeric" maxlength="1" pattern="\d*" type="text"/>
+</div>
+<div class="flex flex-col gap-4">
+<button class="w-full py-4 px-6 bg-primary text-on-primary rounded-lg font-headline-md text-headline-md hover:bg-opacity-90 active:scale-[0.98] transition-all shadow-md" type="submit">
+                            VÃ©rifier
+                        </button>
+<div class="flex items-center justify-center gap-2 py-2">
+<span class="material-symbols-outlined text-on-surface-variant text-label-sm">schedule</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium" id="timer">Renvoyer le code dans <span class="text-primary font-bold" id="seconds">60</span>s</span>
+<button class="hidden font-label-sm text-label-sm text-secondary font-bold hover:underline" id="resend-btn" type="button">
+                                Renvoyer le code
+                            </button>
+</div>
+</div>
+</form>
+</div>
+<!-- Support Footer -->
+<div class="text-center">
+<p class="text-on-surface-variant font-label-sm text-label-sm">
+                    Vous n'avez rien reÃ§u ? <a class="text-primary font-semibold hover:underline" href="#">VÃ©rifier votre numÃ©ro</a> ou <a class="text-primary font-semibold hover:underline" href="#">Contacter le support</a>.
+                </p>
+</div>
+</div>
+</main>
+<!-- Footer Component from JSON structure logic -->
+<footer class="w-full py-12 px-margin-desktop max-w-container-max mx-auto flex flex-col items-center gap-6 bg-surface-container-high border-t border-outline-variant">
+<div class="font-headline-sm font-bold text-primary text-headline-sm">ShopAI</div>
+<div class="flex flex-wrap justify-center gap-6">
+<a class="text-on-surface-variant font-label-sm text-label-sm hover:text-primary transition-all" href="#">Legal</a>
+<a class="text-on-surface-variant font-label-sm text-label-sm hover:text-primary transition-all" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant font-label-sm text-label-sm hover:text-primary transition-all" href="#">Terms of Service</a>
+<a class="text-on-surface-variant font-label-sm text-label-sm hover:text-primary transition-all" href="#">Contact Us</a>
+</div>
+<div class="text-on-surface-variant font-body-md text-body-md opacity-60">
+            Â© 2024 ShopAI Platform. All rights reserved.
+        </div>
+</footer>
+<!-- Verification Logic & Micro-interactions -->
+<script>
+        // OTP Focus Management
+        const inputs = document.querySelectorAll('.otp-input');
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                if (e.inputType === "deleteContentBackward") return;
+                if (input.value && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !input.value && index > 0) {
+                    inputs[index - 1].focus();
+                }
+            });
+
+            // Clean input to only numbers
+            input.addEventListener('beforeinput', (e) => {
+                if (e.data && !/^\d+$/.test(e.data)) {
+                    e.preventDefault();
+                }
+            });
+        });
+
+        // Timer Logic
+        let timeLeft = 60;
+        const timerText = document.getElementById('timer');
+        const secondsSpan = document.getElementById('seconds');
+        const resendBtn = document.getElementById('resend-btn');
+
+        const countdown = setInterval(() => {
+            timeLeft--;
+            secondsSpan.innerText = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                timerText.classList.add('hidden');
+                resendBtn.classList.remove('hidden');
+            }
+        }, 1000);
+
+        // Simulation of submission
+        document.getElementById('otp-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const otp = Array.from(inputs).map(i => i.value).join('');
+            if (otp.length === 6) {
+                const btn = e.target.querySelector('button[type="submit"]');
+                btn.innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span>';
+                btn.classList.add('opacity-80');
+                
+                // Simulate API call
+                setTimeout(() => {
+                    alert('IdentitÃ© vÃ©rifiÃ©e avec succÃ¨s ! Redirection...');
+                    btn.innerHTML = 'VÃ©rifiÃ©';
+                    btn.classList.replace('bg-primary', 'bg-green-600');
+                }, 1500);
+            } else {
+                alert('Veuillez entrer le code complet Ã  6 chiffres.');
+            }
+        });
+    </script>
+<!-- Visual Background Aesthetics (Asymmetric patterns using Tailwind) -->
+<div class="fixed top-0 left-0 -z-10 w-full h-full overflow-hidden pointer-events-none opacity-20">
+<div class="absolute -top-[10%] -left-[5%] w-[40%] h-[60%] rounded-full bg-secondary-fixed blur-[120px]"></div>
+<div class="absolute top-[40%] -right-[10%] w-[50%] h-[50%] rounded-full bg-primary-fixed-dim blur-[150px]"></div>
+</div>
+
+<script src="/static/js/toast.js"></script>
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/cart.js"></script>
+<script src="/static/js/nav.js"></script>
+<script src="/static/js/page-links.js"></script>
+</body></html>
+
+

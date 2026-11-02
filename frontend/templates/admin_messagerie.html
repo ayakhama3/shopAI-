@@ -1,0 +1,405 @@
+﻿<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ShopAI Admin - Messages</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;900&amp;family=Inter:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-lowest": "#ffffff",
+                    "on-primary-fixed-variant": "#3f465c",
+                    "on-primary-container": "#7c839b",
+                    "tertiary-fixed-dim": "#bcc7de",
+                    "inverse-primary": "#bec6e0",
+                    "on-secondary-container": "#682c00",
+                    "secondary-fixed-dim": "#ffb68e",
+                    "on-tertiary": "#ffffff",
+                    "surface-container": "#eceef0",
+                    "on-error": "#ffffff",
+                    "surface-tint": "#565e74",
+                    "secondary-fixed": "#ffdbca",
+                    "surface-variant": "#e0e3e5",
+                    "tertiary": "#000000",
+                    "primary-container": "#131b2e",
+                    "on-tertiary-fixed-variant": "#3c475a",
+                    "inverse-on-surface": "#eff1f3",
+                    "surface-container-high": "#e6e8ea",
+                    "primary-fixed": "#dae2fd",
+                    "error": "#ba1a1a",
+                    "primary-fixed-dim": "#bec6e0",
+                    "on-error-container": "#93000a",
+                    "on-surface-variant": "#45464d",
+                    "surface-dim": "#d8dadc",
+                    "tertiary-fixed": "#d8e3fb",
+                    "tertiary-container": "#111c2d",
+                    "surface-container-low": "#f2f4f6",
+                    "surface": "#f7f9fb",
+                    "secondary-container": "#fd8a42",
+                    "outline": "#76777d",
+                    "on-surface": "#191c1e",
+                    "error-container": "#ffdad6",
+                    "background": "#f7f9fb",
+                    "on-primary": "#ffffff",
+                    "surface-container-highest": "#e0e3e5",
+                    "on-background": "#191c1e",
+                    "on-tertiary-container": "#79849a",
+                    "on-secondary-fixed": "#331200",
+                    "secondary": "#9b4500",
+                    "on-secondary": "#ffffff",
+                    "surface-bright": "#f7f9fb",
+                    "on-secondary-fixed-variant": "#763300",
+                    "on-primary-fixed": "#131b2e",
+                    "primary": "#000000",
+                    "outline-variant": "#c6c6cd",
+                    "on-tertiary-fixed": "#111c2d",
+                    "inverse-surface": "#2d3133"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-mobile": "1rem",
+                    "stack-md": "1rem",
+                    "gutter": "1.5rem",
+                    "stack-sm": "0.5rem",
+                    "margin-desktop": "2.5rem",
+                    "container-max": "1280px",
+                    "stack-lg": "2rem"
+            },
+            "fontFamily": {
+                    "label-sm": ["Inter"],
+                    "headline-md": ["Montserrat"],
+                    "body-lg": ["Inter"],
+                    "price-display": ["Montserrat"],
+                    "headline-lg-mobile": ["Montserrat"],
+                    "headline-lg": ["Montserrat"],
+                    "body-md": ["Inter"],
+                    "headline-xl": ["Montserrat"]
+            },
+            "fontSize": {
+                    "label-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "price-display": ["20px", {"lineHeight": "24px", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e0e3e5; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #c6c6cd; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md overflow-hidden">
+<!-- SideNavBar Anchor -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container-lowest shadow-sm border-r border-outline-variant flex flex-col z-50">
+<div class="px-6 py-8">
+<h1 class="font-headline-md text-headline-md font-bold text-primary">ShopAI</h1>
+<p class="font-label-sm text-label-sm text-on-surface-variant opacity-70">Admin Console</p>
+</div>
+<nav class="flex-1 px-3 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-body-md text-body-md">Catalog</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="font-body-md text-body-md">Orders</span>
+</a>
+<!-- ACTIVE: Messages -->
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-lg font-bold" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">chat</span>
+<span class="font-body-md text-body-md">Messages</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">account_balance_wallet</span>
+<span class="font-body-md text-body-md">Wallet</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">card_membership</span>
+<span class="font-body-md text-body-md">Loyalty</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-md text-body-md">Settings</span>
+</a>
+</nav>
+<div class="p-4 border-t border-outline-variant">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold">JD</div>
+<div>
+<p class="font-label-sm text-label-sm font-bold">John Doe</p>
+<p class="text-[10px] uppercase tracking-wider text-on-surface-variant">Support Lead</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- TopNavBar Anchor -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 bg-surface/80 backdrop-blur-md flex justify-between items-center px-6 py-2 z-40">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-label-sm focus:ring-2 ring-primary/20 transition-all" placeholder="Search conversations..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="hover:bg-surface-container rounded-full p-2 transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="hover:bg-surface-container rounded-full p-2 transition-all">
+<span class="material-symbols-outlined">help</span>
+</button>
+<button class="hover:bg-surface-container rounded-full p-2 transition-all">
+<span class="material-symbols-outlined">apps</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden ml-2">
+<img alt="Admin User Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a middle-aged male administrator with a confident smile, wearing a dark navy suit and white shirt. The background is a blurred, bright corporate office with soft, natural lighting, maintaining a clean and premium light-mode aesthetic. High-quality commercial photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvNET_5H9F6le0Mv_qjDNpvYPo1iss97iQRLGEcTfeM0dM2wYcfR_4g5jOjUNvBu0U2hwcZU2zXuM9ib_qNkQ_u_R1vFmhD13DNMhMJg0JYa2YZ1anEr9xMgaYGTMLl2e5viYnXmBBqoTx41lEEv36s1PoFTMZ98jXq5PGxo7zn6TjbZNKL8oB9jMlchVo0x5TGdDw-CrbdRFODaFHPxYxrYzGqfB2V8kelex96bso1CL03XYUy0zNYa8x4sbg1QNgzqZzKOKi1pE"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas: Messaging Split-Pane -->
+<main class="ml-64 pt-16 h-screen flex overflow-hidden">
+<!-- Left Pane: Chat List -->
+<section class="w-80 flex-shrink-0 bg-surface-container-low border-r border-outline-variant flex flex-col">
+<div class="p-4 flex items-center justify-between">
+<h2 class="font-headline-md text-headline-md text-lg">Inbox</h2>
+<div class="flex gap-1">
+<button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+</button>
+<button class="p-1.5 rounded-lg hover:bg-surface-container-high text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">edit_square</span>
+</button>
+</div>
+</div>
+<!-- Tabs for Support vs Personal -->
+<div class="px-4 mb-2 flex border-b border-outline-variant">
+<button class="pb-2 px-2 text-label-sm font-bold border-b-2 border-primary">Active</button>
+<button class="pb-2 px-2 text-label-sm text-on-surface-variant hover:text-on-surface">Resolved</button>
+<button class="pb-2 px-2 text-label-sm text-on-surface-variant hover:text-on-surface">Tickets</button>
+</div>
+<!-- Chat Scroll Area -->
+<div class="flex-1 overflow-y-auto">
+<!-- Chat Item 1: Active Selection -->
+<div class="p-4 bg-surface-container-lowest border-l-4 border-secondary cursor-pointer hover:bg-surface transition-colors flex gap-3">
+<div class="relative flex-shrink-0">
+<img alt="Sarah Connor" class="w-12 h-12 rounded-full object-cover" data-alt="A portrait of a stylish young woman with a friendly expression, featuring soft cinematic lighting that highlights her natural features. She is set against a minimalist architectural background in a warm daylight setting. The visual style is premium, clean, and modern, echoing the brand's sophisticated Moroccan e-commerce identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRt3WgntCkbeH6lSqQZSHraF1-iC7PxthNGjyxPjDlg0Z-IY94kjJqlAcS-bY56DELW1byeWcoYxFDVhAJKb0h9mTXzdkB512pw4itFirptEf52NB7Z74musBOJQuY3-qBZ1zJ1wtIx5kiZ7JCLmpaFRmNKPbv8Sa8qTCx_Nk2T3BNYtxHL_nG6iYAaXg_FGJA_wzffJr960mShpy27qq7vDZIPOW7n2aRR92wbumftu8Qh4RrHvPB4ODn8O2ZNAV25nYlgnr0Pr0"/>
+<span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-surface-container-lowest rounded-full"></span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline">
+<h4 class="font-bold text-label-sm truncate">Sarah Connor</h4>
+<span class="text-[10px] text-on-surface-variant">2m ago</span>
+</div>
+<p class="text-label-sm text-secondary font-bold truncate">Refund Status Update</p>
+<p class="text-label-sm text-on-surface-variant truncate">Is the delivery confirmed for today?</p>
+</div>
+</div>
+<!-- Chat Item 2 -->
+<div class="p-4 border-b border-outline-variant/30 cursor-pointer hover:bg-surface-container-high transition-colors flex gap-3">
+<div class="relative flex-shrink-0">
+<img alt="Omar Alami" class="w-12 h-12 rounded-full object-cover" data-alt="A professional close-up of a young Moroccan man with a neat beard and spectacles, looking directly at the camera with a calm, helpful demeanor. The lighting is diffused and professional, set within a modern minimalist studio. The color palette emphasizes soft greys and deep navies, maintaining high-end retail exclusivity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCD6WHjq_Fx6o1HN6lPlaVJyCmCa51-sRMQVM4FGs9bj8mveY-vowsTKTPU9qqp8ExoXKxBUKsYQ4A5ABJCdPBO6IzZ0QQbVMWooSWa4936lllIvWCtVbD37vjb4BOqeuJoy3SnaBB2hJ6Y6IRS2D9qvZnUkQNbtXlQmIN_5UNQ47cGz-ijSDA3nlaVsuF6OzRj4DZoiSNBdQkJ10x7Hb2hDDzPSjfXsAPlwTE25PAGJXglY2W1EIY-C8VysyHxgjHylX9wzp5viWE"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline">
+<h4 class="font-bold text-label-sm truncate">Omar Alami</h4>
+<span class="text-[10px] text-on-surface-variant">15m ago</span>
+</div>
+<p class="text-label-sm text-on-surface-variant truncate">Thank you for the help with...</p>
+</div>
+</div>
+<!-- Chat Item 3 -->
+<div class="p-4 border-b border-outline-variant/30 cursor-pointer hover:bg-surface-container-high transition-colors flex gap-3">
+<div class="flex-shrink-0 w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant">support_agent</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-baseline">
+<h4 class="font-bold text-label-sm truncate">Ticket #4920</h4>
+<span class="text-[10px] text-on-surface-variant">1h ago</span>
+</div>
+<p class="text-label-sm font-bold text-error truncate">Urgent: Login Issue</p>
+<p class="text-label-sm text-on-surface-variant truncate">User cannot access checkout page.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Middle Pane: Conversation Window -->
+<section class="flex-1 flex flex-col bg-surface overflow-hidden">
+<!-- Chat Header -->
+<div class="h-16 flex-shrink-0 px-6 border-b border-outline-variant flex items-center justify-between bg-surface-container-lowest">
+<div class="flex items-center gap-3">
+<h3 class="font-bold text-body-md">Sarah Connor</h3>
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-[10px] font-bold text-on-secondary-fixed uppercase tracking-widest">Premium Member</span>
+</div>
+<div class="flex gap-4">
+<button class="flex items-center gap-1 text-label-sm text-primary hover:underline">
+<span class="material-symbols-outlined text-lg">call</span> Call
+                    </button>
+<button class="flex items-center gap-1 text-label-sm text-primary hover:underline">
+<span class="material-symbols-outlined text-lg">videocam</span> Meet
+                    </button>
+</div>
+</div>
+<!-- Messages Stream -->
+<div class="flex-1 overflow-y-auto p-6 space-y-6 flex flex-col">
+<div class="text-center">
+<span class="text-[10px] text-on-surface-variant bg-surface-container px-3 py-1 rounded-full uppercase tracking-widest">Today</span>
+</div>
+<!-- Incoming Message -->
+<div class="flex gap-3 max-w-[80%]">
+<img alt="User" class="w-8 h-8 rounded-full object-cover self-end" data-alt="A portrait of a stylish young woman with a friendly expression, featuring soft cinematic lighting that highlights her natural features. She is set against a minimalist architectural background in a warm daylight setting. The visual style is premium, clean, and modern, echoing the brand's sophisticated Moroccan e-commerce identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIWzM3Dimg8jqKhBy_nVjVM0cWXU9DjXwEHioO02l8u5y-Sx0icEFoFY3ipuqlMcpkROpsufG45TmZjPm3uH2w0OVqAtN8SyJJeQP9csCRPP7jMI6ghQ8eWmzeMVolpur8v-2bQY34os4SvfLVPHPZbw5TCAytc0dBheaHQIh0b8QfdVVz3-aF_ombCdWkQYaRjL3bgKSn39fz3erWYRvxvlAWUrmyraHIlPSXZI5UZR-BYzln64orwrzVmbmB5zbosZS_c-D4m2E"/>
+<div class="bg-surface-container-high p-4 rounded-xl rounded-bl-none">
+<p class="text-label-sm leading-relaxed">Hello ShopAI team, I'm checking on my order #77321. The tracking hasn't updated in 48 hours. Is the delivery confirmed for today?</p>
+<span class="text-[10px] text-on-surface-variant mt-2 block">10:42 AM</span>
+</div>
+</div>
+<!-- Outgoing Message -->
+<div class="flex gap-3 max-w-[80%] self-end">
+<div class="bg-primary text-on-primary p-4 rounded-xl rounded-br-none shadow-md">
+<p class="text-label-sm leading-relaxed">Hi Sarah! I'm looking into this for you right now. One moment while I coordinate with our Casablanca fulfillment center.</p>
+<span class="text-[10px] opacity-70 mt-2 block text-right">10:44 AM â€¢ Read</span>
+</div>
+</div>
+<!-- Incoming Message -->
+<div class="flex gap-3 max-w-[80%]">
+<img alt="User" class="w-8 h-8 rounded-full object-cover self-end" data-alt="A portrait of a stylish young woman with a friendly expression, featuring soft cinematic lighting that highlights her natural features. She is set against a minimalist architectural background in a warm daylight setting. The visual style is premium, clean, and modern, echoing the brand's sophisticated Moroccan e-commerce identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhVAFSUfjs505FQLd1gKboNtvlYEoy-OsPp01bBWm0ldWjUDk6PDdYJyO4u5IXEehf_XvslAD-Ey7O22a8YMaskrVz6NK4PXo_QzVUTVWm_xKt30itfNgINuM7tQeTS5y0y-xPxdJh_HnjnFoJkdnkBzXpjReO4nqjqG21VfipyDKmXRSJzAKiZ98MjtH3KNvYw2Nl2Zup2tJrqWImclwg7NipPdO-lo5IXsAZVQ3Xnyg_axLij1785oHM2vRC1ptmSsp1l04PB4w"/>
+<div class="bg-surface-container-high p-4 rounded-xl rounded-bl-none">
+<p class="text-label-sm leading-relaxed">That would be great. I need it for an event tomorrow morning.</p>
+<span class="text-[10px] text-on-surface-variant mt-2 block">10:45 AM</span>
+</div>
+</div>
+</div>
+<!-- Composer Area -->
+<div class="p-4 bg-surface-container-lowest border-t border-outline-variant">
+<div class="mb-3 flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+<button class="whitespace-nowrap px-3 py-1.5 rounded-full border border-outline-variant text-[12px] hover:bg-primary hover:text-on-primary transition-all">Order status checked</button>
+<button class="whitespace-nowrap px-3 py-1.5 rounded-full border border-outline-variant text-[12px] hover:bg-primary hover:text-on-primary transition-all">Delayed shipping</button>
+<button class="whitespace-nowrap px-3 py-1.5 rounded-full border border-outline-variant text-[12px] hover:bg-primary hover:text-on-primary transition-all">Refund processed</button>
+<button class="whitespace-nowrap px-3 py-1.5 rounded-full border border-outline-variant text-[12px] hover:bg-primary hover:text-on-primary transition-all">Welcome discount</button>
+</div>
+<div class="flex items-end gap-2 bg-surface-container-low rounded-2xl p-2">
+<button class="p-2 text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined">add</span></button>
+<textarea class="flex-1 bg-transparent border-none focus:ring-0 text-label-sm resize-none py-2 max-h-32" placeholder="Type your message..." rows="1"></textarea>
+<button class="p-2 text-on-surface-variant hover:text-primary"><span class="material-symbols-outlined">sentiment_satisfied</span></button>
+<button class="bg-primary text-on-primary w-10 h-10 rounded-xl flex items-center justify-center hover:scale-105 active:scale-95 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">send</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Right Pane: Customer Profile Snippet -->
+<section class="w-72 flex-shrink-0 bg-surface-container-lowest border-l border-outline-variant flex flex-col">
+<div class="p-6 text-center border-b border-outline-variant">
+<img alt="Sarah Connor" class="w-20 h-20 rounded-full mx-auto object-cover mb-4 ring-4 ring-surface-container" data-alt="A portrait of a stylish young woman with a friendly expression, featuring soft cinematic lighting that highlights her natural features. She is set against a minimalist architectural background in a warm daylight setting. The visual style is premium, clean, and modern, echoing the brand's sophisticated Moroccan e-commerce identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTaxoyskUeIGcfoFB6PStIkat-9RS-R6eJk0vDEUJRMFM60XOti8KLdgeCCAbaWRJJbHahHtqXRnj7kg-j8sBHqrFqdyNv61OPGF0mwNtUD8xBa9wt4VV467JGaKyFjlQ9Oz6BBdd_jIDpc7xZrpDaaLvdrIjOpH3sVvUk55chZ1qK8VBNaaQe1ReXL2jR2-YzDYVCISLi545f9hIeoLtWZ2azZtSRkMCbXMUvt-5Hasr04Yd0YvnZLN16_ydO_pz35atEgxVFmOA"/>
+<h4 class="font-headline-md text-lg">Sarah Connor</h4>
+<p class="text-label-sm text-on-surface-variant">Casablanca, Morocco</p>
+<div class="mt-4 flex justify-center gap-2">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">stars</span>
+<span class="font-bold text-label-sm">4.9 Star Buyer</span>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-6 space-y-6">
+<!-- Customer Details -->
+<div>
+<h5 class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-3 font-bold">Contact Info</h5>
+<div class="space-y-2">
+<div class="flex items-center gap-3 text-label-sm">
+<span class="material-symbols-outlined text-on-surface-variant text-lg">mail</span>
+<span class="truncate">sarah.c@email.com</span>
+</div>
+<div class="flex items-center gap-3 text-label-sm">
+<span class="material-symbols-outlined text-on-surface-variant text-lg">phone_iphone</span>
+<span>+212 661-234567</span>
+</div>
+</div>
+</div>
+<!-- Order History -->
+<div>
+<h5 class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-3 font-bold">Recent Orders</h5>
+<div class="space-y-3">
+<div class="p-3 bg-surface-container-low rounded-lg border border-outline-variant/30 hover:shadow-sm transition-all cursor-pointer">
+<div class="flex justify-between items-start">
+<span class="font-bold text-[12px]">#77321</span>
+<span class="px-2 py-0.5 rounded-full bg-secondary-container/20 text-secondary text-[9px] font-bold">IN TRANSIT</span>
+</div>
+<p class="text-[11px] text-on-surface-variant mt-1">Luxe Silk Kaftan - Gold Edition</p>
+<p class="text-price-display text-sm mt-2">1,250 MAD</p>
+</div>
+<div class="p-3 bg-surface-container-low rounded-lg border border-outline-variant/30 hover:shadow-sm transition-all cursor-pointer">
+<div class="flex justify-between items-start">
+<span class="font-bold text-[12px]">#76990</span>
+<span class="px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-[9px] font-bold">DELIVERED</span>
+</div>
+<p class="text-[11px] text-on-surface-variant mt-1">Hand-woven Leather Tote</p>
+<p class="text-price-display text-sm mt-2">890 MAD</p>
+</div>
+</div>
+<button class="w-full mt-4 py-2 text-label-sm font-bold text-primary hover:bg-surface-container-high rounded-lg transition-colors">View All Orders</button>
+</div>
+<!-- Notes -->
+<div>
+<h5 class="text-[10px] uppercase tracking-widest text-on-surface-variant mb-3 font-bold">Internal Notes</h5>
+<div class="p-3 bg-tertiary-fixed text-on-tertiary-fixed-variant text-[12px] rounded-lg italic">
+                        "Prefers evening deliveries. Highly sensitive to packaging quality. Responds best to formal tone."
+                    </div>
+</div>
+</div>
+</section>
+</main>
+<script>
+        // Micro-interaction for the auto-expanding textarea
+        const textarea = document.querySelector('textarea');
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        // Tab Switching Simulation (Visual only)
+        const tabs = document.querySelectorAll('.border-b button');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => {
+                    t.classList.remove('border-b-2', 'border-primary', 'font-bold');
+                    t.classList.add('text-on-surface-variant');
+                });
+                tab.classList.add('border-b-2', 'border-primary', 'font-bold');
+                tab.classList.remove('text-on-surface-variant');
+            });
+        });
+    </script>
+
+<script src="/static/js/toast.js"></script>
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/cart.js"></script>
+<script src="/static/js/nav.js"></script>
+<script src="/static/js/page-links.js"></script>
+</body></html>
+
+

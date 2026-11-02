@@ -1,0 +1,410 @@
+﻿<!DOCTYPE html>
+
+<html class="light" lang="fr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Suivi de Commande | ShopAI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed": "#ffdbca",
+                        "on-surface": "#191c1e",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#bec6e0",
+                        "on-secondary": "#ffffff",
+                        "surface-dim": "#d8dadc",
+                        "inverse-on-surface": "#eff1f3",
+                        "surface-container-high": "#e6e8ea",
+                        "primary": "#000000",
+                        "on-secondary-fixed-variant": "#763300",
+                        "tertiary-container": "#111c2d",
+                        "surface": "#f7f9fb",
+                        "secondary-fixed-dim": "#ffb68e",
+                        "tertiary-fixed-dim": "#bcc7de",
+                        "surface-variant": "#e0e3e5",
+                        "on-tertiary-fixed-variant": "#3c475a",
+                        "on-primary-fixed": "#131b2e",
+                        "on-surface-variant": "#45464d",
+                        "on-error": "#ffffff",
+                        "surface-tint": "#565e74",
+                        "surface-container-low": "#f2f4f6",
+                        "secondary": "#9b4500",
+                        "on-secondary-container": "#682c00",
+                        "background": "#f7f9fb",
+                        "tertiary-fixed": "#d8e3fb",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#000000",
+                        "surface-bright": "#f7f9fb",
+                        "primary-container": "#131b2e",
+                        "inverse-surface": "#2d3133",
+                        "outline": "#76777d",
+                        "secondary-container": "#fd8a42",
+                        "error": "#ba1a1a",
+                        "on-tertiary-container": "#79849a",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#eceef0",
+                        "on-primary-container": "#7c839b",
+                        "outline-variant": "#c6c6cd",
+                        "primary-fixed-dim": "#bec6e0",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "on-background": "#191c1e",
+                        "on-secondary-fixed": "#331200",
+                        "surface-container-highest": "#e0e3e5",
+                        "primary-fixed": "#dae2fd",
+                        "on-tertiary-fixed": "#111c2d",
+                        "on-tertiary": "#ffffff",
+                        "on-error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1280px",
+                        "gutter": "1.5rem",
+                        "margin-mobile": "1rem",
+                        "stack-md": "1rem",
+                        "margin-desktop": "2.5rem",
+                        "stack-sm": "0.5rem",
+                        "stack-lg": "2rem"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-lg-mobile": ["Montserrat"],
+                        "price-display": ["Montserrat"],
+                        "headline-xl": ["Montserrat"],
+                        "headline-lg": ["Montserrat"],
+                        "headline-md": ["Montserrat"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "label-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "price-display": ["20px", {"lineHeight": "24px", "fontWeight": "700"}],
+                        "headline-xl": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .timeline-pulsate {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: .7; transform: scale(1.1); }
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+    </style>
+</head>
+<body class="bg-background font-body-md text-on-surface min-h-screen">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-inverse-surface border-b border-outline-variant dark:border-outline shadow-sm dark:shadow-none docked full-width top-0 sticky z-50">
+<nav class="flex justify-between items-center w-full px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-headline-md font-headline-md font-bold text-primary dark:text-inverse-primary">ShopAI</span>
+<div class="hidden md:flex gap-6">
+<a class="text-primary dark:text-inverse-primary font-bold border-b-2 border-primary text-label-sm font-label-sm py-1 transition-all" href="#">Commandes</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed transition-colors text-label-sm font-label-sm py-1" href="#">Catalogue</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-secondary dark:hover:text-secondary-fixed transition-colors text-label-sm font-label-sm py-1" href="#">Promotions</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">search</span>
+</button>
+<div class="flex gap-2">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">favorite</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors relative">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-secondary rounded-full"></span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-high border border-outline-variant overflow-hidden">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHEUWR2-Ew0U9RX0tQd5pVEX7VLkaqDCCFIVwcRknSJUthrFlA5CIiY9Cc411YFM9kSBNSDIqcLko-_3dYUn_W8of0-mSkeHzAaM3SQfXQX2-Z5D6OTipw3febfGqNg5Q0k6SFaWjmZKqDol75vJ_doUlLtuzFLm8Hk-JZtzH5qaXPF_aU9beK-yh6o6XVSyIeDke8S_b3QU0ZHIaqkeiwPN0Wjbo9LoJSq8caStAjZgmO2FWbv-S2NWqyyUL7-M1F4fo0ywfhDhE"/>
+</div>
+</div>
+</nav>
+</header>
+<main class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg">
+<!-- Breadcrumbs -->
+<nav class="flex items-center gap-2 mb-6 text-on-surface-variant text-label-sm font-label-sm">
+<a class="hover:text-primary" href="#">Tableau de bord</a>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<a class="hover:text-primary" href="#">Mes Commandes</a>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-primary font-bold">#ORD-9402</span>
+</nav>
+<!-- Order Summary Header -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-stack-lg items-end">
+<div>
+<h1 class="font-headline-lg text-headline-lg mb-2">Suivi de Commande <span class="text-on-surface-variant font-normal" data-order-id>#ORD-—</span></h1>
+<p class="text-on-surface-variant font-body-md text-body-md">Passe le <span data-order-date>—</span> â€¢ <span class="font-bold text-on-surface" data-order-total>—</span></p>
+</div>
+<div class="flex flex-wrap gap-3 md:justify-end">
+<button id="invoice-pdf-link" class="flex items-center gap-2 px-6 py-2 border border-outline-variant rounded-lg font-label-sm text-label-sm hover:bg-surface-container transition-colors" disabled>
+<span class="material-symbols-outlined text-body-md">picture_as_pdf</span>
+                    Facture PDF
+                </button>
+<button class="flex items-center gap-2 px-6 py-2 bg-primary text-on-primary rounded-lg font-label-sm text-label-sm hover:opacity-90 transition-all">
+<span class="material-symbols-outlined text-body-md">help</span>
+                    Signaler un probleme
+                </button>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Tracking Timeline Section (Main Content) -->
+<div class="lg:col-span-8 space-y-gutter">
+<!-- Interactive Timeline Card -->
+<div class="bg-surface-container-lowest p-6 md:p-8 rounded-xl shadow-sm border border-outline-variant">
+<h2 class="font-headline-md text-headline-md mb-8">Statut de la livraison</h2>
+<div class="relative">
+<!-- Horizontal Line (Desktop) / Vertical (Mobile logic handled by hidden/flex) -->
+<div class="absolute left-4 md:left-0 md:top-5 w-0.5 md:w-full h-full md:h-0.5 bg-surface-container-highest"></div>
+<div class="flex flex-col md:flex-row justify-between relative gap-y-10" id="timeline-steps">
+  <div id="progress-line" style="width: 0%; height: 0; position: absolute; left: 0; top: 0;"></div>
+<!-- Step 1: Completed -->
+<div class="flex md:flex-col items-center md:items-start gap-4 md:gap-2 md:w-1/6 relative z-10">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</div>
+<div class="text-left md:text-left">
+<p class="font-bold text-label-sm text-label-sm">Commande passee</p>
+<p class="text-on-surface-variant text-[12px]">14 Oct, 09:30</p>
+</div>
+</div>
+<!-- Step 2: Completed -->
+<div class="flex md:flex-col items-center md:items-start gap-4 md:gap-2 md:w-1/6 relative z-10">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</div>
+<div class="text-left md:text-left">
+<p class="font-bold text-label-sm text-label-sm">Paiement confirmee</p>
+<p class="text-on-surface-variant text-[12px]">14 Oct, 09:45</p>
+</div>
+</div>
+<!-- Step 3: Completed -->
+<div class="flex md:flex-col items-center md:items-start gap-4 md:gap-2 md:w-1/6 relative z-10">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</div>
+<div class="text-left md:text-left">
+<p class="font-bold text-label-sm text-label-sm">En preparation</p>
+<p class="text-on-surface-variant text-[12px]">15 Oct, 11:20</p>
+</div>
+</div>
+<!-- Step 4: Active -->
+<div class="flex md:flex-col items-center md:items-start gap-4 md:gap-2 md:w-1/6 relative z-10">
+<div class="w-8 h-8 rounded-full bg-secondary text-on-secondary flex items-center justify-center timeline-pulsate">
+<span class="material-symbols-outlined text-[18px]">local_shipping</span>
+</div>
+<div class="text-left md:text-left">
+<p class="font-bold text-label-sm text-label-sm text-secondary">Expedie</p>
+<p class="text-on-surface-variant text-[12px]">16 Oct, 14:05</p>
+</div>
+</div>
+<!-- Step 5: Upcoming -->
+<div class="flex md:flex-col items-center md:items-start gap-4 md:gap-2 md:w-1/6 relative z-10 opacity-40">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">delivery_dining</span>
+</div>
+<div class="text-left md:text-left">
+<p class="font-bold text-label-sm text-label-sm">En cours de livraison</p>
+<p class="text-on-surface-variant text-[12px]">Prevu 17 Oct</p>
+</div>
+</div>
+<!-- Step 6: Upcoming -->
+<div class="flex md:flex-col items-center md:items-start gap-4 md:gap-2 md:w-1/6 relative z-10 opacity-40">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">inventory_2</span>
+</div>
+<div class="text-left md:text-left">
+<p class="font-bold text-label-sm text-label-sm">Livre</p>
+<p class="text-on-surface-variant text-[12px]">-</p>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-12 p-4 bg-surface rounded-lg border border-outline-variant flex flex-col md:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-secondary-fixed rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-container">package_2</span>
+</div>
+<div>
+<p class="text-label-sm font-bold">Numero de suivi : <span class="text-secondary" data-tracking-number>—</span></p>
+<p class="text-[12px] text-on-surface-variant">Transporteur: <span data-carrier>—</span></p>
+<p class="text-[12px] text-on-surface-variant">Localisation: <span data-last-location>—</span></p>
+</div>
+</div>
+<button id="carrier-btn" class="w-full md:w-auto px-6 py-2 bg-secondary text-on-secondary rounded-lg font-label-sm text-label-sm hover:opacity-90 transition-all">
+                            Suivre avec le transporteur
+                        </button>
+</div>
+</div>
+
+<!-- Delivery Details & Sidebar Actions -->
+<aside class="lg:col-span-4 space-y-gutter">
+<!-- Delivery Info Card -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline-md text-headline-md">DÃ©tails de livraison</h3>
+<span class="material-symbols-outlined text-on-surface-variant">location_on</span>
+</div>
+<div class="space-y-4">
+<div>
+<p class="text-[12px] uppercase tracking-wider text-on-surface-variant font-bold mb-1">Adresse de livraison</p>
+<p class="font-body-md text-body-md">Mohammed El Fassi<br/>12 Rue des HÃ´pitaux, Maarif<br/>20000 Casablanca, Maroc</p>
+</div>
+<div>
+<p class="text-[12px] uppercase tracking-wider text-on-surface-variant font-bold mb-1">MÃ©thode d'expÃ©dition</p>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-body-md">bolt</span>
+<p class="font-body-md text-body-md">Livraison Express (24-48h)</p>
+</div>
+</div>
+<div class="p-4 bg-surface-container-low rounded-lg">
+<p class="text-[12px] uppercase tracking-wider text-on-surface-variant font-bold mb-2">Carte du trajet</p>
+<div id="mini-map" class="w-full h-32 rounded-md overflow-hidden border border-outline-variant"></div>
+</div>
+</div>
+</div>
+<!-- Seller Info & Actions -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant">
+<h3 class="font-headline-md text-headline-md mb-6">Vendeur</h3>
+<div class="flex items-center gap-4 mb-8">
+<div class="w-12 h-12 rounded-full bg-primary-fixed-dim flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">store</span>
+</div>
+<div>
+<p class="font-bold text-body-md">ShopAI Official Store</p>
+<div class="flex items-center gap-1 text-secondary text-label-sm">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span>4.9 (12.4k avis)</span>
+</div>
+</div>
+</div>
+<div class="space-y-3">
+<button class="w-full flex items-center justify-center gap-2 px-6 py-3 border border-primary text-primary rounded-lg font-bold text-label-sm hover:bg-surface-container transition-all">
+<span class="material-symbols-outlined">chat</span>
+                            Contacter le vendeur
+                        </button>
+<button class="w-full flex items-center justify-center gap-2 px-6 py-3 bg-surface-container-high text-on-surface-variant rounded-lg font-bold text-label-sm hover:bg-surface-variant transition-all">
+                            Voir la boutique
+                        </button>
+</div>
+</div>
+<!-- Assistance Card -->
+<div class="bg-primary p-6 rounded-xl text-on-primary">
+<h3 class="font-headline-md text-headline-md mb-2">Besoin d'aide ?</h3>
+<p class="text-on-primary/80 text-label-sm mb-6">Notre service client est disponible 24/7 pour vous accompagner dans le suivi de votre commande.</p>
+<button class="w-full py-3 bg-on-primary text-primary rounded-lg font-bold text-label-sm hover:bg-opacity-90 transition-all">
+                        Ouvrir le chat ShopAI
+                    </button>
+</div>
+</aside>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-high dark:bg-surface-container-highest border-t border-outline-variant full-width mt-stack-lg">
+<div class="w-full py-12 px-margin-desktop max-w-container-max mx-auto flex flex-col items-center gap-6">
+<span class="text-headline-sm font-headline-sm font-bold text-primary dark:text-inverse-primary">ShopAI</span>
+<div class="flex flex-wrap justify-center gap-x-8 gap-y-4">
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary underline transition-all text-label-sm font-label-sm" href="#">Legal</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary underline transition-all text-label-sm font-label-sm" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary underline transition-all text-label-sm font-label-sm" href="#">Terms of Service</a>
+<a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary underline transition-all text-label-sm font-label-sm" href="#">Contact Us</a>
+</div>
+<p class="text-on-surface-variant dark:text-surface-variant text-body-md font-body-md text-center">Â© 2024 ShopAI Platform. All rights reserved.</p>
+</div>
+</footer>
+<!-- Mobile Navigation Bar -->
+<div class="md:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-outline-variant flex justify-around py-3 z-50">
+<button class="flex flex-col items-center text-on-surface-variant">
+<span class="material-symbols-outlined">home</span>
+<span class="text-[10px]">Accueil</span>
+</button>
+<button class="flex flex-col items-center text-on-surface-variant">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="text-[10px]">Catalog</span>
+</button>
+<button class="flex flex-col items-center text-primary font-bold">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">package_2</span>
+<span class="text-[10px]">Commandes</span>
+</button>
+<button class="flex flex-col items-center text-on-surface-variant">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px]">Compte</span>
+</button>
+</div>
+
+<!-- Carrier tracking modal -->
+<div id="carrier-modal" class="fixed inset-0 bg-black/50 z-[60] hidden items-center justify-center p-4">
+  <div class="bg-surface-container-lowest rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between p-6 border-b border-outline-variant">
+      <h3 class="font-headline-md text-headline-md">Suivi du transporteur</h3>
+      <button id="carrier-modal-close" class="p-2 hover:bg-surface-container rounded-full">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="p-6 space-y-4">
+      <div class="flex flex-wrap gap-x-6 gap-y-2 text-label-sm">
+        <p><span class="text-on-surface-variant">Transporteur:</span> <span class="font-bold" data-modal-carrier>—</span></p>
+        <p><span class="text-on-surface-variant">N° de suivi:</span> <span class="font-bold" data-modal-tracking-number>—</span></p>
+        <p><span class="text-on-surface-variant">Statut:</span> <span class="font-bold text-secondary" data-modal-status>—</span></p>
+      </div>
+      <div id="carrier-map" class="w-full h-64 rounded-lg border border-outline-variant"></div>
+      <p class="text-[11px] text-on-surface-variant text-right" data-modal-updated>Mise à jour : —</p>
+      <div>
+        <p class="text-[12px] uppercase tracking-wider text-on-surface-variant font-bold mb-2">Historique</p>
+        <div id="modal-timeline" class="space-y-2"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+        // Subtle micro-interaction: update pulsing effect on hover
+        const trackingSteps = document.querySelectorAll('.timeline-pulsate');
+        trackingSteps.forEach(step => {
+            step.addEventListener('mouseenter', () => {
+                step.style.animationDuration = '0.8s';
+            });
+            step.addEventListener('mouseleave', () => {
+                step.style.animationDuration = '2s';
+            });
+        });
+    </script>
+
+<script src="/static/js/toast.js"></script>
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/cart.js"></script>
+<script src="/static/js/nav.js"></script>
+<script src="/static/js/page-links.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/static/js/suivi.js"></script>
+</body></html>
